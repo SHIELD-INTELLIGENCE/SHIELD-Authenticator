@@ -15,9 +15,13 @@ import { auth } from "./firebase";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles.css"; // SHIELD theme
-import QrScanner from "qr-scanner"; // make sure qr-scanner is installed
-import "qr-scanner/qr-scanner-worker.min.js"; // worker for faster decoding
+import QrScanner from "qr-scanner";
 
+// Set worker path dynamically (works with Netlify)
+QrScanner.WORKER_PATH = new URL(
+  "qr-scanner/qr-scanner-worker.min.js",
+  import.meta.url
+).toString();
 
 function SHIELDAuthenticator() {
   const [user, setUser] = useState(null);
@@ -63,7 +67,6 @@ function SHIELDAuthenticator() {
     return () => clearInterval(interval);
   }, [accounts]);
 
-  // Save account helper
   const saveAccountDirect = async (name, secret) => {
     if (!name || !secret) return toast.error("Fill both fields!");
     try {
@@ -101,39 +104,37 @@ function SHIELDAuthenticator() {
     }
   };
 
-  // ZXing QR upload handler
+  // QR upload handler
+  const handleQRUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-const handleQRUpload = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    try {
+      const result = await QrScanner.scanImage(file);
+      const text = typeof result === "string" ? result : result?.data;
 
-  try {
-    // Scan the image, return the raw text
-    const result = await QrScanner.scanImage(file);
+      if (!text || !text.startsWith("otpauth://totp/")) {
+        toast.error("❌ Invalid QR code format");
+        return;
+      }
 
-    const text = typeof result === "string" ? result : result?.data;
-    if (!text || !text.startsWith("otpauth://totp/")) {
-      toast.error("❌ Invalid QR code format");
-      return;
+      const url = new URL(text);
+      const name = decodeURIComponent(url.pathname.slice(1));
+      const secret = url.searchParams.get("secret");
+
+      if (!name || !secret) {
+        toast.error("❌ QR missing secret or name");
+        return;
+      }
+
+      setForm({ name, secret });
+      saveAccountDirect(name, secret);
+      toast.success(`✅ QR code for ${name} added!`);
+    } catch (err) {
+      console.error("QR scan error:", err);
+      toast.error("❌ Could not read QR code. Make sure the image is clear.");
     }
-
-    const url = new URL(text);
-    const name = decodeURIComponent(url.pathname.slice(1));
-    const secret = url.searchParams.get("secret");
-
-    if (!name || !secret) {
-      toast.error("❌ QR missing secret or name");
-      return;
-    }
-
-    setForm({ name, secret });
-    saveAccountDirect(name, secret);
-    toast.success(`✅ QR code for ${name} added!`);
-  } catch (err) {
-    console.error("QR scan error:", err);
-    toast.error("❌ Could not read QR code. Make sure the image is clear.");
-  }
-};
+  };
 
   if (!user) {
     return (

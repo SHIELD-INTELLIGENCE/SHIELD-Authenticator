@@ -23,77 +23,94 @@ These instructions will help you set up and run **SHIELD-Authenticator** locally
 
 - Node.js v18+ and npm installed
 - Firebase project set up for authentication
-- Clone this repository
+- Clone this repository:
 
 ```bash
 git clone https://github.com/SHIELD-INTELLIGENCE/shield-authenticator
 cd shield-authenticator
 npm install
- ```
-Available Scripts
+```
+
+### Available Scripts
 
 In the project directory, you can run:
 
-``` bash
+```bash
 npm start
 ```
 
-Runs the app in development mode.
-Open http://localhost:3000 to view it in your browser.
-Changes reload automatically.
-``` bash
+Runs the app in development mode.  
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser. Changes reload automatically.
+
+```bash
 npm run build
 ```
 
-Builds the app for production to the build folder.
-Optimized, minified, and ready for deployment.
-``` bash
+Builds the app for production to the `build` folder. Optimized, minified, and ready for deployment.
+
+```bash
 npm test
 ```
+
 Launches the test runner in interactive watch mode.
 
-Deployment
+---
 
-The build folder contains a production-ready version of the app. You can deploy it to any static hosting service (Firebase Hosting, Vercel, Netlify, GitHub Pages, etc.):
-``` bash
+## Deployment
+
+The `build` folder contains a production-ready version of the app. You can deploy it to any static hosting service (Firebase Hosting, Vercel, Netlify, GitHub Pages, etc.):
+
+```bash
 npm run build
 ```
 
-Then follow your host’s instructions to serve the build folder.
-```bash
-Folder Structure
+Then follow your host’s instructions to serve the `build` folder.
+
+---
+
+## Folder Structure
+
+```
 shield-authenticator/
-├── public/             # Static files and manifest
-├── src/                # React components and services
-│   ├── App.js
-│   ├── firebase.js
-│   ├── services.js
-│   ├── styles.css
-│   └── index.js
+├── craco.config.js
 ├── package.json
 ├── package-lock.json
-└── README.md
+├── public/
+│   ├── favicon.ico
+│   ├── index.html
+│   ├── logo192.png
+│   ├── logo512.png
+│   └── manifest.json
+├── README.md
+└── src/
+    ├── App.js
+    ├── crypto.js
+    ├── firebase.js
+    ├── index.js
+    ├── services.js
+    └── styles.css
 ```
-Contributing
 
-Fork the repository.
+---
 
-Create your feature branch (git checkout -b feature-name).
+## Contributing
 
-Commit your changes (git commit -m "Feature: ...").
+1. Fork the repository.  
+2. Create your feature branch (`git checkout -b feature-name`).  
+3. Commit your changes (`git commit -m "Feature: ..."`)  
+4. Push to the branch (`git push origin feature-name`)  
+5. Open a Pull Request.
 
-Push to the branch (git push origin feature-name).
+---
 
-Open a Pull Request.
+## License
 
-License
+MIT License © 2025 **SHIELD-Authenticator Team**
 
-MIT License © 2025 SHIELD-Authenticator Team
+---
 
-Learn More
+## Learn More
 
-React: https://reactjs.org/
-
-Firebase: https://firebase.google.com/
-
-React Toastify: https://fkhadra.github.io/react-toastify/
+- React: [https://reactjs.org/](https://reactjs.org/)  
+- Firebase: [https://firebase.google.com/](https://firebase.google.com/)  
+- React Toastify: [https://fkhadra.github.io/react-toastify/](https://fkhadra.github.io/react-toastify/)

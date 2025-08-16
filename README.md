@@ -60,7 +60,7 @@ npm run build
 ```
 
 Then follow your host’s instructions to serve the build folder.
-
+```bash
 Folder Structure
 shield-authenticator/
 ├── public/             # Static files and manifest
@@ -73,7 +73,7 @@ shield-authenticator/
 ├── package.json
 ├── package-lock.json
 └── README.md
-
+```
 Contributing
 
 Fork the repository.

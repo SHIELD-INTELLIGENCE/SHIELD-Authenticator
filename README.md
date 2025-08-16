@@ -26,35 +26,38 @@ These instructions will help you set up and run **SHIELD-Authenticator** locally
 - Clone this repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/SHIELD-INTELLIGENCE/shield-authenticator
 cd shield-authenticator
 npm install
-
+ ```
 Available Scripts
 
 In the project directory, you can run:
 
+``` bash
 npm start
+```
 
 Runs the app in development mode.
 Open http://localhost:3000 to view it in your browser.
 Changes reload automatically.
-
+``` bash
 npm run build
+```
 
 Builds the app for production to the build folder.
 Optimized, minified, and ready for deployment.
-
+``` bash
 npm test
-
+```
 Launches the test runner in interactive watch mode.
 
 Deployment
 
 The build folder contains a production-ready version of the app. You can deploy it to any static hosting service (Firebase Hosting, Vercel, Netlify, GitHub Pages, etc.):
-
+``` bash
 npm run build
-
+```
 
 Then follow your host’s instructions to serve the build folder.
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
+// ...existing code...
+// ...existing code...
 import {
   register,
   login,
@@ -34,6 +36,18 @@ function SHIELDAuthenticator() {
     name: "",
     secret: "",
   });
+  const [formErrors, setFormErrors] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState({ login: false, register: false });
+
+  useEffect(() => {
+    if (!user) {
+      if (formErrors.email) {
+        document.getElementById("shield-login-email")?.focus();
+      } else if (formErrors.password) {
+        document.getElementById("shield-login-password")?.focus();
+      }
+    }
+  }, [formErrors, user]);
   const [editing, setEditing] = useState(null);
   const [showDelete, setShowDelete] = useState(null);
 
@@ -136,39 +150,109 @@ function SHIELDAuthenticator() {
     }
   };
 
+  useEffect(() => {
+    if (!user) {
+      if (formErrors.email) {
+        document.getElementById("shield-login-email")?.focus();
+      } else if (formErrors.password) {
+        document.getElementById("shield-login-password")?.focus();
+      }
+    }
+  }, [formErrors, user]);
+
+  // Validation helpers
+  function validateEmail(email) {
+    return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+  }
+  function validatePassword(password) {
+    return password.length >= 8;
+  }
+
+  function handleLogin() {
+    let errors = { email: "", password: "" };
+    if (!validateEmail(form.email)) errors.email = "Invalid email format";
+    if (!validatePassword(form.password)) errors.password = "Password must be at least 8 characters";
+    setFormErrors(errors);
+    if (errors.email || errors.password) return;
+    setLoading(l => ({ ...l, login: true }));
+    login(form.email, form.password)
+      .then(setUser)
+      .catch((err) => {
+        toast.error("❌ " + (err?.message || "Login failed"));
+      })
+      .finally(() => setLoading(l => ({ ...l, login: false })));
+  }
+
+  function handleRegister() {
+    let errors = { email: "", password: "" };
+    if (!validateEmail(form.email)) errors.email = "Invalid email format";
+    if (!validatePassword(form.password)) errors.password = "Password must be at least 8 characters";
+    setFormErrors(errors);
+    if (errors.email || errors.password) return;
+    setLoading(l => ({ ...l, register: true }));
+    register(form.email, form.password)
+      .then(setUser)
+      .catch((err) => {
+        toast.error("❌ " + (err?.message || "Registration failed"));
+      })
+      .finally(() => setLoading(l => ({ ...l, register: false })));
+  }
+
   if (!user) {
     return (
-      <div className="shield-login-container">
-        <h2>SHIELD-Authenticator Login / Register</h2>
+      <div className="shield-login-container" role="form" aria-labelledby="shield-login-title">
+        <h2 id="shield-login-title">SHIELD-Authenticator Login / Register</h2>
         <input
+          id="shield-login-email"
           className="shield-clean-input"
           placeholder="Email"
           value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, email: e.target.value });
+            setFormErrors({ ...formErrors, email: "" });
+          }}
+          aria-label="Email"
+          aria-invalid={!!formErrors.email}
+          aria-describedby={formErrors.email ? "shield-login-email-error" : undefined}
         />
+        {formErrors.email && (
+          <div className="form-error" id="shield-login-email-error" role="alert">{formErrors.email}</div>
+        )}
         <input
+          id="shield-login-password"
           className="shield-clean-input"
           type="password"
-          placeholder="Password"
+          placeholder="Password (min 8 chars)"
           value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          onChange={(e) => {
+            setForm({ ...form, password: e.target.value });
+            setFormErrors({ ...formErrors, password: "" });
+          }}
+          aria-label="Password"
+          aria-invalid={!!formErrors.password}
+          aria-describedby={formErrors.password ? "shield-login-password-error" : "shield-login-password-hint"}
         />
+        {formErrors.password ? (
+          <div className="form-error" id="shield-login-password-error" role="alert">{formErrors.password}</div>
+        ) : (
+          <div className="form-hint" id="shield-login-password-hint">Password must be at least 8 characters.</div>
+        )}
         <div>
           <button
             className="bw-btn"
-            onClick={() =>
-              login(form.email, form.password).then(setUser).catch(alert)
-            }
+            onClick={handleLogin}
+            aria-label="Login"
+            disabled={loading.login || loading.register}
           >
-            Login
+            {loading.login ? "Logging in..." : "Login"}
           </button>
           <button
             className="bw-btn"
-            onClick={() =>
-              register(form.email, form.password).then(setUser).catch(alert)
-            }
+            onClick={handleRegister}
+            aria-label="Register"
+            disabled={loading.login || loading.register}
           >
-            Register
+            {loading.register ? "Registering..." : "Register"}
           </button>
         </div>
       </div>

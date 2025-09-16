@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">SHIELD</string>
-    <string name="title_activity_main">SHIELD</string>
-    <string name="package_name">com.shieldintelligence.in</string>
-    <string name="custom_url_scheme">com.shieldintelligence.in</string>
-</resources>

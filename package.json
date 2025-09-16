@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/filesystem": "^7.1.4",
     "@yudiel/react-qr-scanner": "^2.3.1",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#1a1a1a</color>           <!-- SHIELD Black -->
+    <color name="colorPrimaryDark">#0d0d0d</color>       <!-- Deeper Black -->
+    <color name="colorPrimaryVariant">#0f0f0f</color>    <!-- Slightly different for variant -->
+    <color name="colorSecondary">#caa94c</color>         <!-- Gold Accent -->
+    <color name="colorAccent">#caa94c</color>            <!-- Optional, legacy -->
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="shield_gold">#caa94c</color>
+</resources>

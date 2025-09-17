@@ -16,8 +16,18 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            storeFile file("shield-release-key.jks")
+            storePassword System.getenv("SHIELD_KEYSTORE_PASSWORD") ?: project.properties["SHIELD_KEYSTORE_PASSWORD"]
+            keyAlias System.getenv("SHIELD_KEY_ALIAS") ?: project.properties["SHIELD_KEY_ALIAS"]
+            keyPassword System.getenv("SHIELD_KEY_PASSWORD") ?: project.properties["SHIELD_KEY_PASSWORD"]
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -35,6 +45,7 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
     implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation 'com.google.android.material:material:1.4.0'
     implementation project(':capacitor-android')
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"

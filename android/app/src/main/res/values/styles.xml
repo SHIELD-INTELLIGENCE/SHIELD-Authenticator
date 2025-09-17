@@ -1,22 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-    </style>
+    <!-- Base application theme -->
+<style name="SHIELDTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <!-- Core branding -->
+    <item name="colorPrimary">@color/shield_gold</item> <!-- Gold Action Bar -->
+    <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+    <item name="colorSecondary">@color/colorSecondary</item>
 
-    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
+    <!-- System bars -->
+    <item name="android:statusBarColor">@color/shield_gold</item>
+    <item name="android:navigationBarColor">@color/shield_gold</item>
+    <item name="android:windowLightStatusBar">true</item>
+</style>
+
+
+    <!-- NoActionBar variant -->
+    <style name="SHIELDTheme.NoActionBar" parent="SHIELDTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:background">@null</item>
+    </style>
+ 
+ <style name="SHIELDSplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <item name="android:windowBackground">@drawable/splash</item>
+    <item name="android:windowNoTitle">true</item>
+    <item name="android:windowFullscreen">true</item>
+    <item name="android:statusBarColor">@color/shield_gold</item>
+    <item name="android:navigationBarColor">@color/shield_gold</item>
+</style>
+
+    <!-- Added to fix missing AppTheme.NoActionBarLaunch error -->
+    <style name="AppTheme.NoActionBarLaunch" parent="SHIELDTheme.NoActionBar">
+        <item name="colorPrimary">@color/shield_gold</item>
     </style>
 
-
-    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-        <item name="android:background">@drawable/splash</item>
-    </style>
 </resources>

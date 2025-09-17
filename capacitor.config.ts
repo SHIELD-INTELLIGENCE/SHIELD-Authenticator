@@ -1,0 +1,9 @@
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.shieldintelligence.authenticator',
+  appName: 'shield-authenticator',
+  webDir: 'build'
+};
+
+export default config;

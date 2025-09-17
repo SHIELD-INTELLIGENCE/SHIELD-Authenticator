@@ -1,95 +1,6 @@
-.form-error {
-  color: #f85149;
-  background: rgba(218, 54, 51, 0.08);
-  border-radius: 6px;
-  padding: 6px 10px;
-  margin: 6px 0 10px 0;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 0 6px rgba(218, 54, 51, 0.15);
-  transition: background 0.2s, color 0.2s;
-}
-
-.form-hint {
-  color: #caa94c;
-  font-size: 13px;
-  margin: 4px 0 10px 0;
-  opacity: 0.85;
-}
-
-@media (max-width: 600px) {
-  .shield-login-container {
-    padding: 1rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    align-items: center;
-    justify-content: center;
-    max-width: 95vw;
-    box-sizing: border-box;
-    display: flex;
-  }
-  .shield-clean-input {
-    font-size: 15px;
-    padding: 10px 12px;
-  }
-  .bw-btn {
-    font-size: 14px;
-    padding: 10px 16px;
-  }
-}
-
-@media (max-width: 400px) {
-  .shield-login-container {
-    padding: 0.5rem;
-    font-size: 0.95rem;
-    align-items: center;
-    justify-content: center;
-    max-width: 95vw;
-    box-sizing: border-box;
-    display: flex;
-  }
-  .shield-clean-input {
-    font-size: 13px;
-    padding: 8px 8px;
-  }
-  .bw-btn {
-    font-size: 12px;
-    padding: 8px 10px;
-  }
-  .accountName,
-  .accountCode {
-    font-size: 13px;
-    min-width: 80px;
-  }
-}
-
-@media (max-width: 768px) {
-  .shield-login-container {
-    max-width: 98vw;
-    margin: 0 auto;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    display: flex;
-  }
-  .accountList {
-    gap: 8px;
-    margin-top: 12px;
-  }
-  .accountItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    padding: 10px 6px;
-  }
-  .accountActions {
-    width: 100%;
-    justify-content: flex-start;
-    gap: 4px;
-  }
-}
-
-/* Root Variables */
+/* ───────────────────────────────
+   ⚡ ROOT VARIABLES
+─────────────────────────────────*/
 :root {
   --shield-black: #1a1a1a;
   --shield-white: #fafafa;
@@ -99,34 +10,219 @@
   --shield-font-sans: "Elixia", Arial, sans-serif;
 }
 
-/* Base Styling */
+/* ───────────────────────────────
+   ⚡ BASE STYLING
+─────────────────────────────────*/
 html,
 body {
   margin: 0;
-  padding: 0;
+  padding: 0 6px;
   font-family: var(--shield-font-sans);
   box-sizing: border-box;
-  width: 100vw;
+  width: 100%;
   overflow-x: hidden;
-  background: radial-gradient(
-    circle at top,
-    var(--shield-grey) 0%,
-    var(--shield-black) 100%
-  );
+  background: radial-gradient(circle at top, var(--shield-grey) 0%, var(--shield-black) 100%);
   color: var(--shield-white);
   min-height: 100vh;
   opacity: 0;
   animation: fadeInBody 0.5s forwards;
 }
 
-
 @keyframes fadeInBody {
-  to {
-    opacity: 1;
-  }
+  to { opacity: 1; }
 }
 
-/* Login Container */
+/* ───────────────────────────────
+   ⚡ LOADING SPINNER + OVERLAY
+─────────────────────────────────*/
+.shield-spinner {
+  margin-left: 1rem;
+  width: 2.2em;
+  height: 2.2em;
+  border: 0.25em solid var(--shield-accent);
+  border-top: 0.25em solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+.shield-spinner-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+
+  /* Fake the light edge created by body padding */
+  background:
+    radial-gradient(circle at top,
+      rgba(42, 42, 42, 0.9) 0%,
+      rgba(26, 26, 26, 0.9) 100%),
+    linear-gradient(0deg, transparent 6px, rgba(255,255,255,0.05) 6px); /* subtle rim */
+  background-clip: content-box, border-box;
+  backdrop-filter: blur(5px);
+
+  padding: 0 6px; /* matches your body padding to create the illusion */
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.shield-spinner-overlay .shield-spinner {
+  margin: 0;
+  width: 3.5em;
+  height: 3.5em;
+  border: 0.3em solid var(--shield-accent);
+  border-top: 0.3em solid transparent;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+/* ───────────────────────────────
+   ⚡ LOADING SCREEN (auth)
+─────────────────────────────────*/
+.shield-loading-screen {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: radial-gradient(
+    circle at top,
+    var(--shield-grey) 0%,
+    var(--shield-black) 100%
+  );
+}
+
+.shield-loading-title {
+  color: var(--shield-accent);
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-right: 12px;
+  text-shadow: 0 0 10px var(--shield-glow);
+}
+
+
+/* ───────────────────────────────
+   ⚡ SETTINGS SIDEBAR
+─────────────────────────────────*/
+.settings-sidebar {
+  position: fixed;
+  top: 0; right: 0;
+  width: 320px; max-width: 90vw;
+  height: 100vh;
+  background: #232323;
+  box-shadow: -4px 0 24px var(--shield-glow);
+  border-left: 2px solid var(--shield-accent);
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 32px 24px 24px;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(.4,1.6,.4,1);
+}
+.settings-sidebar.open { transform: translateX(0); }
+
+.sidebar-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.32);
+  z-index: 1001;
+  cursor: pointer;
+}
+
+.close-sidebar {
+  background: none;
+  border: none;
+  color: var(--shield-accent);
+  font-size: 2.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  align-self: flex-end;
+  margin-bottom: 24px;
+  transition: color 0.2s;
+}
+.close-sidebar:hover { color: #fff; }
+
+.settings-sidebar .logout-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 16px 0;
+  font-size: 1.2rem;
+  background: #da3633;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: bold;
+  box-shadow: 0 0 12px rgba(218, 54, 51, 0.18);
+  transition: background 0.2s, color 0.2s;
+}
+.settings-sidebar .logout-btn:hover {
+  background: #f85149;
+}
+
+/* ───────────────────────────────
+   ⚡ SETTINGS HEADER + ICON
+─────────────────────────────────*/
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 0 auto 24px;
+  max-width: 1100px;
+  width: 100%;
+  padding: 0 6px;
+  box-sizing: border-box;
+}
+.settings-header h2 {
+  color: var(--shield-accent);
+  font-weight: bold;
+  font-size: 1.6rem;
+  letter-spacing: 1.5px;
+  margin: 0;
+  text-shadow: 0 0 10px var(--shield-glow);
+}
+
+.settings-icon {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: rgba(42, 42, 42, 0.7);
+  margin-left: 16px;
+  transition: background 0.2s;
+  position: relative;
+  z-index: 2;
+}
+.settings-icon:hover,
+.settings-icon:focus {
+  background: rgba(202, 169, 76, 0.15);
+  outline: 2px solid var(--shield-accent);
+}
+
+/* ───────────────────────────────
+   ⚡ LOGIN FORM
+─────────────────────────────────*/
+.login-form-outer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 48px);
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
 .shield-login-container {
   display: flex;
   flex-direction: column;
@@ -136,31 +232,25 @@ body {
   border-radius: 12px;
   border: 2px solid var(--shield-accent);
   box-shadow: 0 0 30px var(--shield-glow);
-
-  /* Horizontal centering */
-  margin: 50px auto; /* 50px top spacing; adjust as needed */
-
   max-width: 420px;
   width: 100%;
-  box-sizing: border-box;
-
   align-items: center;
   justify-content: center;
+  margin: 0 auto;
 }
-
 
 .shield-login-container h2 {
   margin-bottom: 25px;
-  display: flex;
   font-size: 1.6rem;
   font-weight: bold;
   color: var(--shield-accent);
   letter-spacing: 1.5px;
   text-shadow: 0 0 10px var(--shield-glow);
-  box-sizing: border-box;
 }
 
-/* Inputs */
+/* ───────────────────────────────
+   ⚡ FORM ELEMENTS
+─────────────────────────────────*/
 .shield-clean-input {
   display: block;
   width: 100%;
@@ -174,11 +264,8 @@ body {
   outline: none;
   transition: background 0.3s ease;
 }
-.shield-clean-input:focus {
-  background: #1c1c1c;
-}
+.shield-clean-input:focus { background: #1c1c1c; }
 
-/* Buttons */
 .bw-btn {
   padding: 12px 22px;
   margin: 8px;
@@ -197,7 +284,6 @@ body {
   background: #e5c76a;
   box-shadow: 0 0 18px var(--shield-glow);
 }
-
 .bw-btn.danger {
   padding: 6px 12px;
   font-size: 12px;
@@ -208,18 +294,34 @@ body {
   box-shadow: 0 0 6px rgba(255, 0, 0, 0.3);
   transition: 0.2s;
 }
-.bw-btn.danger:hover {
-  background: #f85149;
+.bw-btn.danger:hover { background: #f85149; }
+
+.form-error {
+  color: #f85149;
+  background: rgba(218, 54, 51, 0.08);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin: 6px 0 10px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 0 6px rgba(218, 54, 51, 0.15);
+}
+.form-hint {
+  color: #caa94c;
+  font-size: 13px;
+  margin: 4px 0 10px;
+  opacity: 0.85;
 }
 
-/* Account List */
+/* ───────────────────────────────
+   ⚡ ACCOUNT LIST
+─────────────────────────────────*/
 .accountList {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 20px;
 }
-
 .accountItem {
   display: flex;
   justify-content: space-between;
@@ -229,7 +331,6 @@ body {
   padding: 14px 12px;
   border-bottom: 1px solid var(--shield-accent);
 }
-
 .accountName {
   font-weight: bold;
   font-size: 16px;
@@ -237,7 +338,6 @@ body {
   min-width: 120px;
   text-shadow: 0 0 6px var(--shield-glow);
 }
-
 .accountCode {
   font-family: monospace;
   font-size: 18px;
@@ -247,7 +347,6 @@ body {
   text-shadow: 0 0 12px var(--shield-glow);
   color: var(--shield-accent);
 }
-
 .accountActions {
   display: flex;
   gap: 6px;
@@ -256,13 +355,9 @@ body {
   flex: 1 1 auto;
 }
 
-.countdown {
-  width: 100%;
-  margin-top: 4px;
-}
+.countdown { width: 100%; margin-top: 4px; }
 .progress-bar {
-  width: 100%;
-  height: 6px;
+  width: 100%; height: 6px;
   background: var(--shield-grey);
   border-radius: 4px;
   overflow: hidden;
@@ -272,4 +367,62 @@ body {
   background: var(--shield-accent);
   box-shadow: 0 0 6px var(--shield-glow);
   transition: width 0.2s;
+}
+.progress-fill {
+  width: var(--progress);
+  transition: width 0.3s linear;
+}
+
+/* ───────────────────────────────
+   ⚡ RESPONSIVE ADAPTATIONS
+─────────────────────────────────*/
+@media (max-width: 768px) {
+  .shield-login-container { max-width: 98vw; }
+  .accountList { gap: 8px; margin-top: 12px; }
+  .accountItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 10px 6px;
+  }
+  .accountActions { width: 100%; justify-content: flex-start; gap: 4px; }
+  .settings-header h2 { font-size: 1.4rem; letter-spacing: 1.2px; }
+}
+@media (max-width: 600px) {
+  .shield-spinner { width: 1.5em; height: 1.5em; border-width: 0.18em; }
+  .shield-spinner-overlay .shield-spinner {
+    width: 2.5em; height: 2.5em; border-width: 0.22em;
+  }
+  body { padding: 16px; }
+  .login-form-outer {
+    min-height: auto; align-items: flex-start; padding: 0;
+  }
+  .shield-login-container {
+    padding: 1rem; border-radius: 8px; font-size: 1rem; max-width: 95vw;
+  }
+  .shield-clean-input { font-size: 15px; padding: 10px 12px; }
+  .bw-btn { font-size: 14px; padding: 10px 16px; }
+  .settings-header { padding: 0 8px; margin-bottom: 16px; }
+}
+@media (max-width: 400px) {
+  .shield-login-container { padding: 0.5rem; font-size: 0.95rem; max-width: 95vw; }
+  .shield-clean-input { font-size: 13px; padding: 8px 8px; }
+  .bw-btn { font-size: 12px; padding: 8px 10px; }
+  .accountName, .accountCode { font-size: 13px; min-width: 80px; }
+}
+@media (min-width: 769px) {
+  .settings-header { justify-content: center; }
+  .settings-header h2 { text-align: center; flex: 1; }
+}
+@media (max-width: 600px) {
+  .settings-sidebar {
+    width: 260px;
+    padding: 24px 16px 16px;
+  }
+}
+@media (max-width: 400px) {
+  .settings-sidebar {
+    width: 220px;
+    padding: 20px 14px 14px;
+  }
 }

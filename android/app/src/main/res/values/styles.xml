@@ -1,35 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base application theme -->
-<style name="SHIELDTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-    <!-- Core branding -->
-    <item name="colorPrimary">@color/shield_gold</item> <!-- Gold Action Bar -->
-    <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
-    <item name="colorSecondary">@color/colorSecondary</item>
+    <!-- Main app theme with gold action bar -->
+    <style name="SHIELDTheme" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Core branding -->
+        <item name="colorPrimary">@color/shield_gold</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
 
-    <!-- System bars -->
-    <item name="android:statusBarColor">@color/shield_gold</item>
-    <item name="android:navigationBarColor">@color/shield_gold</item>
-    <item name="android:windowLightStatusBar">true</item>
-</style>
+        <!-- System bars -->
+        <item name="android:statusBarColor">@color/shield_gold</item>
+        <item name="android:navigationBarColor">@color/shield_gold</item>
+        <item name="android:windowLightStatusBar">true</item>
 
+        <!-- Text color on gold bar -->
+        <item name="android:textColorPrimary">@color/white</item>
+    </style>
 
-    <!-- NoActionBar variant -->
+    <!-- Variant with no action bar if ever needed -->
     <style name="SHIELDTheme.NoActionBar" parent="SHIELDTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
- 
- <style name="SHIELDSplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-    <item name="android:windowBackground">@drawable/splash</item>
-    <item name="android:windowNoTitle">true</item>
-    <item name="android:windowFullscreen">true</item>
-    <item name="android:statusBarColor">@color/shield_gold</item>
-    <item name="android:navigationBarColor">@color/shield_gold</item>
-</style>
 
-    <!-- Added to fix missing AppTheme.NoActionBarLaunch error -->
+    <!-- Splash theme (keeps fullscreen, no action bar) -->
+    <style name="SHIELDSplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:statusBarColor">@color/shield_gold</item>
+        <item name="android:navigationBarColor">@color/shield_gold</item>
+    </style>
+
+    <!-- Fix for AppTheme.NoActionBarLaunch error -->
     <style name="AppTheme.NoActionBarLaunch" parent="SHIELDTheme.NoActionBar">
         <item name="colorPrimary">@color/shield_gold</item>
     </style>

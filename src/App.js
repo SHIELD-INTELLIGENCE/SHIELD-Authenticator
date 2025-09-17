@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-// ...existing code...
-// ...existing code...
 import {
   register,
   login,
@@ -18,6 +16,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles.css"; // SHIELD theme
 import QrScanner from "qr-scanner";
+import LoginForm from "./components/LoginForm";
+import AddAccountForm from "./components/AddAccountForm";
+import AccountList from "./components/AccountList";
+import SettingsSidebar from "./components/SettingsSidebar";
 
 // Set worker path dynamically (works with Netlify)
 QrScanner.WORKER_PATH = new URL(
@@ -38,6 +40,7 @@ function SHIELDAuthenticator() {
   });
   const [formErrors, setFormErrors] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState({ login: false, register: false });
+  const [loadingAuth, setLoadingAuth] = useState(true); // <-- new
 
   useEffect(() => {
     if (!user) {
@@ -53,11 +56,13 @@ function SHIELDAuthenticator() {
 
   // Listen to auth state
   useEffect(() => {
-    return onAuthStateChanged(auth, (u) => {
+    const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       if (u) loadAccounts(u.uid);
       else setAccounts([]);
+      setLoadingAuth(false); // <-- auth check done
     });
+    return unsub;
   }, []);
 
   async function loadAccounts(uid) {
@@ -198,184 +203,79 @@ function SHIELDAuthenticator() {
       .finally(() => setLoading(l => ({ ...l, register: false })));
   }
 
+  const [showSettings, setShowSettings] = useState(false);
+  const handleSettingsClick = () => setShowSettings(true);
+  const handleCloseSidebar = () => setShowSettings(false);
+  const handleLogout = () => {
+    setShowSettings(false);
+    logout();
+  };
+
+
+if (loadingAuth) {
+  return (
+    <div className="shield-loading-screen">
+      <div className="shield-loading-title">SHIELD-Authenticator</div>
+      <span className="shield-spinner" />
+    </div>
+  );
+}
+
+
+
   if (!user) {
     return (
-      <div className="shield-login-container" role="form" aria-labelledby="shield-login-title">
-        <h2 id="shield-login-title">SHIELD-Authenticator Login / Register</h2>
-        <input
-          id="shield-login-email"
-          className="shield-clean-input"
-          placeholder="Email"
-          value={form.email}
-          onChange={(e) => {
-            setForm({ ...form, email: e.target.value });
-            setFormErrors({ ...formErrors, email: "" });
-          }}
-          aria-label="Email"
-          aria-invalid={!!formErrors.email}
-          aria-describedby={formErrors.email ? "shield-login-email-error" : undefined}
-        />
-        {formErrors.email && (
-          <div className="form-error" id="shield-login-email-error" role="alert">{formErrors.email}</div>
-        )}
-        <input
-          id="shield-login-password"
-          className="shield-clean-input"
-          type="password"
-          placeholder="Password (min 8 chars)"
-          value={form.password}
-          onChange={(e) => {
-            setForm({ ...form, password: e.target.value });
-            setFormErrors({ ...formErrors, password: "" });
-          }}
-          aria-label="Password"
-          aria-invalid={!!formErrors.password}
-          aria-describedby={formErrors.password ? "shield-login-password-error" : "shield-login-password-hint"}
-        />
-        {formErrors.password ? (
-          <div className="form-error" id="shield-login-password-error" role="alert">{formErrors.password}</div>
-        ) : (
-          <div className="form-hint" id="shield-login-password-hint">Password must be at least 8 characters.</div>
-        )}
-        <div>
-          <button
-            className="bw-btn"
-            onClick={handleLogin}
-            aria-label="Login"
-            disabled={loading.login || loading.register}
-          >
-            {loading.login ? "Logging in..." : "Login"}
-          </button>
-          <button
-            className="bw-btn"
-            onClick={handleRegister}
-            aria-label="Register"
-            disabled={loading.login || loading.register}
-          >
-            {loading.register ? "Registering..." : "Register"}
-          </button>
-        </div>
-      </div>
+      <LoginForm
+        form={form}
+        formErrors={formErrors}
+        loading={loading}
+        setForm={setForm}
+        setFormErrors={setFormErrors}
+        handleLogin={handleLogin}
+        handleRegister={handleRegister}
+      />
     );
   }
 
   return (
     <div className="page-container">
-      <h2>SHIELD-Authenticator Dashboard</h2>
-      <button className="bw-btn logout-btn" onClick={logout}>
-        Logout
-      </button>
-
-      <div className="addAccount">
-        <input
-          className="shield-clean-input"
-          placeholder="Account Name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-        />
-        <input
-          className="shield-clean-input"
-          placeholder="Secret (BASE32)"
-          value={form.secret}
-          onChange={(e) => setForm({ ...form, secret: e.target.value })}
-        />
-        <button className="bw-btn" onClick={handleSave}>
-          {editing ? "Update Account" : "Add Account"}
-        </button>
-        {editing && (
-          <button
-            className="bw-btn danger"
-            onClick={() => {
-              setEditing(null);
-              setForm({ name: "", secret: "" });
-            }}
-          >
-            Cancel
-          </button>
-        )}
-
-        <label className="bw-btn">
-          Upload QR
-          <input
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleQRUpload}
-          />
-        </label>
+      <div className="settings-header">
+        <h2>SHIELD-Authenticator Dashboard</h2>
+        <div className="settings-icon" onClick={handleSettingsClick} tabIndex={0} title="Settings">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 8a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09c0 .66.39 1.25 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 8c.66 0 1.25.39 1.51 1H21a2 2 0 0 1 0 4h-.09c-.66 0-1.25.39-1.51 1z"/></svg>
+        </div>
       </div>
-
-      <div className="accountList">
-        {accounts.map((acc) => (
-          <div key={acc.id} className="accountItem">
-            <span className="accountName">{acc.name}</span>
-            <span
-              className={`accountCode ${countdowns[acc.id] < 5 ? "pulse" : ""}`}
-            >
-              {codes[acc.id] ?? "000000"}
-            </span>
-
-            <div className="accountActions">
-              <button
-                className="bw-btn"
-                onClick={() => handleCopy(codes[acc.id] ?? "000000")}
-              >
-                Copy
-              </button>
-              <button
-                className="bw-btn"
-                onClick={() => {
-                  setEditing(acc.id);
-                  setForm({ name: acc.name, secret: acc.secret });
-                }}
-              >
-                Edit
-              </button>
-              {showDelete === acc.id ? (
-                <>
-                  <button
-                    className="bw-btn danger"
-                    onClick={() => handleDelete(acc.id)}
-                  >
-                    Confirm Delete
-                  </button>
-                  <button
-                    className="bw-btn"
-                    onClick={() => setShowDelete(null)}
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button
-                  className="bw-btn danger"
-                  onClick={() => setShowDelete(acc.id)}
-                >
-                  Delete
-                </button>
-              )}
-            </div>
-
-            <div className="countdown">
-              <div className="progress-bar">
-                <div
-                  className="progress-fill"
-                  style={{
-                    width: `${((countdowns[acc.id] ?? 0) / 30) * 100}%`,
-                  }}
-                />
-              </div>
-              <p>{countdowns[acc.id] ?? 0}s</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
+      {showSettings && (
+        <>
+          <SettingsSidebar show={showSettings} onLogout={handleLogout} onClose={handleCloseSidebar} />
+          <div className="sidebar-backdrop" onClick={handleCloseSidebar} />
+        </>
+      )}
+      <AddAccountForm
+        form={form}
+        setForm={setForm}
+        handleSave={handleSave}
+        editing={editing}
+        setEditing={setEditing}
+        handleQRUpload={handleQRUpload}
+      />
+      <AccountList
+        accounts={accounts}
+        codes={codes}
+        countdowns={countdowns}
+        handleCopy={handleCopy}
+        setEditing={setEditing}
+        setForm={setForm}
+        setShowDelete={setShowDelete}
+        showDelete={showDelete}
+        handleDelete={handleDelete}
+      />
       <ToastContainer
         position="bottom-right"
         autoClose={1500}
         hideProgressBar
       />
+  {/* sidebar-backdrop now rendered above with sidebar */}
     </div>
   );
 }

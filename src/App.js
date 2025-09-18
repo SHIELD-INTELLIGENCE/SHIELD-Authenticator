@@ -41,7 +41,8 @@ function SHIELDAuthenticator() {
   });
   const [formErrors, setFormErrors] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState({ login: false, register: false });
-  const [loadingAuth, setLoadingAuth] = useState(true); // <-- new
+  const [loadingAuth, setLoadingAuth] = useState(true);
+  const [loginMessage, setLoginMessage] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -178,32 +179,51 @@ function SHIELDAuthenticator() {
     return password.length >= 8;
   }
 
+
   function handleLogin() {
     let errors = { email: "", password: "" };
-    if (!validateEmail(form.email)) errors.email = "Invalid email format";
-    if (!validatePassword(form.password)) errors.password = "Password must be at least 8 characters";
+    setLoginMessage(null);
+    if (!validateEmail(form.email)) errors.email = "Please enter a valid email address.";
+    if (!validatePassword(form.password)) errors.password = "Password must be at least 8 characters.";
     setFormErrors(errors);
     if (errors.email || errors.password) return;
     setLoading(l => ({ ...l, login: true }));
     login(form.email, form.password)
-      .then(setUser)
+      .then((user) => {
+        setUser(user);
+        setLoginMessage(null);
+      })
       .catch((err) => {
-        toast.error("❌ " + (err?.message || "Login failed"));
+        let msg = "Login failed. Please try again.";
+        if (err && err.code) {
+          if (err.code === "auth/user-not-found") msg = "No account found with this email.";
+          else if (err.code === "auth/wrong-password") msg = "Incorrect password. Please try again.";
+          else if (err.code === "auth/invalid-email") msg = "Invalid email address.";
+          else if (err.code === "auth/too-many-requests") msg = "Too many attempts. Please wait and try again.";
+        }
+        setLoginMessage({ type: 'error', text: msg });
       })
       .finally(() => setLoading(l => ({ ...l, login: false })));
   }
 
   function handleRegister() {
     let errors = { email: "", password: "" };
-    if (!validateEmail(form.email)) errors.email = "Invalid email format";
-    if (!validatePassword(form.password)) errors.password = "Password must be at least 8 characters";
+    setLoginMessage(null);
+    if (!validateEmail(form.email)) errors.email = "Please enter a valid email address.";
+    if (!validatePassword(form.password)) errors.password = "Password must be at least 8 characters.";
     setFormErrors(errors);
     if (errors.email || errors.password) return;
     setLoading(l => ({ ...l, register: true }));
     register(form.email, form.password)
       .then(setUser)
       .catch((err) => {
-        toast.error("❌ " + (err?.message || "Registration failed"));
+        let msg = "Registration failed. Please try again.";
+        if (err && err.code) {
+          if (err.code === "auth/email-already-in-use") msg = "This email is already registered.";
+          else if (err.code === "auth/invalid-email") msg = "Invalid email address.";
+          else if (err.code === "auth/weak-password") msg = "Password is too weak. Please use at least 8 characters.";
+        }
+        setLoginMessage({ type: 'error', text: msg });
       })
       .finally(() => setLoading(l => ({ ...l, register: false })));
   }
@@ -238,6 +258,7 @@ if (loadingAuth) {
         setFormErrors={setFormErrors}
         handleLogin={handleLogin}
         handleRegister={handleRegister}
+        loginMessage={loginMessage}
       />
     );
   }
@@ -280,9 +301,33 @@ if (loadingAuth) {
         autoClose={1500}
         hideProgressBar
       />
-  {/* sidebar-backdrop now rendered above with sidebar */}
     </div>
   );
 }
 
-export default SHIELDAuthenticator;
+
+function CopyrightFooter() {
+  return (
+    <footer style={{
+      textAlign: "center",
+      padding: "1rem 0",
+      color: "#888",
+      fontSize: "0.95rem",
+      background: "transparent",
+      marginTop: "2rem"
+    }}>
+      © 2025 SHIELD Intelligence. All rights reserved.
+    </footer>
+  );
+}
+
+function AppWithFooter(props) {
+  return (
+    <>
+      <SHIELDAuthenticator {...props} />
+      <CopyrightFooter />
+    </>
+  );
+}
+
+export default AppWithFooter;

@@ -1,3 +1,4 @@
+// Copyright © 2025 SHIELD Intelligence. All rights reserved.
 import CryptoJS from "crypto-js";
 
 const MASTER_KEY = "YOUR_SUPER_SECURE_KEY_32CHARS"; // 32-char key

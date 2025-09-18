@@ -1,3 +1,4 @@
+// Copyright © 2025 SHIELD Intelligence. All rights reserved.
 import React from "react";
 
 function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLogin, handleRegister }) {

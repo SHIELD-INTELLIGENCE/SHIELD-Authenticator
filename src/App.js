@@ -1,3 +1,4 @@
+// Copyright © 2025 SHIELD Intelligence. All rights reserved.
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import {
@@ -48,6 +49,10 @@ function SHIELDAuthenticator() {
         document.getElementById("shield-login-email")?.focus();
       } else if (formErrors.password) {
         document.getElementById("shield-login-password")?.focus();
+      // Copyright © 2025 SHIELD Intelligence. All rights reserved.
+      //
+      // This file is part of SHIELD Authenticator and may not be copied, modified, or distributed
+      // without express permission from SHIELD Intelligence.
       }
     }
   }, [formErrors, user]);

@@ -1,3 +1,4 @@
+// Copyright © 2025 SHIELD Intelligence. All rights reserved.
 const webpack = require("webpack");
 
 module.exports = {

@@ -20,8 +20,10 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
   const [showPassword, setShowPassword] = React.useState(false);
   return (
     <div className="login-form-outer" style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+      <a href="#shield-login-title" className="skip-link">Skip to login form</a>
       <div className="shield-login-container" role="form" aria-labelledby="shield-login-title">
-        <h2 id="shield-login-title">SHIELD-Authenticator Login / Register</h2>
+        <h2 id="shield-login-title" className="high-contrast-text">SHIELD-Authenticator Login / Register</h2>
+        {formErrors.email && <div className="form-error" role="alert">{formErrors.email}</div>}
         <input
           id="shield-login-email"
           className="shield-clean-input"
@@ -33,8 +35,10 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
           }}
           aria-label="Email"
           aria-invalid={!!formErrors.email}
+          aria-required="true"
         />
-        <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center' }}>
+        {formErrors.password && <div className="form-error" role="alert">{formErrors.password}</div>}
+        <div className="password-container">
           <input
             id="shield-login-password"
             className="shield-clean-input"
@@ -47,36 +51,20 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
             }}
             aria-label="Password"
             aria-invalid={!!formErrors.password}
-            style={{ flex: 1, minWidth: 0, marginRight: 0 }}
+            aria-required="true"
           />
           <button
             type="button"
+            className="password-toggle touch-target"
             aria-label={showPassword ? "Hide password" : "Show password"}
             onClick={() => setShowPassword(v => !v)}
-            style={{
-              marginLeft: -60,
-              zIndex: 2,
-              background: '#222',
-              border: '1px solid #caa94c',
-              color: '#caa94c',
-              cursor: 'pointer',
-              fontSize: 13,
-              padding: '2px 10px',
-              borderRadius: 6,
-              height: 28,
-              lineHeight: '24px',
-              minWidth: 54,
-              boxSizing: 'border-box',
-              position: 'relative',
-              right: 0
-            }}
           >
             {showPassword ? 'Hide' : 'Show'}
           </button>
         </div>
         <div>
           <button
-            className="bw-btn"
+            className="bw-btn touch-target"
             onClick={handleLogin}
             aria-label="Login"
             disabled={loading.login || loading.register}
@@ -84,7 +72,7 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
             {loading.login ? "Logging in..." : "Login"}
           </button>
           <button
-            className="bw-btn"
+            className="bw-btn touch-target"
             onClick={handleRegister}
             aria-label="Register"
             disabled={loading.login || loading.register}
@@ -93,7 +81,11 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
           </button>
         </div>
         {loginMessage && (
-          <div style={{ marginTop: 18, color: loginMessage.type === 'error' ? '#ff6b6b' : '#caa94c', fontWeight: 500, textAlign: 'center' }}>
+          <div 
+            className={loginMessage.type === 'error' ? 'form-error' : 'form-success'} 
+            role="alert"
+            aria-live="assertive"
+          >
             {loginMessage.text}
           </div>
         )}

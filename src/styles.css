@@ -1,21 +1,70 @@
 /*
 Copyright © 2025 SHIELD Intelligence. All rights reserved.
 */
-/* ───────────────────────────────
-   ⚡ ROOT VARIABLES
-─────────────────────────────────*/
+
+/**
+ * SHIELD Authenticator CSS - Table of Contents
+ * * 1. Variables & Root Settings
+ * 2. Base Elements & Reset
+ * 3. Layout Components
+ * 4. UI Elements
+ * - Buttons
+ * - Form Elements
+ * - Loaders & Spinners
+ * 5. Specific Sections
+ * - Login Form
+ * - Account List
+ * - Settings Sidebar
+ * 6. Animations
+ * 7. Responsive Adaptations
+ * 8. Utility Classes
+ * 9. Accessibility Enhancements
+ */
+
+/* ═════════════════════════════════════════════════════════════════
+   Section 1: VARIABLES & ROOT SETTINGS
+   ═════════════════════════════════════════════════════════════════ */
 :root {
+  /* Brand Colors */
   --shield-black: #1a1a1a;
   --shield-white: #fafafa;
   --shield-grey: #2a2a2a;
   --shield-accent: #caa94c;
   --shield-glow: rgba(202, 169, 76, 0.35);
   --shield-font-sans: "Elixia", Arial, sans-serif;
+  
+  /* Status Colors */
+  --shield-success: #26C281;
+  --shield-success-bg: rgba(38, 194, 129, 0.08);
+  --shield-error: #f85149;
+  --shield-error-bg: rgba(218, 54, 51, 0.08);
+  
+  /* Animation speeds */
+  --animation-fast: 0.15s;
+  --animation-medium: 0.3s;
+  --animation-slow: 0.5s;
+  
+  /* Transitions */
+  --transition-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --transition-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --transition-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --transition-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
+  
+  /* Layout Variables */
+  --content-max-width: 600px;
+  --content-padding-mobile: 16px;
+  --content-padding-desktop: 20px;
+  
+  /* Border Radius */
+  --radius-small: 6px;
+  --radius-medium: 10px;
+  --radius-large: 12px;
+  --radius-pill: 9999px;
 }
 
-/* ───────────────────────────────
-   ⚡ BASE STYLING
-─────────────────────────────────*/
+/* ═════════════════════════════════════════════════════════════════
+   Section 2: BASE ELEMENTS & RESET
+   ═════════════════════════════════════════════════════════════════ */
 html,
 body {
   margin: 0;
@@ -35,6 +84,10 @@ body {
   to { opacity: 1; }
 }
 
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 /* ───────────────────────────────
    ⚡ LOADING SPINNER + OVERLAY
 ─────────────────────────────────*/
@@ -47,6 +100,7 @@ body {
   border-radius: 50%;
   animation: spin 1s linear infinite;
   display: inline-block;
+  filter: drop-shadow(0 0 5px var(--shield-glow));
 }
 
 .shield-spinner-overlay {
@@ -68,47 +122,120 @@ body {
   box-sizing: border-box;
 
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 3000;
+
+  opacity: 0;
+  animation: fadeIn var(--animation-medium) var(--transition-decelerate) forwards;
 }
 
 .shield-spinner-overlay .shield-spinner {
-  margin: 0;
+  margin: 0 0 20px 0;
   width: 3.5em;
   height: 3.5em;
   border: 0.3em solid var(--shield-accent);
   border-top: 0.3em solid transparent;
 }
 
+.shield-spinner-overlay .loading-message {
+  font-size: 1.2rem;
+  color: var(--shield-accent);
+  text-align: center;
+  margin-top: 20px;
+  max-width: 80%;
+  animation: pulse 2s infinite;
+}
+
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
 
-/* ───────────────────────────────
-   ⚡ LOADING SCREEN (auth)
-─────────────────────────────────*/
-.shield-loading-screen {
-  min-height: 100vh;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: radial-gradient(
-    circle at top,
-    var(--shield-grey) 0%,
-    var(--shield-black) 100%
-  );
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
-.shield-loading-title {
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* ───────────────────────────────
+   ⚡ FORM ERROR & NOTIFICATION
+─────────────────────────────────*/
+.form-error {
+  color: #f85149;
+  background: rgba(218, 54, 51, 0.08);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 10px 0;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 0 6px rgba(218, 54, 51, 0.15);
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  transform: translate3d(0, 0, 0);
+  border-left: 3px solid #f85149;
+  display: flex;
+  align-items: center;
+}
+
+.form-error:before {
+  content: "⚠️";
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.form-hint {
   color: var(--shield-accent);
-  font-size: 2rem;
-  font-weight: bold;
-  letter-spacing: 2px;
-  margin-right: 12px;
-  text-shadow: 0 0 10px var(--shield-glow);
+  font-size: 13px;
+  margin: 4px 0 10px;
+  opacity: 0.85;
+  transition: opacity var(--animation-medium) ease;
+}
+
+.form-hint:hover {
+  opacity: 1;
+}
+
+.form-success {
+  color: #26C281;
+  background: rgba(38, 194, 129, 0.08);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 10px 0;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 0 6px rgba(38, 194, 129, 0.15);
+  animation: slideDown 0.3s var(--transition-decelerate) forwards;
+  border-left: 3px solid #26C281;
+  display: flex;
+  align-items: center;
+}
+
+.form-success:before {
+  content: "✅";
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+  40%, 60% { transform: translate3d(3px, 0, 0); }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 
@@ -236,10 +363,25 @@ body {
   border: 2px solid var(--shield-accent);
   box-shadow: 0 0 30px var(--shield-glow);
   max-width: 420px;
-  width: 100%;
+  width: calc(100% - 4px); /* Account for the border */
   align-items: center;
   justify-content: center;
   margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Login form button container */
+.shield-login-container > div {
+  display: flex;
+  flex-direction: row; /* Keep buttons side by side */
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.shield-login-container .bw-btn {
+  min-width: 120px; /* Ensure buttons are wide enough */
+  margin: 8px 10px; /* Add horizontal spacing */
 }
 
 .shield-login-container h2 {
@@ -261,13 +403,75 @@ body {
   margin: 12px 0;
   font-size: 16px;
   border-radius: 8px;
-  border: none;
+  border: 2px solid transparent;
   background: #121212;
   color: var(--shield-white);
   outline: none;
-  transition: background 0.3s ease;
+  transition: all var(--animation-medium) var(--transition-smooth);
+  box-sizing: border-box;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
 }
-.shield-clean-input:focus { background: #1c1c1c; }
+
+.shield-clean-input:focus { 
+  background: #1c1c1c; 
+  border-color: var(--shield-accent);
+  box-shadow: 0 0 8px var(--shield-glow);
+  transform: translateY(-1px);
+}
+
+.shield-clean-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  transition: opacity var(--animation-medium) var(--transition-smooth);
+}
+
+.shield-clean-input:focus::placeholder {
+  opacity: 0.5;
+}
+
+/* Password field container styling */
+.password-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.password-container .shield-clean-input {
+  width: 100%;
+  padding-right: 65px; /* Make room for the show/hide button */
+}
+
+.password-toggle {
+  position: absolute;
+  right: 8px;
+  background: #222;
+  border: 1px solid var(--shield-accent);
+  color: var(--shield-accent);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 10px;
+  border-radius: 6px;
+  height: 28px;
+  min-width: 54px;
+  box-sizing: border-box;
+  z-index: 2;
+  transition: all var(--animation-medium) var(--transition-smooth);
+  opacity: 0.8;
+}
+
+.password-toggle:hover {
+  background: #333;
+  color: #e5c76a;
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.password-toggle:active {
+  transform: translateY(0);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
 
 .bw-btn {
   padding: 12px 22px;
@@ -281,7 +485,57 @@ body {
   color: var(--shield-black);
   letter-spacing: 0.5px;
   box-shadow: 0 0 10px var(--shield-glow);
-  transition: all 0.3s ease;
+  transition: all var(--animation-medium) var(--transition-bounce);
+  position: relative;
+  overflow: hidden;
+}
+
+.bw-btn:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.bw-btn:hover {
+  background: #e5c76a;
+  box-shadow: 0 0 18px var(--shield-glow);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.bw-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(202, 169, 76, 0.5), 0 0 18px var(--shield-glow);
+}
+
+.bw-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.bw-btn:active:after {
+  animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    opacity: 1;
+    transform: scale(0, 0);
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
 }
 .bw-btn:hover {
   background: #e5c76a;
@@ -317,63 +571,324 @@ body {
 }
 
 /* ───────────────────────────────
+   ⚡ ADD ACCOUNT FORM
+─────────────────────────────────*/
+.addAccount {
+  background: rgba(30, 30, 30, 0.8);
+  border-radius: var(--radius-medium);
+  padding: 20px;
+  margin: 45px auto 20px;
+  max-width: 600px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 15px;
+  border: 2px solid var(--shield-accent);
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.2);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.addAccount::before {
+  content: 'Add New Account';
+  position: absolute;
+  top: -15px;
+  left: 20px;
+  background: var(--shield-black);
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--shield-accent);
+  border: 1px solid var(--shield-accent);
+  box-shadow: 0 0 8px var(--shield-glow);
+  z-index: 1;
+}
+
+.addAccount .shield-clean-input {
+  grid-column: span 2;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Button Layout */
+.addAccount > .bw-btn, .addAccount > label.bw-btn {
+  grid-column: span 2; /* Make all buttons span both columns */
+  display: block;
+  margin: 0;
+  width: 100%;
+}
+
+/* Create a flex container for the buttons */
+.addAccount > .bw-btn:first-of-type, .addAccount > .bw-btn.danger {
+  display: block;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  margin: 5px 0; /* Vertical spacing between buttons */
+  padding: 14px 22px;
+  background: var(--shield-accent);
+  color: var(--shield-black);
+  border-radius: 9999px;
+  font-weight: bold;
+  box-shadow: 0 0 10px var(--shield-glow);
+  box-sizing: border-box;
+}
+.addAccount > .bw-btn.danger {
+  background: #da3633;
+  color: #fff;
+}
+
+/* New: Make the parent grid cell a flex container for the buttons */
+.addAccount > .bw-btn:first-of-type {
+  display: block;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.addAccount > .bw-btn.danger {
+  display: block;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Upload QR button with special styling - matches add account button */
+.addAccount label.bw-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-column: span 2;
+  background: var(--shield-accent);
+  color: var(--shield-black);
+  border: none;
+  position: relative;
+  overflow: hidden;
+  margin: 5px 0;
+  padding: 14px 22px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 0 10px var(--shield-glow);
+  width: 100%;
+  border-radius: 9999px;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  transition: all var(--animation-medium) var(--transition-bounce);
+  box-sizing: border-box;
+}
+
+.addAccount label.bw-btn::before {
+  content: '';
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23121212'%3E%3Cpath d='M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13.5-3v2.5h-2.5v2.5h2.5v2.5H21v-8h-2.5z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  display: inline-block;
+}
+
+.addAccount label.bw-btn:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.addAccount label.bw-btn:hover {
+  background: #e5c76a;
+  box-shadow: 0 0 18px var(--shield-glow);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.addAccount label.bw-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(202, 169, 76, 0.5), 0 0 18px var(--shield-glow);
+}
+
+.addAccount label.bw-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.addAccount label.bw-btn:active:after {
+  animation: ripple 0.6s ease-out;
+}
+/* ───────────────────────────────
    ⚡ ACCOUNT LIST
 ─────────────────────────────────*/
 .accountList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 20px auto 0;
+  width: 100%;
+  max-width: 900px;
+  position: relative;
+  padding-top: 10px;
+  justify-content: center;
 }
+
+.accountList::before {
+  content: 'Your Accounts';
+  position: absolute;
+  top: -25px;
+  left: 0;
+  font-size: 16px;
+  color: var(--shield-accent);
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 8px var(--shield-glow);
+}
+
 .accountItem {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 14px 12px;
-  border-bottom: 1px solid var(--shield-accent);
+  gap: 10px;
+  padding: 20px 14px;
+  border-radius: 10px;
+  background: rgba(42, 42, 42, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all var(--animation-medium) var(--transition-smooth);
+  border-left: 3px solid var(--shield-accent);
+  position: relative;
+  overflow: hidden;
 }
+
+.accountItem:hover {
+  background: rgba(42, 42, 42, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 10px var(--shield-glow);
+}
+
+.accountItem:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .accountName {
   font-weight: bold;
   font-size: 16px;
-  flex: 1 1 150px;
-  min-width: 120px;
+  width: 100%;
+  text-align: center;
   text-shadow: 0 0 6px var(--shield-glow);
+  color: var(--shield-white);
+  transition: color var(--animation-medium) var(--transition-smooth);
+  margin-bottom: 5px;
 }
+
+.accountItem:hover .accountName {
+  color: var(--shield-accent);
+}
+
 .accountCode {
   font-family: monospace;
-  font-size: 18px;
-  flex: 1 1 80px;
-  min-width: 60px;
+  font-size: 24px;
+  width: 100%;
   text-align: center;
   text-shadow: 0 0 12px var(--shield-glow);
   color: var(--shield-accent);
-}
-.accountActions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  flex: 1 1 auto;
+  transition: opacity 0.3s;
+  letter-spacing: 2px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  margin: 5px 0 10px;
+  display: block;
+  box-sizing: border-box;
 }
 
-.countdown { width: 100%; margin-top: 4px; }
+.accountCode.pulse {
+  animation: pulseFade 1s infinite alternate;
+  -webkit-animation: pulseFade 1s infinite alternate;
+  -moz-animation: pulseFade 1s infinite alternate;
+}
+
+@keyframes pulseFade {
+  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
+  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+}
+@-webkit-keyframes pulseFade {
+  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
+  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+}
+@-moz-keyframes pulseFade {
+  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
+  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+}
+
+.accountActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.countdown { 
+  width: 100%; 
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.countdown p {
+  font-size: 12px;
+  margin: 2px 0 0;
+  color: #e5c76a;
+  text-align: center;
+  transition: color var(--animation-fast) var(--transition-smooth);
+}
+
+.accountItem:hover .countdown p {
+  color: var(--shield-white);
+}
+
 .progress-bar {
-  width: 100%; height: 6px;
-  background: var(--shield-grey);
+  width: 100%; 
+  height: 6px;
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 4px;
   overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 .progress-fill {
   height: 100%;
   background: var(--shield-accent);
   box-shadow: 0 0 6px var(--shield-glow);
-  transition: width 0.2s;
-}
-.progress-fill {
+  transition: width 1s linear;
   width: var(--progress);
-  transition: width 0.3s linear;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+  transform: translateX(-100%);
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
 }
 
 /* ───────────────────────────────
@@ -381,14 +896,24 @@ body {
 ─────────────────────────────────*/
 @media (max-width: 768px) {
   .shield-login-container { max-width: 98vw; }
-  .accountList { gap: 8px; margin-top: 12px; }
+  .accountList { gap: 8px; margin-top: 40px; }
   .accountItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    padding: 10px 6px;
+    padding: 15px 10px;
   }
-  .accountActions { width: 100%; justify-content: flex-start; gap: 4px; }
+  .accountName { 
+    font-size: 14px;
+  }
+  .accountCode {
+    font-size: 20px;
+    padding: 8px;
+    letter-spacing: 1.5px;
+  }
+  .accountActions { 
+    gap: 6px; 
+  }
+  .countdown {
+    margin-top: 6px;
+  }
   .settings-header h2 { font-size: 1.4rem; letter-spacing: 1.2px; }
 }
 
@@ -406,16 +931,38 @@ body {
     justify-content: center;  /* horizontal center */
     align-items: center;      /* vertical center */
     padding: 0 10px;
+    box-sizing: border-box;
   }
 
   .shield-login-container {
     padding: 1.5rem; 
     border-radius: 10px; 
     font-size: 1.15rem; 
-    max-width: 97vw;
+    max-width: calc(100% - 20px);
+    margin: 0 auto;
+    box-sizing: border-box;
+    box-shadow: 0 0 15px var(--shield-glow);
   }
-  .shield-clean-input { font-size: 17px; padding: 14px 16px; }
-  .bw-btn { font-size: 16px; padding: 14px 20px; }
+  
+  /* Keep login buttons side by side even on mobile */
+  .shield-login-container > div {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+  
+  .shield-clean-input { 
+    font-size: 17px; 
+    padding: 14px 16px; 
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .password-toggle {
+    right: 8px;
+    height: 30px;
+  }
+  
   .settings-header { padding: 0 8px; margin-bottom: 16px; }
   .settings-sidebar { width: 270px; padding: 28px 18px 18px; }
 }
@@ -426,13 +973,56 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0 6px;
+    padding: 0 8px;
+    box-sizing: border-box;
   }
 
-  .shield-login-container { padding: 1rem; font-size: 1.05rem; max-width: 98vw; }
-  .shield-clean-input { font-size: 15px; padding: 12px 12px; }
-  .bw-btn { font-size: 14px; padding: 12px 14px; }
+  .shield-login-container { 
+    padding: 1rem; 
+    font-size: 1.05rem; 
+    max-width: calc(100% - 16px);
+    border-width: 1px;
+    box-shadow: 0 0 10px var(--shield-glow);
+    margin: 0 auto;
+  }
+  
+  /* Adjust Add Account form for very small screens */
+  .addAccount {
+    padding: 15px;
+    margin: 35px auto 15px;
+    grid-gap: 12px;
+    max-width: 100%;
+  }
+  
+  .addAccount .shield-clean-input {
+    padding: 12px;
+    font-size: 16px;
+    margin: 4px 0;
+  }
+  
+  /* Ensure login buttons are side by side */
+  .shield-login-container > div {
+    margin-top: 5px;
+  }
+  
+  .shield-clean-input { 
+    font-size: 15px; 
+    padding: 12px 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .password-toggle {
+    right: 6px;
+    height: 26px;
+    min-width: 48px;
+    font-size: 12px;
+  }
+  
+  /* Remove generic bw-btn style that would override our login form styles */
   .accountName, .accountCode { font-size: 15px; min-width: 80px; }
+  .accountCode {
+    min-width: 110px;
+  }
   .settings-sidebar { width: 230px; padding: 22px 16px 16px; }
 }
 
@@ -440,7 +1030,15 @@ body {
   .settings-header { justify-content: center; }
   .settings-header h2 { text-align: center; flex: 1; }
 }
-
-/* ───────────────────────────────
-   ⚡ END OF STYLES
-─────────────────────────────────*/
+.bw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;   /* centers text horizontally */
+  text-align: center;        /* fallback centering */
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  background: #caa94c;
+  color: #000000;
+  cursor: pointer;
+}

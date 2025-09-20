@@ -20,7 +20,6 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
   const [showPassword, setShowPassword] = React.useState(false);
   return (
     <div className="login-form-outer" style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-      <a href="#shield-login-title" className="skip-link">Skip to login form</a>
       <div className="shield-login-container" role="form" aria-labelledby="shield-login-title">
         <h2 id="shield-login-title" className="high-contrast-text">SHIELD-Authenticator Login / Register</h2>
         {formErrors.email && <div className="form-error" role="alert">{formErrors.email}</div>}

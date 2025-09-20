@@ -4,25 +4,22 @@ Copyright © 2025 SHIELD Intelligence. All rights reserved.
 
 /**
  * SHIELD Authenticator CSS - Table of Contents
- * * 1. Variables & Root Settings
+ * 
+ * 1. Variables & Root Settings
  * 2. Base Elements & Reset
- * 3. Layout Components
- * 4. UI Elements
- * - Buttons
- * - Form Elements
- * - Loaders & Spinners
- * 5. Specific Sections
- * - Login Form
- * - Account List
- * - Settings Sidebar
- * 6. Animations
- * 7. Responsive Adaptations
- * 8. Utility Classes
- * 9. Accessibility Enhancements
+ * 3. Animations & Keyframes
+ * 4. Loading Components
+ * 5. Form Elements & Validation
+ * 6. Button Components
+ * 7. Login Form
+ * 8. Add Account Form
+ * 9. Account List & Items
+ * 10. Settings Sidebar
+ * 11. Responsive Design
  */
 
 /* ═════════════════════════════════════════════════════════════════
-   Section 1: VARIABLES & ROOT SETTINGS
+   1. VARIABLES & ROOT SETTINGS
    ═════════════════════════════════════════════════════════════════ */
 :root {
   /* Brand Colors */
@@ -63,7 +60,7 @@ Copyright © 2025 SHIELD Intelligence. All rights reserved.
 }
 
 /* ═════════════════════════════════════════════════════════════════
-   Section 2: BASE ELEMENTS & RESET
+   2. BASE ELEMENTS & RESET
    ═════════════════════════════════════════════════════════════════ */
 html,
 body {
@@ -88,9 +85,89 @@ body {
   box-sizing: inherit;
 }
 
-/* ───────────────────────────────
-   ⚡ LOADING SCREEN + SPINNER + OVERLAY
-─────────────────────────────────*/
+/* ═════════════════════════════════════════════════════════════════
+   3. ANIMATIONS & KEYFRAMES
+   ═════════════════════════════════════════════════════════════════ */
+@keyframes fadeInBody {
+  to { opacity: 1; }
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+  40%, 60% { transform: translate3d(3px, 0, 0); }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    opacity: 1;
+    transform: scale(0, 0);
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}
+
+@keyframes glideText {
+  0% { 
+    transform: translateX(-100%); 
+  }
+  100% { 
+    transform: translateX(100%); 
+  }
+}
+
+@keyframes pulseFade {
+  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
+  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+}
+@-webkit-keyframes pulseFade {
+  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
+  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+}
+@-moz-keyframes pulseFade {
+  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
+  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   4. LOADING COMPONENTS
+   ═════════════════════════════════════════════════════════════════ */
 .shield-loading-screen {
   position: fixed;
   inset: 0;
@@ -202,23 +279,10 @@ body {
   border: 0.3em solid var(--shield-accent);
   border-top: 0.3em solid transparent;
 }
-@keyframes spin {
-  100% { transform: rotate(360deg); }
-}
 
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; }
-}
-
-/* ───────────────────────────────
-   ⚡ FORM ERROR & NOTIFICATION
-─────────────────────────────────*/
+/* ═════════════════════════════════════════════════════════════════
+   5. FORM ELEMENTS & VALIDATION
+   ═════════════════════════════════════════════════════════════════ */
 .form-error {
   color: #f85149;
   background: rgba(218, 54, 51, 0.08);
@@ -274,183 +338,7 @@ body {
   font-size: 16px;
 }
 
-@keyframes shake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
-  40%, 60% { transform: translate3d(3px, 0, 0); }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-/* ───────────────────────────────
-   ⚡ SETTINGS SIDEBAR
-─────────────────────────────────*/
-.settings-sidebar {
-  position: fixed;
-  top: 0; right: 0;
-  width: 320px; max-width: 90vw;
-  height: 100vh;
-  background: #232323;
-  box-shadow: -4px 0 24px var(--shield-glow);
-  border-left: 2px solid var(--shield-accent);
-  z-index: 1002;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  padding: 32px 24px 24px;
-  transform: translateX(100%);
-  transition: transform 0.32s cubic-bezier(.4,1.6,.4,1);
-}
-.settings-sidebar.open { transform: translateX(0); }
-
-.sidebar-backdrop {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.32);
-  z-index: 1001;
-  cursor: pointer;
-}
-
-.close-sidebar {
-  background: none;
-  border: none;
-  color: var(--shield-accent);
-  font-size: 2.2rem;
-  font-weight: bold;
-  cursor: pointer;
-  align-self: flex-end;
-  margin-bottom: 24px;
-  transition: color 0.2s;
-}
-.close-sidebar:hover { color: #fff; }
-
-.settings-sidebar .logout-btn {
-  width: 100%;
-  margin-top: 16px;
-  padding: 16px 0;
-  font-size: 1.2rem;
-  background: #da3633;
-  color: #fff;
-  border-radius: 10px;
-  font-weight: bold;
-  box-shadow: 0 0 12px rgba(218, 54, 51, 0.18);
-  transition: background 0.2s, color 0.2s;
-}
-.settings-sidebar .logout-btn:hover {
-  background: #f85149;
-}
-
-/* ───────────────────────────────
-   ⚡ SETTINGS HEADER + ICON
-─────────────────────────────────*/
-.settings-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  margin: 0 auto 24px;
-  max-width: 1100px;
-  width: 100%;
-  padding: 0 6px;
-  box-sizing: border-box;
-}
-.settings-header h2 {
-  color: var(--shield-accent);
-  font-weight: bold;
-  font-size: 1.6rem;
-  letter-spacing: 1.5px;
-  margin: 0;
-  text-shadow: 0 0 10px var(--shield-glow);
-}
-
-.settings-icon {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  background: rgba(42, 42, 42, 0.7);
-  margin-left: 16px;
-  transition: background 0.2s;
-  position: relative;
-  z-index: 2;
-}
-.settings-icon:hover,
-.settings-icon:focus {
-  background: rgba(202, 169, 76, 0.15);
-  outline: 2px solid var(--shield-accent);
-}
-
-/* ───────────────────────────────
-   ⚡ LOGIN FORM
-─────────────────────────────────*/
-.login-form-outer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 48px);
-  width: 100%;
-  padding: 0 20px;
-  box-sizing: border-box;
-}
-
-.shield-login-container {
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  background: rgba(42, 42, 42, 0.85);
-  padding: 2rem;
-  border-radius: 12px;
-  border: 2px solid var(--shield-accent);
-  box-shadow: 0 0 30px var(--shield-glow);
-  max-width: 420px;
-  width: calc(100% - 4px); /* Account for the border */
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
-  box-sizing: border-box;
-}
-
-/* Login form button container */
-.shield-login-container > div {
-  display: flex;
-  flex-direction: row; /* Keep buttons side by side */
-  justify-content: center;
-  width: 100%;
-  margin-top: 10px;
-}
-
-.shield-login-container .bw-btn {
-  min-width: 120px; /* Ensure buttons are wide enough */
-  margin: 8px 5px; /* Add horizontal spacing */
-  flex: 0 0 auto; /* Prevent flex stretching */
-}
-
-.shield-login-container h2 {
-  margin-bottom: 25px;
-  font-size: 1.6rem;
-  font-weight: bold;
-  color: var(--shield-accent);
-  letter-spacing: 1.5px;
-  text-shadow: 0 0 10px var(--shield-glow);
-}
-
-/* ───────────────────────────────
-   ⚡ FORM ELEMENTS
-─────────────────────────────────*/
+/* Input Elements */
 .shield-clean-input {
   display: block;
   width: 100%;
@@ -528,7 +416,15 @@ body {
   box-shadow: 0 0 0 rgba(0, 0, 0, 0);
 }
 
+/* ═════════════════════════════════════════════════════════════════
+   6. BUTTON COMPONENTS
+   ═════════════════════════════════════════════════════════════════ */
+
 .bw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   padding: 12px 22px;
   margin: 8px;
   font-size: 15px;
@@ -578,24 +474,6 @@ body {
   animation: ripple 0.6s ease-out;
 }
 
-@keyframes ripple {
-  0% {
-    opacity: 1;
-    transform: scale(0, 0);
-  }
-  20% {
-    transform: scale(25, 25);
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(40, 40);
-  }
-}
-.bw-btn:hover {
-  background: #e5c76a;
-  box-shadow: 0 0 18px var(--shield-glow);
-}
 .bw-btn.danger {
   padding: 6px 12px;
   font-size: 12px;
@@ -606,28 +484,174 @@ body {
   box-shadow: 0 0 6px rgba(255, 0, 0, 0.3);
   transition: 0.2s;
 }
-.bw-btn.danger:hover { background: #f85149; }
 
-.form-error {
-  color: #f85149;
-  background: rgba(218, 54, 51, 0.08);
-  border-radius: 6px;
-  padding: 6px 10px;
-  margin: 6px 0 10px;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 0 6px rgba(218, 54, 51, 0.15);
-}
-.form-hint {
-  color: #caa94c;
-  font-size: 13px;
-  margin: 4px 0 10px;
-  opacity: 0.85;
+.bw-btn.danger:hover { 
+  background: #f85149; 
 }
 
-/* ───────────────────────────────
-   ⚡ ADD ACCOUNT FORM
-─────────────────────────────────*/
+/* ═════════════════════════════════════════════════════════════════
+   7. SETTINGS SIDEBAR
+   ═════════════════════════════════════════════════════════════════ */
+.settings-sidebar {
+  position: fixed;
+  top: 0; right: 0;
+  width: 320px; max-width: 90vw;
+  height: 100vh;
+  background: #232323;
+  box-shadow: -4px 0 24px var(--shield-glow);
+  border-left: 2px solid var(--shield-accent);
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 32px 24px 24px;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(.4,1.6,.4,1);
+}
+.settings-sidebar.open { transform: translateX(0); }
+
+.sidebar-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.32);
+  z-index: 1001;
+  cursor: pointer;
+}
+
+.close-sidebar {
+  background: none;
+  border: none;
+  color: var(--shield-accent);
+  font-size: 2.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  align-self: flex-end;
+  margin-bottom: 24px;
+  transition: color 0.2s;
+}
+.close-sidebar:hover { color: #fff; }
+
+.settings-sidebar .logout-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 16px 0;
+  font-size: 1.2rem;
+  background: #da3633;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: bold;
+  box-shadow: 0 0 12px rgba(218, 54, 51, 0.18);
+  transition: background 0.2s, color 0.2s;
+}
+.settings-sidebar .logout-btn:hover {
+  background: #f85149;
+}
+
+.settings-sidebar .logout-btn:hover {
+  background: #f85149;
+}
+
+/* Settings Header */
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 0 auto 24px;
+  max-width: 1100px;
+  width: 100%;
+  padding: 0 6px;
+  box-sizing: border-box;
+}
+
+.settings-header h2 {
+  color: var(--shield-accent);
+  font-weight: bold;
+  font-size: 1.6rem;
+  letter-spacing: 1.5px;
+  margin: 0;
+  text-shadow: 0 0 10px var(--shield-glow);
+}
+
+.settings-icon {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; 
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(42, 42, 42, 0.7);
+  margin-left: 16px;
+  transition: background 0.2s;
+  position: relative;
+  z-index: 2;
+}
+
+.settings-icon:hover,
+.settings-icon:focus {
+  background: rgba(202, 169, 76, 0.15);
+  outline: 2px solid var(--shield-accent);
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   8. LOGIN FORM
+   ═════════════════════════════════════════════════════════════════ */
+.login-form-outer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 48px);
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.shield-login-container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background: rgba(42, 42, 42, 0.85);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 2px solid var(--shield-accent);
+  box-shadow: 0 0 30px var(--shield-glow);
+  max-width: 420px;
+  width: calc(100% - 4px); /* Account for the border */
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Login form button container */
+.shield-login-container > div {
+  display: flex;
+  flex-direction: row; /* Keep buttons side by side */
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.shield-login-container .bw-btn {
+  min-width: 120px; /* Ensure buttons are wide enough */
+  margin: 8px 5px; /* Add horizontal spacing */
+  flex: 0 0 auto; /* Prevent flex stretching */
+}
+
+.shield-login-container h2 {
+  margin-bottom: 25px;
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: var(--shield-accent);
+  letter-spacing: 1.5px;
+  text-shadow: 0 0 10px var(--shield-glow);
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   9. ADD ACCOUNT FORM
+   ═════════════════════════════════════════════════════════════════ */
 .addAccount {
   background: rgba(30, 30, 30, 0.8);
   border-radius: var(--radius-medium);
@@ -741,6 +765,7 @@ body {
   background-size: contain;
   background-repeat: no-repeat;
   display: inline-block;
+  flex-shrink: 0;  
 }
 
 .addAccount label.bw-btn:after {
@@ -775,9 +800,10 @@ body {
 .addAccount label.bw-btn:active:after {
   animation: ripple 0.6s ease-out;
 }
-/* ───────────────────────────────
-   ⚡ ACCOUNT LIST
-─────────────────────────────────*/
+
+/* ═════════════════════════════════════════════════════════════════
+   10. ACCOUNT LIST & ITEMS
+   ═════════════════════════════════════════════════════════════════ */
 .accountList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -878,7 +904,7 @@ body {
 }
 
 .accountItem:hover .accountName .glide {
-  color: var(--shield-white);
+  color: var(--shield-accent);
 }
 
 .accountCode {
@@ -979,13 +1005,26 @@ body {
   transform: translateX(-100%);
 }
 
-@keyframes shimmer {
-  100% { transform: translateX(100%); }
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+  transform: translateX(-100%);
 }
 
-/* ───────────────────────────────
-   ⚡ RESPONSIVE ADAPTATIONS
-─────────────────────────────────*/
+/* ═════════════════════════════════════════════════════════════════
+   11. RESPONSIVE DESIGN
+   ═════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
   .shield-login-container { max-width: 98vw; }
   .accountList { gap: 8px; margin-top: 40px; }
@@ -1141,16 +1180,4 @@ body {
 @media (min-width: 769px) {
   .settings-header { justify-content: center; }
   .settings-header h2 { text-align: center; flex: 1; }
-}
-.bw-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;   /* centers text horizontally */
-  text-align: center;        /* fallback centering */
-  padding: 12px 20px;
-  border: none;
-  border-radius: 6px;
-  background: #caa94c;
-  color: #000000;
-  cursor: pointer;
 }

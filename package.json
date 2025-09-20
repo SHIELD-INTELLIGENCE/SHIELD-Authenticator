@@ -1,6 +1,6 @@
 {
   "name": "shield-authenticator",
-  "version": "0.1.0",
+  "version": "1.5.0",
   "private": true,
   "dependencies": {
     "@capacitor/android": "^7.4.3",

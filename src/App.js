@@ -42,6 +42,7 @@ function SHIELDAuthenticator() {
   const [formErrors, setFormErrors] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState({ login: false, register: false });
   const [loadingAuth, setLoadingAuth] = useState(true);
+  const [loadingLogout, setLoadingLogout] = useState(false);
   const [loginMessage, setLoginMessage] = useState(null);
 
   useEffect(() => {
@@ -233,9 +234,27 @@ function SHIELDAuthenticator() {
   const handleCloseSidebar = () => setShowSettings(false);
   const handleLogout = () => {
     setShowSettings(false);
-    logout();
+    setLoadingLogout(true);
+    
+    // Add a small delay to show the loading animation
+    setTimeout(() => {
+      logout().finally(() => {
+        setLoadingLogout(false);
+      });
+    }, 500);
   };
 
+
+if (loadingLogout) {
+  return (
+    <div className="logout-loading-screen">
+      <div className="logout-loading-title">
+        Logging out...
+        <span className="logout-spinner" />
+      </div>
+    </div>
+  );
+}
 
 if (loadingAuth) {
   return (
@@ -272,8 +291,12 @@ if (loadingAuth) {
     <div className="page-container">
       <div className="settings-header">
         <h2>SHIELD-Authenticator Dashboard</h2>
-        <div className="settings-icon" onClick={handleSettingsClick} tabIndex={0} title="Settings">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 8a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09c0 .66.39 1.25 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 8c.66 0 1.25.39 1.51 1H21a2 2 0 0 1 0 4h-.09c-.66 0-1.25.39-1.51 1z"/></svg>
+        <div class="icon-container" onClick={handleSettingsClick} tabIndex={0} title="Settings">
+        <svg width="512" height="512" id="gear" viewBox="0 0 512 512">
+        <path
+        fill="#bfa24f"
+        d="M416.349 256.046c-.001-21.013 13.143-38.948 31.651-46.062a196.302 196.302 0 0 0-23.664-57.139 49.423 49.423 0 0 1-20.082 4.254c-12.621 0-25.238-4.811-34.871-14.442-14.863-14.863-18.248-36.846-10.18-54.97A196.274 196.274 0 0 0 302.074 64C294.971 82.529 277.027 95.69 256 95.69c-21.025 0-38.969-13.161-46.073-31.69a196.243 196.243 0 0 0-57.128 23.688c8.068 18.122 4.683 40.104-10.181 54.97-9.631 9.631-22.25 14.443-34.871 14.443a49.429 49.429 0 0 1-20.083-4.255A196.273 196.273 0 0 0 64 209.984c18.509 7.112 31.652 25.049 31.652 46.062 0 21.008-13.132 38.936-31.63 46.054a196.318 196.318 0 0 0 23.692 57.128 49.428 49.428 0 0 1 20.032-4.232c12.622 0 25.239 4.812 34.871 14.443 14.841 14.841 18.239 36.781 10.215 54.889a196.257 196.257 0 0 0 57.13 23.673c7.128-18.479 25.046-31.596 46.038-31.596 20.992 0 38.91 13.115 46.037 31.596a196.234 196.234 0 0 0 57.132-23.675c-8.023-18.106-4.626-40.046 10.216-54.887 9.629-9.632 22.248-14.444 34.868-14.444 6.836 0 13.67 1.411 20.033 4.233a196.318 196.318 0 0 0 23.692-57.128c-18.498-7.119-31.629-25.048-31.629-46.054zM256.9 335.9c-44.3 0-80-35.9-80-80 0-44.101 35.7-80 80-80 44.299 0 80 35.899 80 80 0 44.1-35.701 80-80 80z"/>
+        </svg>
         </div>
       </div>
       {showSettings && (

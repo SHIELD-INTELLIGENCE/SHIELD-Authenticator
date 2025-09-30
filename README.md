@@ -72,6 +72,39 @@ Then follow your host’s instructions to serve the `build` folder.
 
 ---
 
+## Environment Variables and Secrets
+
+This app uses Create React App, so only variables prefixed with `REACT_APP_` are embedded into the client bundle. These values are public at runtime (they ship in the JS), so do not put true secrets on the client.
+
+1) Copy `.env.example` to `.env` and fill values for local development:
+
+```
+cp .env.example .env
+# edit .env and set values
+```
+
+2) Netlify deployment:
+
+- In Netlify site settings, go to Build & deploy → Environment → Environment variables
+- Add the following keys with your values:
+    - `REACT_APP_MASTER_KEY`
+    - `REACT_APP_FIREBASE_API_KEY`
+    - `REACT_APP_FIREBASE_AUTH_DOMAIN`
+    - `REACT_APP_FIREBASE_PROJECT_ID`
+    - `REACT_APP_FIREBASE_STORAGE_BUCKET`
+    - `REACT_APP_FIREBASE_MESSAGING_SENDER_ID`
+    - `REACT_APP_FIREBASE_APP_ID`
+- Trigger a new deploy (Netlify will inject env vars at build time)
+
+Security note: A client-side "master key" is not a true secret; consider:
+
+- deriving a key from a user-entered passphrase (not stored), or
+- moving encryption to a server/Netlify Function where secrets never leave the server.
+
+`.env` files are git-ignored. Commit only `.env.example`.
+
+---
+
 ## Folder Structure
 
 ```

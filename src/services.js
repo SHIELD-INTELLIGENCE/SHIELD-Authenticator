@@ -16,7 +16,7 @@ import {
   updateDoc // 👈 added
 } from "firebase/firestore";
 import { authenticator } from "otplib";
-import { encryptSecret, decryptSecret } from "./crypto";
+import { encryptSecret, decryptSecretWithKeyInfo } from "./crypto";
 import { auth, db } from "./firebase";
 
 // ---------------- Auth ----------------
@@ -51,11 +51,25 @@ export async function deleteAccount(accountId) {
 export async function getAccounts(userId) {
   const q = query(collection(db, "accounts"), where("userId", "==", userId));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((docSnap) => ({
-    id: docSnap.id,
-    ...docSnap.data(),
-    secret: decryptSecret(docSnap.data().secret)
-  }));
+  const results = [];
+  for (const docSnap of snapshot.docs) {
+    const data = docSnap.data();
+    const { plaintext, keyUsed } = decryptSecretWithKeyInfo(data.secret);
+
+    // Lazy migrate if decrypted with legacy key
+    if (keyUsed === "legacy" && plaintext) {
+      try {
+        const reenc = encryptSecret(plaintext);
+        await updateDoc(doc(db, "accounts", docSnap.id), { secret: reenc, migratedAt: serverTimestamp() });
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn("Failed to migrate secret to PRIMARY key for doc", docSnap.id, e);
+      }
+    }
+
+    results.push({ id: docSnap.id, ...data, secret: plaintext });
+  }
+  return results;
 }
 
 export async function updateAccount(accountId, { name, secret }) {

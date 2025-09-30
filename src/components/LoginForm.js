@@ -1,22 +1,6 @@
 // Copyright © 2025 SHIELD Intelligence. All rights reserved.
 import React from "react";
 
-function CopyrightFooter() {
-  return (
-    <footer style={{
-      textAlign: "center",
-      padding: "1rem 0",
-      color: "#888",
-      fontSize: "0.95rem",
-      background: "transparent",
-      marginTop: "2rem"
-    }}>
-      © 2025 SHIELD Intelligence. All rights reserved. · {" "}
-      <a href="/terms.html" target="_blank" rel="noopener noreferrer">Terms of Use & Privacy</a>
-    </footer>
-  );
-}
-
 function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLogin, handleRegister, loginMessage }) {
   const [showPassword, setShowPassword] = React.useState(false);
   return (
@@ -89,9 +73,6 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
             {loginMessage.text}
           </div>
         )}
-      </div>
-      <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-        <CopyrightFooter />
       </div>
     </div>
   );

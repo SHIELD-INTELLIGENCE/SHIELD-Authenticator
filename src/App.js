@@ -344,7 +344,8 @@ function CopyrightFooter() {
       background: "transparent",
       marginTop: "2rem"
     }}>
-      © 2025 SHIELD Intelligence. All rights reserved.
+      © 2025 SHIELD Intelligence. All rights reserved. · {" "}
+      <a href="/terms.html" rel="noopener noreferrer">Terms of Use & Privacy</a>
     </footer>
   );
 }

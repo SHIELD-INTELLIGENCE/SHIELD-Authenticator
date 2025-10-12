@@ -8,62 +8,72 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
       <div className="shield-login-container" role="form" aria-labelledby="shield-login-title">
         <h2 id="shield-login-title" className="high-contrast-text">SHIELD-Authenticator Login / Register</h2>
         {formErrors.email && <div className="form-error" role="alert">{formErrors.email}</div>}
-        <input
-          id="shield-login-email"
-          className="shield-clean-input"
-          placeholder="Email"
-          value={form.email}
-          onChange={(e) => {
-            setForm({ ...form, email: e.target.value });
-            setFormErrors({ ...formErrors, email: "" });
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
           }}
-          aria-label="Email"
-          aria-invalid={!!formErrors.email}
-          aria-required="true"
-        />
-        {formErrors.password && <div className="form-error" role="alert">{formErrors.password}</div>}
-        <div className="password-container">
+          style={{ width: "100%" }}
+          aria-label="Login form"
+        >
           <input
-            id="shield-login-password"
+            id="shield-login-email"
             className="shield-clean-input"
-            type={showPassword ? "text" : "password"}
-            placeholder="Password (min 8 chars)"
-            value={form.password}
+            placeholder="Email"
+            value={form.email}
             onChange={(e) => {
-              setForm({ ...form, password: e.target.value });
-              setFormErrors({ ...formErrors, password: "" });
+              setForm({ ...form, email: e.target.value });
+              setFormErrors({ ...formErrors, email: "" });
             }}
-            aria-label="Password"
-            aria-invalid={!!formErrors.password}
+            aria-label="Email"
+            aria-invalid={!!formErrors.email}
             aria-required="true"
           />
-          <button
-            type="button"
-            className="password-toggle touch-target"
-            aria-label={showPassword ? "Hide password" : "Show password"}
-            onClick={() => setShowPassword(v => !v)}
-          >
-            {showPassword ? 'Hide' : 'Show'}
-          </button>
-        </div>
-        <div>
-          <button
-            className="bw-btn touch-target"
-            onClick={handleLogin}
-            aria-label="Login"
-            disabled={loading.login || loading.register}
-          >
-            {loading.login ? "Logging in..." : "Login"}
-          </button>
-          <button
-            className="bw-btn touch-target"
-            onClick={handleRegister}
-            aria-label="Register"
-            disabled={loading.login || loading.register}
-          >
-            {loading.register ? "Registering..." : "Register"}
-          </button>
-        </div>
+          {formErrors.password && <div className="form-error" role="alert">{formErrors.password}</div>}
+          <div className="password-container">
+            <input
+              id="shield-login-password"
+              className="shield-clean-input"
+              type={showPassword ? "text" : "password"}
+              placeholder="Password (min 8 chars)"
+              value={form.password}
+              onChange={(e) => {
+                setForm({ ...form, password: e.target.value });
+                setFormErrors({ ...formErrors, password: "" });
+              }}
+              aria-label="Password"
+              aria-invalid={!!formErrors.password}
+              aria-required="true"
+            />
+            <button
+              type="button"
+              className="password-toggle touch-target"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              onClick={() => setShowPassword(v => !v)}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
+          <div>
+            <button
+              type="submit"
+              className="bw-btn touch-target"
+              aria-label="Login"
+              disabled={loading.login || loading.register}
+            >
+              {loading.login ? "Logging in..." : "Login"}
+            </button>
+            <button
+              type="button"
+              className="bw-btn touch-target"
+              onClick={handleRegister}
+              aria-label="Register"
+              disabled={loading.login || loading.register}
+            >
+              {loading.register ? "Registering..." : "Register"}
+            </button>
+          </div>
+        </form>
         {loginMessage && (
           <div 
             className={loginMessage.type === 'error' ? 'form-error' : 'form-success'} 

@@ -21,6 +21,7 @@ import LoginForm from "./components/LoginForm";
 import AddAccountForm from "./components/AddAccountForm";
 import AccountList from "./components/AccountList";
 import SettingsSidebar from "./components/SettingsSidebar";
+import ConfirmDialog from "./components/ConfirmDialog";
 
 // Set worker path dynamically (works with Netlify)
 QrScanner.WORKER_PATH = new URL(
@@ -230,6 +231,13 @@ function SHIELDAuthenticator() {
   }
 
   const [showSettings, setShowSettings] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: null });
+
+  const openConfirm = ({ title, message, onConfirm }) => {
+    setConfirmDialog({ open: true, title, message, onConfirm });
+  };
+
+  const closeConfirm = () => setConfirmDialog({ open: false, title: '', message: '', onConfirm: null });
   const handleSettingsClick = () => setShowSettings(true);
   const handleCloseSidebar = () => setShowSettings(false);
   const handleLogout = () => {
@@ -301,7 +309,7 @@ if (loadingAuth) {
       </div>
       {showSettings && (
         <>
-          <SettingsSidebar show={showSettings} onLogout={handleLogout} onClose={handleCloseSidebar} />
+          <SettingsSidebar show={showSettings} onLogout={handleLogout} onClose={handleCloseSidebar} openConfirm={openConfirm} />
           <div className="sidebar-backdrop" onClick={handleCloseSidebar} />
         </>
       )}
@@ -323,6 +331,21 @@ if (loadingAuth) {
         setShowDelete={setShowDelete}
         showDelete={showDelete}
         handleDelete={handleDelete}
+        openConfirm={openConfirm}
+      />
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={() => {
+          try {
+            // call provided confirm handler
+            confirmDialog.onConfirm && confirmDialog.onConfirm();
+          } finally {
+            closeConfirm();
+          }
+        }}
+        onCancel={closeConfirm}
       />
       <ToastContainer
         position="bottom-right"

@@ -2,22 +2,6 @@
 Copyright © 2025 SHIELD Intelligence. All rights reserved.
 */
 
-/**
- * SHIELD Authenticator CSS - Table of Contents
- * 
- * 1. Variables & Root Settings
- * 2. Base Elements & Reset
- * 3. Animations & Keyframes
- * 4. Loading Components
- * 5. Form Elements & Validation
- * 6. Button Components
- * 7. Login Form
- * 8. Add Account Form
- * 9. Account List & Items
- * 10. Settings Sidebar
- * 11. Responsive Design
- */
-
 /* ═════════════════════════════════════════════════════════════════
    1. VARIABLES & ROOT SETTINGS
    ═════════════════════════════════════════════════════════════════ */
@@ -234,7 +218,8 @@ body {
    ═════════════════════════════════════════════════════════════════ */
 .shield-loading-screen {
   position: fixed;
-  inset: 0;
+  /* fallback for older Safari: explicit edges */
+  top: 0; right: 0; bottom: 0; left: 0;
   width: 100vw;
   height: 100vh;
   background: radial-gradient(circle at top, var(--shield-grey) 0%, var(--shield-black) 100%);
@@ -289,6 +274,7 @@ body {
     letter-spacing: 1px;
     line-height: 1.4;
     word-break: break-word;
+    -webkit-hyphens: auto;
     hyphens: auto;
   }
 }
@@ -299,6 +285,7 @@ body {
     letter-spacing: 0.5px;
     line-height: 1.5;
     word-break: break-word;
+    -webkit-hyphens: auto;
     hyphens: auto;
   }
 }
@@ -316,7 +303,8 @@ body {
 
 .shield-spinner-overlay {
   position: fixed;
-  inset: 0;
+  /* fallback for older Safari: explicit edges */
+  top: 0; right: 0; bottom: 0; left: 0;
   width: 100vw;
   height: 100vh;
 
@@ -327,6 +315,7 @@ body {
       rgba(26, 26, 26, 0.9) 100%),
     linear-gradient(0deg, transparent 6px, rgba(255,255,255,0.05) 6px); /* subtle rim */
   background-clip: content-box, border-box;
+  -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
 
   padding: 0 6px; /* matches your body padding to create the illusion */
@@ -349,7 +338,8 @@ body {
 /* Logout Loading State */
 .logout-loading-screen {
   position: fixed;
-  inset: 0;
+  /* fallback for older Safari: explicit edges */
+  top: 0; right: 0; bottom: 0; left: 0;
   width: 100vw;
   height: 100vh;
   background: radial-gradient(circle at top, #3d1a1a 0%, #1a0f0f 100%);
@@ -387,7 +377,8 @@ body {
 
 .logout-spinner-overlay {
   position: fixed;
-  inset: 0;
+  /* fallback for older Safari: explicit edges */
+  top: 0; right: 0; bottom: 0; left: 0;
   width: 100vw;
   height: 100vh;
   background:
@@ -396,6 +387,7 @@ body {
       rgba(26, 15, 15, 0.9) 100%),
     linear-gradient(0deg, transparent 6px, rgba(248, 81, 73, 0.1) 6px);
   background-clip: content-box, border-box;
+  -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
   padding: 0 6px;
   box-sizing: border-box;
@@ -453,6 +445,7 @@ body {
     line-height: 1.4;
     margin-bottom: 1.2rem;
     word-break: break-word;
+    -webkit-hyphens: auto;
     hyphens: auto;
   }
   
@@ -767,10 +760,12 @@ body {
 @keyframes backdropFadeIn {
   0% {
     opacity: 0;
+    -webkit-backdrop-filter: blur(0px);
     backdrop-filter: blur(0px);
   }
   100% {
     opacity: 1;
+    -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
   }
 }
@@ -1276,9 +1271,9 @@ body {
 }
 
 .accountCode.pulse {
-  animation: pulseFade 1s infinite alternate;
-  -webkit-animation: pulseFade 1s infinite alternate;
   -moz-animation: pulseFade 1s infinite alternate;
+  -webkit-animation: pulseFade 1s infinite alternate;
+  animation: pulseFade 1s infinite alternate;
 }
 
 @keyframes pulseFade {
@@ -1531,4 +1526,39 @@ body {
 @media (min-width: 769px) {
   .settings-header { justify-content: center; }
   .settings-header h2 { text-align: center; flex: 1; }
+}
+
+/* Confirm Dialog */
+.confirm-backdrop {
+  position: fixed;
+  /* fallback for older Safari: explicit edges */
+  top: 0; right: 0; bottom: 0; left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  z-index: 2000;
+}
+.confirm-dialog {
+  background: #161616;
+  border: 2px solid var(--shield-accent);
+  padding: 22px;
+  width: 90%;
+  max-width: 480px;
+  border-radius: 12px;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.6), 0 0 20px var(--shield-glow);
+  text-align: center;
+}
+.confirm-dialog h3 {
+  margin: 0 0 8px 0;
+  color: var(--shield-accent);
+}
+.confirm-dialog p {
+  color: #ddd;
+  margin-bottom: 16px;
+}
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }

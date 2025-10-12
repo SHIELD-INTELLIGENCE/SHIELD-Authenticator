@@ -11,6 +11,7 @@ function AccountItem({
   setShowDelete,
   showDelete,
   handleDelete,
+  openConfirm,
 }) {
   const nameRef = useRef(null);
   const [shouldGlide, setShouldGlide] = useState(false);
@@ -60,26 +61,26 @@ function AccountItem({
       >
         Edit
       </button>
-      {showDelete === acc.id ? (
-        <>
-          <button
-            className="bw-btn danger"
-            onClick={() => handleDelete(acc.id)}
-          >
-            Confirm Delete
-          </button>
-          <button className="bw-btn" onClick={() => setShowDelete(null)}>
-            Cancel
-          </button>
-        </>
-      ) : (
+      <>
         <button
           className="bw-btn danger"
-          onClick={() => setShowDelete(acc.id)}
+          onClick={() => {
+            // open centralized confirm dialog
+            if (openConfirm) {
+              openConfirm({
+                title: 'Delete account',
+                message: `Are you sure you want to delete ${acc.name}? This action cannot be undone.`,
+                onConfirm: () => handleDelete(acc.id),
+              });
+            } else {
+              // Fallback to previous behaviour
+              setShowDelete(acc.id);
+            }
+          }}
         >
           Delete
         </button>
-      )}
+      </>
     </div>
 
     <div className="countdown">

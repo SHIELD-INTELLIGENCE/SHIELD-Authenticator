@@ -1201,6 +1201,7 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+
 .accountName {
   font-weight: bold;
   font-size: 16px;
@@ -1209,14 +1210,24 @@ body {
   text-shadow: 0 0 6px var(--shield-glow);
   color: var(--shield-white);
   transition: color var(--animation-medium) var(--transition-smooth);
-  margin-bottom: 5px;
-  overflow: hidden;
-  white-space: nowrap;
+  margin-bottom: 8px;
   position: relative;
-  height: 20px;
   display: flex;
+  flex-direction: column; /* stack provider above the name/email */
   align-items: center;
   justify-content: center;
+  gap: 4px;
+}
+
+/* Provider label (e.g. Google) shown above the account name/email */
+.accountProvider {
+  color: var(--shield-accent);
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1;
+  margin-bottom: 6px;
+  text-shadow: 0 0 8px var(--shield-glow);
+  display: block;
 }
 
 /* When text doesn't need gliding, keep it centered */
@@ -1229,10 +1240,16 @@ body {
   display: inline-block;
   animation: glideText 10s linear infinite;
   white-space: nowrap;
-  position: absolute;
-  left: 0;
-  width: max-content;
   will-change: transform;
+}
+
+/* ensure long names/emails clip and the glide animation is visible */
+.accountName > span,
+.accountName > .glide,
+.accountName > .accountProvider + span {
+  overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 @keyframes glideText {

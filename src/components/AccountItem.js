@@ -16,6 +16,12 @@ function AccountItem({
   const nameRef = useRef(null);
   const [shouldGlide, setShouldGlide] = useState(false);
 
+  // Split provider and display name if stored as "Provider:email" or similar
+  const rawName = acc.name || "";
+  const splitIdx = rawName.indexOf(":");
+  const provider = splitIdx > -1 ? rawName.slice(0, splitIdx).trim() : null;
+  const displayName = splitIdx > -1 ? rawName.slice(splitIdx + 1).trim() : rawName;
+
   useEffect(() => {
     const checkTextOverflow = () => {
       if (nameRef.current) {
@@ -35,9 +41,12 @@ function AccountItem({
 
   return (
   <div className="accountItem">
-    <div className="accountName" ref={nameRef}>
-      <span className={shouldGlide ? "glide" : ""}>
-        {acc.name}
+    <div className="accountName">
+      {provider && (
+        <div className="accountProvider">{provider}</div>
+      )}
+      <span ref={nameRef} className={shouldGlide ? "glide" : ""}>
+        {displayName}
       </span>
     </div>
 

@@ -299,7 +299,7 @@ if (loadingAuth) {
     <div className="page-container">
       <div className="settings-header">
         <h2>SHIELD-Authenticator Dashboard</h2>
-        <div class="icon-container" onClick={handleSettingsClick} tabIndex={0} title="Settings">
+        <div className="icon-container" onClick={handleSettingsClick} tabIndex={0} title="Settings">
         <svg width="512" height="512" id="gear" viewBox="0 0 512 512">
         <path
         fill="#bfa24f"

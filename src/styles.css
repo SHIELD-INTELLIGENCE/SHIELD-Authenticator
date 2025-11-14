@@ -1140,7 +1140,7 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
   top: 25px;
-  margin: 20px auto 0;
+  margin: 40px auto 0; /* Increased margin-top for more gap */
   width: 100%;
   max-width: 900px;
   position: relative;
@@ -1159,6 +1159,7 @@ body {
   font-weight: bold;
   letter-spacing: 0.5px;
   text-shadow: 0 0 8px var(--shield-glow);
+  margin-bottom: -20px;
 }
 
 .accountItem {

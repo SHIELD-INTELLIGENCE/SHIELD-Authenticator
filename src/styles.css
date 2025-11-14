@@ -984,7 +984,7 @@ body {
   background: rgba(30, 30, 30, 0.8);
   border-radius: var(--radius-medium);
   padding: 20px;
-  margin: 45px auto 20px;
+  margin: 60px auto 20px;
   max-width: 600px;
   width: 100%;
   display: grid;
@@ -999,9 +999,11 @@ body {
 
 .addAccount::before {
   content: 'Add New Account';
-  position: absolute;
+  position: fixed;
   top: -15px;
-  left: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  
   background: var(--shield-black);
   padding: 4px 12px;
   border-radius: 4px;
@@ -1137,6 +1139,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
+  top: 25px;
   margin: 20px auto 0;
   width: 100%;
   max-width: 900px;
@@ -1151,7 +1154,7 @@ body {
   position: absolute;
   top: -25px;
   left: 0;
-  font-size: 16px;
+  font-size: 23px;
   color: var(--shield-accent);
   font-weight: bold;
   letter-spacing: 0.5px;

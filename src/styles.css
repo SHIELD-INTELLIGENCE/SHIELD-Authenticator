@@ -711,117 +711,157 @@ body {
 }
 
 /* ═════════════════════════════════════════════════════════════════
-   7. SETTINGS SIDEBAR
+   7. SETTINGS PAGE (FULL PAGE)
    ═════════════════════════════════════════════════════════════════ */
-.settings-sidebar {
-  position: fixed;
-  top: 0; right: 0;
-  width: 320px; max-width: 90vw;
-  height: 100vh;
-  background: #232323;
-  box-shadow: -4px 0 24px var(--shield-glow);
-  border-left: 2px solid var(--shield-accent);
-  z-index: 1002;
+.settings-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  animation: fadeInScale 0.4s var(--transition-decelerate) forwards;
+}
+
+.settings-page-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32px;
+  gap: 16px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(42, 42, 42, 0.8);
+  border: 2px solid var(--shield-accent);
+  color: var(--shield-accent);
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all var(--animation-medium) var(--transition-smooth);
+  font-family: var(--shield-font-sans);
+}
+
+.back-button:hover {
+  background: rgba(202, 169, 76, 0.15);
+  transform: translateX(-3px);
+  box-shadow: 0 0 12px var(--shield-glow);
+}
+
+.back-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.settings-page-header h1 {
+  color: var(--shield-accent);
+  font-size: 2rem;
+  margin: 0;
+  letter-spacing: 1px;
+  text-shadow: 0 0 12px var(--shield-glow);
+}
+
+.settings-content {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  padding: 32px 24px 24px;
-  transform: translateX(100%);
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  gap: 24px;
 }
 
-.settings-sidebar.open { 
-  transform: translateX(0);
-  animation: sidebarSlideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-@keyframes sidebarSlideIn {
-  0% {
-    transform: translateX(100%);
-    box-shadow: -4px 0 24px transparent;
-  }
-  100% {
-    transform: translateX(0);
-    box-shadow: -4px 0 24px var(--shield-glow);
-  }
-}
-
-.sidebar-backdrop {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.32);
-  z-index: 1001;
-  cursor: pointer;
-  opacity: 0;
-  animation: backdropFadeIn 0.3s ease-out forwards;
-}
-
-@keyframes backdropFadeIn {
-  0% {
-    opacity: 0;
-    -webkit-backdrop-filter: blur(0px);
-    backdrop-filter: blur(0px);
-  }
-  100% {
-    opacity: 1;
-    -webkit-backdrop-filter: blur(2px);
-    backdrop-filter: blur(2px);
-  }
-}
-
-.close-sidebar {
-  background: none;
-  border: none;
-  color: var(--shield-accent);
-  font-size: 2.2rem;
-  font-weight: bold;
-  cursor: pointer;
-  align-self: flex-end;
-  margin-bottom: 24px;
+.settings-section {
+  background: rgba(42, 42, 42, 0.6);
+  border: 2px solid rgba(202, 169, 76, 0.3);
+  border-radius: var(--radius-medium);
+  padding: 24px;
   transition: all var(--animation-medium) var(--transition-smooth);
-  opacity: 0;
-  transform: rotate(0deg) scale(1);
-  animation: slideInFromRight 0.5s var(--transition-decelerate) 0.2s forwards;
 }
 
-.close-sidebar:hover { 
-  color: #fff; 
-  transform: rotate(90deg) scale(1.1);
-  text-shadow: 0 0 10px var(--shield-glow);
+.settings-section:hover {
+  border-color: var(--shield-accent);
+  box-shadow: 0 0 16px var(--shield-glow);
 }
 
-.settings-sidebar .logout-btn {
+.settings-section h2 {
+  color: var(--shield-accent);
+  font-size: 1.4rem;
+  margin: 0 0 16px 0;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(202, 169, 76, 0.2);
+  padding-bottom: 8px;
+}
+
+.settings-item {
+  padding: 12px 0;
+}
+
+.settings-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.settings-value {
+  color: var(--shield-white);
+  font-size: 16px;
+  word-break: break-word;
+}
+
+.settings-mono {
+  font-family: monospace;
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.settings-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
-  margin-top: 16px;
-  padding: 16px 0;
-  font-size: 1.2rem;
+  padding: 16px;
   background: #da3633;
   color: #fff;
+  border: none;
   border-radius: 10px;
+  font-size: 1.1rem;
   font-weight: bold;
-  box-shadow: 0 0 12px rgba(218, 54, 51, 0.18);
+  cursor: pointer;
   transition: all var(--animation-medium) var(--transition-smooth);
-  opacity: 0;
-  transform: translateY(20px);
-  animation: slideInFromBottom 0.5s var(--transition-decelerate) 0.4s forwards;
+  box-shadow: 0 0 12px rgba(218, 54, 51, 0.3);
+  font-family: var(--shield-font-sans);
 }
 
-.settings-sidebar .logout-btn:hover {
+.settings-logout-btn:hover {
   background: #f85149;
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 0 18px rgba(248, 81, 73, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(248, 81, 73, 0.5);
 }
 
-.settings-sidebar .logout-btn:hover {
-  background: #f85149;
+.settings-logout-btn:active {
+  transform: translateY(0);
+}
+
+.settings-logout-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 /* Settings Header */
 .settings-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   position: relative;
   margin: 0 auto 24px;
   max-width: 1100px;
@@ -840,91 +880,46 @@ body {
   text-shadow: 0 0 10px var(--shield-glow);
 }
 
-.settings-icon {
-  cursor: pointer;
+/* Profile Button */
+.profile-button {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 38px; 
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(42, 42, 42, 0.7);
-  margin-left: 16px;
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 2;
-}
-
-.settings-icon:hover,
-.settings-icon:focus {
-  background: rgba(202, 169, 76, 0.15);
-  outline: 2px solid var(--shield-accent);
-  transform: scale(1.05);
-  animation: settingsIconBounce 0.6s ease-in-out;
-}
-
-/* Settings icon bounce animation */
-@keyframes settingsIconBounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: scale(1.05) translateY(0);
-  }
-  40% {
-    transform: scale(1.05) translateY(-4px);
-  }
-  60% {
-    transform: scale(1.05) translateY(-2px);
-  }
-}
-
-.icon-container {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  padding: 8px;
+  gap: 8px;
+  background: rgba(42, 42, 42, 0.8);
+  border: 2px solid var(--shield-accent);
+  color: var(--shield-accent);
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all var(--animation-medium) var(--transition-smooth);
+  font-family: var(--shield-font-sans);
+  box-shadow: 0 0 8px var(--shield-glow);
+  position: fixed;
+  right: 20px;
+  top: 10px;
+  z-index: 100;
 }
 
-.icon-container:hover {
-  background-color: rgba(191, 162, 79, 0.1);
-  border-radius: 50%;
-  transform: scale(1.1);
-  box-shadow: 0 0 20px rgba(191, 162, 79, 0.3);
+.profile-button:hover {
+  background: rgba(202, 169, 76, 0.15);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 16px var(--shield-glow);
 }
 
-.icon-container svg {
-  width: 28px; /* Set a standard icon size */
-  height: 28px;
-  fill: #bfa24f; /* SHIELD gold color */
-  transition: all 0.3s ease;
-  transform-origin: center;
+.profile-button:active {
+  transform: translateY(0) scale(0.98);
 }
 
-.icon-container:hover svg {
-  fill: #d4b965; /* Brighter gold on hover */
-  transform: rotate(90deg);
-  filter: drop-shadow(0 0 8px rgba(191, 162, 79, 0.6));
-  animation: settingsIconPulse 1.5s ease-in-out infinite;
-}
-.icon-container.rotating svg {
-  animation: gearRotate 2s ease-in-out;
+.profile-button svg {
+  width: 22px;
+  height: 22px;
+  fill: var(--shield-accent);
 }
 
-.icon-container.spinning svg {
-  animation: settingsIconSpin 1s linear;
-}
-
-.icon-container:hover {
-  background-color: rgba(191, 162, 79, 0.1);
-  border-radius: 50%;
-  transform: scale(1.1);
-  animation: settingsGlow 2s ease-in-out infinite;
-}
-.icon-container:focus {
-  outline: 2px solid var(--shield-accent); 
+.profile-button span {
+  letter-spacing: 0.5px;
 }
 
 /* ═════════════════════════════════════════════════════════════════
@@ -1408,7 +1403,34 @@ body {
   .countdown {
     margin-top: 6px;
   }
-  .settings-header h2 { font-size: 1.4rem; letter-spacing: 1.2px; }
+  .settings-header { 
+    justify-content: space-between;
+  }
+  
+  .settings-header h2 { 
+    font-size: 1.4rem; 
+    letter-spacing: 1.2px; 
+  }
+  
+  .profile-button {
+    position: relative;
+    right: auto;
+    top: auto;
+    padding: 10px 12px;
+  }
+  
+  .profile-button span {
+    display: none;
+  }
+  
+  /* Settings Page Mobile */
+  .settings-page {
+    padding: 16px;
+  }
+  
+  .settings-page-header h1 {
+    font-size: 1.6rem;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1467,7 +1489,24 @@ body {
   }
   
   .settings-header { padding: 0 8px; margin-bottom: 16px; }
-  .settings-sidebar { width: 270px; padding: 28px 18px 18px; }
+  
+  /* Settings Page Mobile */
+  .settings-page {
+    padding: 12px;
+  }
+  
+  .settings-page-header {
+    margin-bottom: 24px;
+  }
+  
+  .settings-page-header h1 {
+    font-size: 1.4rem;
+  }
+  
+  .back-button {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
 }
 
 @media (max-width: 400px) {
@@ -1537,12 +1576,38 @@ body {
   .accountCode {
     min-width: 110px;
   }
-  .settings-sidebar { width: 230px; padding: 22px 16px 16px; }
+  
+  /* Settings Page Very Small Screens */
+  .settings-page {
+    padding: 10px;
+  }
+  
+  .settings-page-header {
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  
+  .settings-page-header h1 {
+    font-size: 1.3rem;
+  }
+  
+  .back-button {
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+  
+  .settings-section {
+    padding: 16px;
+  }
 }
 
 @media (min-width: 769px) {
-  .settings-header { justify-content: center; }
-  .settings-header h2 { text-align: center; flex: 1; }
+  .settings-header { 
+    justify-content: center;
+  }
+  .settings-header h2 { 
+    text-align: center;
+  }
 }
 
 /* Confirm Dialog */

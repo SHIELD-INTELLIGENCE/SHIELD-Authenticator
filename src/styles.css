@@ -1535,7 +1535,7 @@ body {
   /* Adjust Add Account form for very small screens */
   .addAccount {
     padding: 15px;
-    margin: 35px auto 15px;
+    margin: 55px auto 15px;
     grid-gap: 12px;
     max-width: 100%;
   }

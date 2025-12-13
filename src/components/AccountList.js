@@ -2,7 +2,7 @@
 import React from "react";
 import AccountItem from "./AccountItem";
 
-function AccountList({ accounts, codes, countdowns, handleCopy, setEditing, setForm, setShowDelete, showDelete, handleDelete, openConfirm }) {
+function AccountList({ accounts, codes, countdowns, handleCopy, maskCodes, setEditing, setForm, setShowDelete, showDelete, handleDelete, openConfirm }) {
   return (
     <div className="accountList">
       {accounts.map((acc) => (
@@ -12,6 +12,7 @@ function AccountList({ accounts, codes, countdowns, handleCopy, setEditing, setF
           codes={codes}
           countdowns={countdowns}
           handleCopy={handleCopy}
+          maskCodes={maskCodes}
           setEditing={setEditing}
           setForm={setForm}
           setShowDelete={setShowDelete}

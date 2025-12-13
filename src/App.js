@@ -45,6 +45,7 @@ function SHIELDAuthenticator() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [loadingLogout, setLoadingLogout] = useState(false);
   const [loginMessage, setLoginMessage] = useState(null);
+  const [maskCodes, setMaskCodes] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -327,6 +328,7 @@ if (loadingAuth) {
             codes={codes}
             countdowns={countdowns}
             handleCopy={handleCopy}
+            maskCodes={maskCodes}
             setEditing={setEditing}
             setForm={setForm}
             setShowDelete={setShowDelete}
@@ -341,6 +343,8 @@ if (loadingAuth) {
           onLogout={handleLogout}
           onBack={handleCloseSidebar}
           openConfirm={openConfirm}
+          maskCodes={maskCodes}
+          setMaskCodes={setMaskCodes}
         />
       )}
       <ConfirmDialog

@@ -1,7 +1,7 @@
 // Copyright © 2025 SHIELD Intelligence. All rights reserved.
 import React, { useEffect } from "react";
 
-const SettingsPage = ({ user, onLogout, onBack, openConfirm }) => {
+const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskCodes }) => {
   const handleLogoutClick = () => {
     if (openConfirm) {
       openConfirm({
@@ -50,6 +50,25 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm }) => {
               <span className="settings-label">Email</span>
               <span className="settings-value">{user?.email || 'Not available'}</span>
             </div>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <h2>Display</h2>
+          <div className="settings-item">
+            <div className="settings-item-info">
+              <span className="settings-label">Show Codes</span>
+              <span className="settings-value">{maskCodes ? 'Hidden' : 'Visible'}</span>
+            </div>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={!maskCodes}
+                onChange={(e) => setMaskCodes && setMaskCodes(!e.target.checked)}
+                aria-label="Toggle code visibility"
+              />
+              <span className="slider"></span>
+            </label>
           </div>
         </div>
 

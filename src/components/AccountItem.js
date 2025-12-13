@@ -6,6 +6,7 @@ function AccountItem({
   codes,
   countdowns,
   handleCopy,
+  maskCodes,
   setEditing,
   setForm,
   setShowDelete,
@@ -50,8 +51,15 @@ function AccountItem({
       </span>
     </div>
 
-    <span className={`accountCode ${countdowns[acc.id] < 5 ? "pulse" : ""}`}>
-      {codes[acc.id] ?? "000000"}
+    <span
+      className={`accountCode ${countdowns[acc.id] < 5 ? "pulse" : ""}`}
+      onClick={() => handleCopy(codes[acc.id] ?? "000000")}
+      role="button"
+      title="Click to copy"
+      aria-label="Click code to copy"
+      style={{ cursor: 'pointer' }}
+    >
+      {maskCodes ? "******" : (codes[acc.id] ?? "000000")}
     </span>
 
     <div className="accountActions">

@@ -1,4 +1,4 @@
-// Copyright © 2025 SHIELD Intelligence. All rights reserved.
+// Copyright © 2026 SHIELD Intelligence. All rights reserved.
 const webpack = require("webpack");
 
 // Mock localStorage for Node.js environment to fix HtmlWebpackPlugin error in Node.js v22+

@@ -1,7 +1,7 @@
 # SHIELD-Authenticator
 
 <!--
-Copyright © 2025 SHIELD Intelligence. All rights reserved.
+Copyright © 2026 SHIELD Intelligence. All rights reserved.
 -->
 
 A secure, sleek, and futuristic 2FA authenticator built with **React** and **Firebase**, designed for personal and enterprise use. Protect your accounts with SHIELD-grade security and real-time code generation.
@@ -142,7 +142,7 @@ shield-authenticator/
 
 ## License
 
-MIT License © 2025 **SHIELD-Authenticator Team**
+MIT License © 2026 **SHIELD-Authenticator Team**
 
 ---
 

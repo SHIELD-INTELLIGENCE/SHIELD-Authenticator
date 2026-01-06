@@ -1,4 +1,4 @@
-// Copyright © 2025 SHIELD Intelligence. All rights reserved.
+// Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import React from "react";
 
 const SettingsSidebar = ({ show, onLogout, onClose, openConfirm }) => {

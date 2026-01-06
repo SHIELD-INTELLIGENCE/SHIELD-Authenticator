@@ -1,4 +1,4 @@
-// Copyright © 2025 SHIELD Intelligence. All rights reserved.
+// Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";

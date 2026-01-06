@@ -1,4 +1,4 @@
-// Copyright © 2025 SHIELD Intelligence. All rights reserved.
+// Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import React, { useRef, useEffect, useState } from "react";
 
 function AccountItem({

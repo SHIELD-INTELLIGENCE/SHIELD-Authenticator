@@ -1,4 +1,4 @@
-// Copyright © 2025 SHIELD Intelligence. All rights reserved.
+// Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import CryptoJS from "crypto-js";
 
 // Dual-key support (PRIMARY preferred; LEGACY only for migration). Fallback to REACT_APP_MASTER_KEY for backward compat.

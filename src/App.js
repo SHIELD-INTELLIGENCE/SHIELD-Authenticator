@@ -1,4 +1,4 @@
-// Copyright © 2025 SHIELD Intelligence. All rights reserved.
+// Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import {
@@ -46,6 +46,16 @@ function SHIELDAuthenticator() {
   const [loadingLogout, setLoadingLogout] = useState(false);
   const [loginMessage, setLoginMessage] = useState(null);
   const [maskCodes, setMaskCodes] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState(() => {
+    // Load sort preference from localStorage
+    return localStorage.getItem("shield-sort-preference") || "name-asc";
+  });
+
+  // Save sort preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("shield-sort-preference", sortBy);
+  }, [sortBy]);
 
   useEffect(() => {
     if (!user) {
@@ -53,7 +63,7 @@ function SHIELDAuthenticator() {
         document.getElementById("shield-login-email")?.focus();
       } else if (formErrors.password) {
         document.getElementById("shield-login-password")?.focus();
-      // Copyright © 2025 SHIELD Intelligence. All rights reserved.
+      // Copyright © 2026 SHIELD Intelligence. All rights reserved.
       //
       // This file is part of SHIELD Authenticator and may not be copied, modified, or distributed
       // without express permission from SHIELD Intelligence.
@@ -79,6 +89,39 @@ function SHIELDAuthenticator() {
     const data = await getAccounts(uid);
     setAccounts(data);
   }
+
+  // Filter and sort accounts based on search query and sort preference
+  const getFilteredAndSortedAccounts = () => {
+    let filtered = accounts;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = accounts.filter(acc => 
+        acc.name.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case "name-asc":
+          return a.name.localeCompare(b.name);
+        case "name-desc":
+          return b.name.localeCompare(a.name);
+        case "time-newest":
+          // Newest first (most recent createdAt)
+          return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+        case "time-oldest":
+          // Oldest first
+          return (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0);
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  };
 
   // Update codes & countdowns
   useEffect(() => {
@@ -115,6 +158,33 @@ function SHIELDAuthenticator() {
   };
 
   const handleSave = async () => saveAccountDirect(form.name, form.secret);
+
+  const handleImportAccounts = async (importedAccounts) => {
+    if (!user?.uid) {
+      toast.error("❌ User not authenticated");
+      return;
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const account of importedAccounts) {
+      try {
+        await addAccount(user.uid, account.name, account.secret);
+        successCount++;
+      } catch (err) {
+        console.error("Failed to import account:", account.name, err);
+        failCount++;
+      }
+    }
+
+    // Reload accounts after import
+    await loadAccounts(user.uid);
+
+    if (failCount > 0) {
+      toast.warning(`⚠️ Imported ${successCount} of ${importedAccounts.length} accounts`);
+    }
+  };
 
   const handleCopy = (code) => {
     navigator.clipboard.writeText(code);
@@ -301,7 +371,7 @@ if (loadingAuth) {
       {!showSettings ? (
         <>
           <div className="settings-header">
-            <h2 style={{ marginBottom: '-35px' }}>SHIELD-Authenticator Dashboard</h2>
+            <h2 style={{ marginBottom: '-45px' }}>SHIELD-Authenticator Dashboard</h2>
           </div>
           <button 
             className="profile-button" 
@@ -323,8 +393,54 @@ if (loadingAuth) {
             setEditing={setEditing}
             handleQRUpload={handleQRUpload}
           />
+          
+          {/* Search and Sort Controls */}
+          {accounts.length > 0 && (
+            <div className="search-sort-container">
+              <div className="search-box">
+                <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search accounts..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="search-input"
+                />
+                {searchQuery && (
+                  <button 
+                    className="search-clear" 
+                    onClick={() => setSearchQuery("")}
+                    aria-label="Clear search"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                  </button>
+                )}
+              </div>
+              
+              <div className="sort-box">
+                <svg className="sort-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+                </svg>
+                <select 
+                  value={sortBy} 
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="sort-select"
+                >
+                  <option value="name-asc">Name (A-Z)</option>
+                  <option value="name-desc">Name (Z-A)</option>
+                  <option value="time-newest">Newest First</option>
+                  <option value="time-oldest">Oldest First</option>
+                </select>
+              </div>
+            </div>
+          )}
+
           <AccountList
-            accounts={accounts}
+            accounts={getFilteredAndSortedAccounts()}
             codes={codes}
             countdowns={countdowns}
             handleCopy={handleCopy}
@@ -335,6 +451,8 @@ if (loadingAuth) {
             showDelete={showDelete}
             handleDelete={handleDelete}
             openConfirm={openConfirm}
+            searchQuery={searchQuery}
+            totalAccounts={accounts.length}
           />
         </>
       ) : (
@@ -345,6 +463,8 @@ if (loadingAuth) {
           openConfirm={openConfirm}
           maskCodes={maskCodes}
           setMaskCodes={setMaskCodes}
+          accounts={accounts}
+          onImportAccounts={handleImportAccounts}
         />
       )}
       <ConfirmDialog
@@ -381,7 +501,7 @@ function CopyrightFooter() {
       background: "transparent",
       marginTop: "2rem"
     }}>
-      © 2025 SHIELD Intelligence. All rights reserved. · {" "}
+      © 2026 SHIELD Intelligence. All rights reserved. · {" "}
       <a href="/terms.html" rel="noopener noreferrer">Terms of Use & Privacy</a>
     </footer>
   );

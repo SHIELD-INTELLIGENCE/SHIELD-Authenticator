@@ -2,7 +2,19 @@
 import React from "react";
 import AccountItem from "./AccountItem";
 
-function AccountList({ accounts, codes, countdowns, handleCopy, maskCodes, setEditing, setForm, setShowDelete, showDelete, handleDelete, openConfirm, searchQuery, totalAccounts }) {
+function AccountList({ accounts, codes, countdowns, handleCopy, maskCodes, setEditing, setForm, setShowDelete, showDelete, handleDelete, openConfirm, searchQuery, totalAccounts, loadingAccounts }) {
+  // Show loading state while fetching accounts
+  if (loadingAccounts) {
+    return (
+      <div className="accountList">
+        <div className="loading-accounts">
+          <div className="shield-spinner"></div>
+          <p>Loading accounts...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Show empty state if no accounts after filtering
   if (accounts.length === 0 && totalAccounts > 0) {
     return (

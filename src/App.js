@@ -44,6 +44,7 @@ function SHIELDAuthenticator() {
   const [loading, setLoading] = useState({ login: false, register: false });
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [loadingLogout, setLoadingLogout] = useState(false);
+  const [loadingAccounts, setLoadingAccounts] = useState(false);
   const [loginMessage, setLoginMessage] = useState(null);
   const [maskCodes, setMaskCodes] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -86,8 +87,16 @@ function SHIELDAuthenticator() {
 
   async function loadAccounts(uid) {
     if (!uid) return;
-    const data = await getAccounts(uid);
-    setAccounts(data);
+    setLoadingAccounts(true);
+    try {
+      const data = await getAccounts(uid);
+      setAccounts(data);
+    } catch (error) {
+      console.error("Error loading accounts:", error);
+      toast.error("❌ Failed to load accounts");
+    } finally {
+      setLoadingAccounts(false);
+    }
   }
 
   // Filter and sort accounts based on search query and sort preference
@@ -453,6 +462,7 @@ if (loadingAuth) {
             openConfirm={openConfirm}
             searchQuery={searchQuery}
             totalAccounts={accounts.length}
+            loadingAccounts={loadingAccounts}
           />
         </>
       ) : (

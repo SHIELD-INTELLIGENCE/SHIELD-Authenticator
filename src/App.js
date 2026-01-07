@@ -164,7 +164,7 @@ function SHIELDAuthenticator() {
       setLoadingAuth(false); // <-- auth check done
     });
     return unsub;
-  }, []);
+  }, [RECOVERY_QUESTION_BANK]);
 
   async function loadAccounts(u) {
     if (!u) return;

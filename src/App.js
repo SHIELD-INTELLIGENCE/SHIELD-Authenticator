@@ -109,6 +109,7 @@ function SHIELDAuthenticator() {
               setVaultMode("setup");
               setVaultRecoveryConfig({ questions: [] });
               setVaultDialogOpen(true);
+              setVaultUnlocking(false);
               return;
             }
 
@@ -459,16 +460,17 @@ function SHIELDAuthenticator() {
 
     const questionIds = Array.isArray(selectedQuestions) ? selectedQuestions.filter(Boolean) : [];
     const uniqueIds = Array.from(new Set(questionIds));
-    if (uniqueIds.length < 1) {
-      setVaultError("Select at least one recovery question");
-      return;
+
+    // If questions are selected, validate that all have answers
+    if (uniqueIds.length > 0) {
+      const recoveryAnswers = uniqueIds.map((id) => String(answers?.[id] || "").toLowerCase());
+      if (recoveryAnswers.some((a) => !a.trim())) {
+        setVaultError("Provide answers for all selected questions (lowercase)");
+        return;
+      }
     }
 
     const recoveryAnswers = uniqueIds.map((id) => String(answers?.[id] || "").toLowerCase());
-    if (recoveryAnswers.some((a) => !a.trim())) {
-      setVaultError("Provide answers for all selected questions (lowercase)");
-      return;
-    }
 
     setVaultUnlocking(true);
     try {

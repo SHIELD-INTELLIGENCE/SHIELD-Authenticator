@@ -246,10 +246,14 @@ export async function setupVault(user, { passphrase, recoveryQuestions, recovery
     throw new Error("Passphrase must be at least 8 characters");
   }
 
-  if (!Array.isArray(recoveryQuestions) || recoveryQuestions.length < 1) {
-    throw new Error("Select at least one recovery question");
+  // Recovery questions are optional
+  if (!Array.isArray(recoveryQuestions)) {
+    recoveryQuestions = [];
   }
-  if (!Array.isArray(recoveryAnswers) || recoveryAnswers.length !== recoveryQuestions.length) {
+  if (!Array.isArray(recoveryAnswers)) {
+    recoveryAnswers = [];
+  }
+  if (recoveryQuestions.length > 0 && recoveryAnswers.length !== recoveryQuestions.length) {
     throw new Error("Provide answers for all selected questions");
   }
 
@@ -262,9 +266,14 @@ export async function setupVault(user, { passphrase, recoveryQuestions, recovery
   const passphraseKek = await deriveVaultKey({ passphrase, saltB64: passphraseSalt, iterations: 310000 });
   const wrappedMasterKeyPassphrase = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: passphraseKek, aad: `${aad}|wrap|passphrase` });
 
-  const recoverySalt = vaultSaltToString(generateVaultSaltBytes());
-  const recoveryKek = await deriveRecoveryKey({ answers: recoveryAnswers, saltB64: recoverySalt, iterations: 310000 });
-  const wrappedMasterKeyRecovery = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: recoveryKek, aad: `${aad}|wrap|recovery` });
+  // Only create recovery wrapper if questions are provided
+  let recoverySalt = null;
+  let wrappedMasterKeyRecovery = null;
+  if (recoveryQuestions.length > 0) {
+    recoverySalt = vaultSaltToString(generateVaultSaltBytes());
+    const recoveryKek = await deriveRecoveryKey({ answers: recoveryAnswers, saltB64: recoverySalt, iterations: 310000 });
+    wrappedMasterKeyRecovery = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: recoveryKek, aad: `${aad}|wrap|recovery` });
+  }
 
   const v2 = {
     v: 2,
@@ -274,12 +283,12 @@ export async function setupVault(user, { passphrase, recoveryQuestions, recovery
       salt: passphraseSalt,
       wrappedMasterKey: wrappedMasterKeyPassphrase,
     },
-    recovery: {
+    recovery: recoveryQuestions.length > 0 ? {
       iterations: 310000,
       salt: recoverySalt,
       questions: recoveryQuestions,
       wrappedMasterKey: wrappedMasterKeyRecovery,
-    },
+    } : null,
   };
 
   await setDoc(ref, {

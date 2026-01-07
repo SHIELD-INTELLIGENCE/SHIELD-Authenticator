@@ -233,12 +233,22 @@ function VaultPassphraseDialog({
                 style={{
                   fontSize: "0.85rem",
                   fontWeight: 400,
-                  color: "#888",
+                  color: "#f39c12",
                   marginLeft: 8,
                 }}
               >
-                (answers stored in lowercase)
+                (optional but recommended)
               </span>
+            </div>
+            <div
+              style={{
+                fontSize: "0.85rem",
+                color: "#aaa",
+                marginBottom: 10,
+                lineHeight: 1.4,
+              }}
+            >
+              Recovery questions allow you to reset your passphrase if forgotten. Without them, you cannot recover your vault.
             </div>
             <div style={{ display: "grid", gap: 10 }}>
               <select

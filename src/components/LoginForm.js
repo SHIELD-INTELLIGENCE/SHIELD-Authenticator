@@ -18,6 +18,7 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
         >
           <input
             id="shield-login-email"
+            name="email"
             className="shield-clean-input"
             placeholder="Email"
             value={form.email}
@@ -33,6 +34,7 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
           <div className="password-container">
             <input
               id="shield-login-password"
+              name="password"
               className="shield-clean-input"
               type={showPassword ? "text" : "password"}
               placeholder="Password (min 8 chars)"

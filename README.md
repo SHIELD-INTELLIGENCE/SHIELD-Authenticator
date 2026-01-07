@@ -87,7 +87,6 @@ cp .env.example .env
 
 - In Netlify site settings, go to Build & deploy → Environment → Environment variables
 - Add the following keys with your values:
-    - `REACT_APP_MASTER_KEY`
     - `REACT_APP_FIREBASE_API_KEY`
     - `REACT_APP_FIREBASE_AUTH_DOMAIN`
     - `REACT_APP_FIREBASE_PROJECT_ID`
@@ -96,10 +95,11 @@ cp .env.example .env
     - `REACT_APP_FIREBASE_APP_ID`
 - Trigger a new deploy (Netlify will inject env vars at build time)
 
-Security note: A client-side "master key" is not a true secret; consider:
+Security note: This app uses a user-provided **vault passphrase** for client-side end-to-end encryption (E2EE).
 
-- deriving a key from a user-entered passphrase (not stored), or
-- moving encryption to a server/Netlify Function where secrets never leave the server.
+- The vault key is derived locally from the passphrase (not stored).
+- Firestore stores only encrypted secrets.
+- If the vault passphrase is forgotten, encrypted secrets cannot be recovered.
 
 `.env` files are git-ignored. Commit only `.env.example`.
 

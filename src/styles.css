@@ -13,29 +13,29 @@ Copyright © 2026 SHIELD Intelligence. All rights reserved.
   --shield-accent: #caa94c;
   --shield-glow: rgba(202, 169, 76, 0.35);
   --shield-font-sans: "Elixia", Arial, sans-serif;
-  
+
   /* Status Colors */
-  --shield-success: #26C281;
+  --shield-success: #26c281;
   --shield-success-bg: rgba(38, 194, 129, 0.08);
   --shield-error: #f85149;
   --shield-error-bg: rgba(218, 54, 51, 0.08);
-  
+
   /* Animation speeds */
   --animation-fast: 0.15s;
   --animation-medium: 0.3s;
   --animation-slow: 0.5s;
-  
+
   /* Transitions */
   --transition-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  --transition-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
-  --transition-decelerate: cubic-bezier(0.0, 0.0, 0.2, 1);
-  --transition-accelerate: cubic-bezier(0.4, 0.0, 1, 1);
-  
+  --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --transition-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
   /* Layout Variables */
   --content-max-width: 600px;
   --content-padding-mobile: 16px;
   --content-padding-desktop: 20px;
-  
+
   /* Border Radius */
   --radius-small: 6px;
   --radius-medium: 10px;
@@ -54,7 +54,11 @@ body {
   box-sizing: border-box;
   width: 100%;
   overflow-x: hidden;
-  background: radial-gradient(circle at top, var(--shield-grey) 0%, var(--shield-black) 100%);
+  background: radial-gradient(
+    circle at top,
+    var(--shield-grey) 0%,
+    var(--shield-black) 100%
+  );
   color: var(--shield-white);
   min-height: 100vh;
   opacity: 0;
@@ -62,10 +66,14 @@ body {
 }
 
 @keyframes fadeInBody {
-  to { opacity: 1; }
+  to {
+    opacity: 1;
+  }
 }
 
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   box-sizing: inherit;
 }
 
@@ -73,28 +81,54 @@ body {
    3. ANIMATIONS & KEYFRAMES
    ═════════════════════════════════════════════════════════════════ */
 @keyframes fadeInBody {
-  to { opacity: 1; }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes spin {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes shake {
-  10%, 90% { transform: translate3d(-1px, 0, 0); }
-  20%, 80% { transform: translate3d(2px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
-  40%, 60% { transform: translate3d(3px, 0, 0); }
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-3px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translate3d(3px, 0, 0);
+  }
 }
 
 @keyframes slideDown {
@@ -124,29 +158,49 @@ body {
 }
 
 @keyframes glideText {
-  0% { 
-    transform: translateX(-100%); 
+  0% {
+    transform: translateX(-100%);
   }
-  100% { 
-    transform: translateX(100%); 
+  100% {
+    transform: translateX(100%);
   }
 }
 
 @keyframes pulseFade {
-  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
-  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+  from {
+    opacity: 1;
+    text-shadow: 0 0 12px var(--shield-glow);
+  }
+  to {
+    opacity: 0.7;
+    text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent);
+  }
 }
 @-webkit-keyframes pulseFade {
-  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
-  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+  from {
+    opacity: 1;
+    text-shadow: 0 0 12px var(--shield-glow);
+  }
+  to {
+    opacity: 0.7;
+    text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent);
+  }
 }
 @-moz-keyframes pulseFade {
-  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
-  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+  from {
+    opacity: 1;
+    text-shadow: 0 0 12px var(--shield-glow);
+  }
+  to {
+    opacity: 0.7;
+    text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent);
+  }
 }
 
 @keyframes shimmer {
-  100% { transform: translateX(100%); }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes slideInFromBottom {
@@ -183,7 +237,8 @@ body {
 }
 
 @keyframes gentleFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -192,7 +247,8 @@ body {
 }
 
 @keyframes subtlePulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -219,10 +275,17 @@ body {
 .shield-loading-screen {
   position: fixed;
   /* fallback for older Safari: explicit edges */
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(circle at top, var(--shield-grey) 0%, var(--shield-black) 100%);
+  background: radial-gradient(
+    circle at top,
+    var(--shield-grey) 0%,
+    var(--shield-black) 100%
+  );
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -239,8 +302,8 @@ body {
   letter-spacing: 2px;
   text-align: center;
   line-height: 1.2;
-  animation: slideInFromBottom 0.8s var(--transition-decelerate) forwards, 
-             pulseFade 2s ease-in-out infinite 1s;
+  animation: slideInFromBottom 0.8s var(--transition-decelerate) forwards,
+    pulseFade 2s ease-in-out infinite 1s;
 }
 
 .shield-loading-title .mobile-text {
@@ -258,11 +321,11 @@ body {
     letter-spacing: 1.5px;
     line-height: 1.3;
   }
-  
+
   .shield-loading-title .desktop-text {
     display: none;
   }
-  
+
   .shield-loading-title .mobile-text {
     display: inline;
   }
@@ -304,16 +367,20 @@ body {
 .shield-spinner-overlay {
   position: fixed;
   /* fallback for older Safari: explicit edges */
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
 
   /* Fake the light edge created by body padding */
-  background:
-    radial-gradient(circle at top,
+  background: radial-gradient(
+      circle at top,
       rgba(42, 42, 42, 0.9) 0%,
-      rgba(26, 26, 26, 0.9) 100%),
-    linear-gradient(0deg, transparent 6px, rgba(255,255,255,0.05) 6px); /* subtle rim */
+      rgba(26, 26, 26, 0.9) 100%
+    ),
+    linear-gradient(0deg, transparent 6px, rgba(255, 255, 255, 0.05) 6px); /* subtle rim */
   background-clip: content-box, border-box;
   -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
@@ -324,7 +391,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 3000; 
+  z-index: 3000;
 }
 
 .shield-spinner-overlay .shield-spinner {
@@ -339,7 +406,10 @@ body {
 .logout-loading-screen {
   position: fixed;
   /* fallback for older Safari: explicit edges */
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   background: radial-gradient(circle at top, #3d1a1a 0%, #1a0f0f 100%);
@@ -359,8 +429,8 @@ body {
   letter-spacing: 2px;
   text-align: center;
   line-height: 1.2;
-  animation: slideInFromBottom 0.6s var(--transition-decelerate) forwards, 
-             logoutPulseFade 2s ease-in-out infinite 0.8s;
+  animation: slideInFromBottom 0.6s var(--transition-decelerate) forwards,
+    logoutPulseFade 2s ease-in-out infinite 0.8s;
 }
 
 .logout-spinner {
@@ -378,13 +448,17 @@ body {
 .logout-spinner-overlay {
   position: fixed;
   /* fallback for older Safari: explicit edges */
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
-  background:
-    radial-gradient(circle at top,
+  background: radial-gradient(
+      circle at top,
       rgba(61, 26, 26, 0.9) 0%,
-      rgba(26, 15, 15, 0.9) 100%),
+      rgba(26, 15, 15, 0.9) 100%
+    ),
     linear-gradient(0deg, transparent 6px, rgba(248, 81, 73, 0.1) 6px);
   background-clip: content-box, border-box;
   -webkit-backdrop-filter: blur(5px);
@@ -394,7 +468,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 3000; 
+  z-index: 3000;
 }
 
 .logout-spinner-overlay .logout-spinner {
@@ -406,13 +480,13 @@ body {
 }
 
 @keyframes logoutPulseFade {
-  from { 
-    opacity: 1; 
-    text-shadow: 0 0 20px rgba(248, 81, 73, 0.5); 
+  from {
+    opacity: 1;
+    text-shadow: 0 0 20px rgba(248, 81, 73, 0.5);
   }
-  to { 
-    opacity: 0.7; 
-    text-shadow: 0 0 30px rgba(248, 81, 73, 0.8), 0 0 15px #f85149; 
+  to {
+    opacity: 0.7;
+    text-shadow: 0 0 30px rgba(248, 81, 73, 0.8), 0 0 15px #f85149;
   }
 }
 
@@ -424,13 +498,13 @@ body {
     line-height: 1.3;
     margin-bottom: 1.5rem;
   }
-  
+
   .logout-spinner {
     width: 2em;
     height: 2em;
     border-width: 0.22em;
   }
-  
+
   .logout-spinner-overlay .logout-spinner {
     width: 3em;
     height: 3em;
@@ -448,18 +522,18 @@ body {
     -webkit-hyphens: auto;
     hyphens: auto;
   }
-  
+
   .logout-spinner {
     width: 1.8em;
     height: 1.8em;
     border-width: 0.2em;
     margin-left: 0.8rem;
   }
-  
+
   .logout-spinner-overlay {
     padding: 0 16px;
   }
-  
+
   .logout-spinner-overlay .logout-spinner {
     width: 2.8em;
     height: 2.8em;
@@ -476,14 +550,14 @@ body {
     padding: 0 10px;
     text-align: center;
   }
-  
+
   .logout-spinner {
     width: 1.6em;
     height: 1.6em;
     border-width: 0.18em;
     margin-left: 0.6rem;
   }
-  
+
   .logout-spinner-overlay .logout-spinner {
     width: 2.5em;
     height: 2.5em;
@@ -503,8 +577,8 @@ body {
   font-size: 14px;
   font-weight: 500;
   box-shadow: 0 0 6px rgba(218, 54, 51, 0.15);
-  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both, 
-             slideInFromBottom 0.3s var(--transition-decelerate) forwards;
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both,
+    slideInFromBottom 0.3s var(--transition-decelerate) forwards;
   transform: translate3d(0, 0, 0);
   border-left: 3px solid #f85149;
   display: flex;
@@ -530,7 +604,7 @@ body {
 }
 
 .form-success {
-  color: #26C281;
+  color: #26c281;
   background: rgba(38, 194, 129, 0.08);
   border-radius: 6px;
   padding: 10px 12px;
@@ -539,7 +613,7 @@ body {
   font-weight: 500;
   box-shadow: 0 0 6px rgba(38, 194, 129, 0.15);
   animation: slideDown 0.3s var(--transition-decelerate) forwards;
-  border-left: 3px solid #26C281;
+  border-left: 3px solid #26c281;
   display: flex;
   align-items: center;
 }
@@ -573,12 +647,25 @@ body {
   transform: translateY(-1px);
 }
 
-.shield-clean-input:focus { 
-  background: #1c1c1c; 
+.shield-clean-input:focus {
+  background: #1c1c1c;
   border-color: var(--shield-accent);
   box-shadow: 0 0 8px var(--shield-glow);
   transform: translateY(-1px) scale(1.01);
   animation: subtlePulse 2s ease-in-out infinite;
+}
+
+/* Avoid layout jitter on dropdowns (keep glow, remove breathing/scale) */
+select.shield-clean-input:hover,
+select.shield-clean-input:focus {
+  transform: none;
+  animation: none;
+}
+
+/* Recovery/Security section: keep glow but no breathing animation */
+.security-recovery .shield-clean-input:focus {
+  animation: none;
+  transform: translateY(-1px);
 }
 
 .shield-clean-input::placeholder {
@@ -662,7 +749,7 @@ body {
 }
 
 .bw-btn:after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -706,8 +793,8 @@ body {
   transition: 0.2s;
 }
 
-.bw-btn.danger:hover { 
-  background: #f85149; 
+.bw-btn.danger:hover {
+  background: #f85149;
 }
 
 /* ═════════════════════════════════════════════════════════════════
@@ -1254,12 +1341,12 @@ input:checked + .slider:hover {
 }
 
 .addAccount::before {
-  content: 'Add New Account';
+  content: "Add New Account";
   position: fixed;
   top: -15px;
   left: 50%;
   transform: translateX(-50%);
-  
+
   background: var(--shield-black);
   padding: 4px 12px;
   border-radius: 4px;
@@ -1278,7 +1365,8 @@ input:checked + .slider:hover {
 }
 
 /* Button Layout */
-.addAccount > .bw-btn, .addAccount > label.bw-btn {
+.addAccount > .bw-btn,
+.addAccount > label.bw-btn {
   grid-column: span 2; /* Make all buttons span both columns */
   display: block;
   margin: 0;
@@ -1286,7 +1374,8 @@ input:checked + .slider:hover {
 }
 
 /* Create a flex container for the buttons */
-.addAccount > .bw-btn:first-of-type, .addAccount > .bw-btn.danger {
+.addAccount > .bw-btn:first-of-type,
+.addAccount > .bw-btn.danger {
   display: block;
   width: 100%;
   justify-content: center;
@@ -1344,7 +1433,7 @@ input:checked + .slider:hover {
 }
 
 .addAccount label.bw-btn::before {
-  content: '';
+  content: "";
   margin-right: 8px;
   width: 18px;
   height: 18px;
@@ -1358,7 +1447,7 @@ input:checked + .slider:hover {
 }
 
 .addAccount label.bw-btn:after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1586,7 +1675,7 @@ input:checked + .slider:hover {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .sort-box {
     width: 100%;
   }
@@ -1610,7 +1699,7 @@ input:checked + .slider:hover {
 }
 
 .accountList::before {
-  content: 'Your Accounts';
+  content: "Your Accounts";
   position: absolute;
   top: -25px;
   left: 0;
@@ -1641,13 +1730,27 @@ input:checked + .slider:hover {
 }
 
 /* Staggered delays for account items */
-.accountItem:nth-child(1) { animation-delay: 0.1s; }
-.accountItem:nth-child(2) { animation-delay: 0.2s; }
-.accountItem:nth-child(3) { animation-delay: 0.3s; }
-.accountItem:nth-child(4) { animation-delay: 0.4s; }
-.accountItem:nth-child(5) { animation-delay: 0.5s; }
-.accountItem:nth-child(6) { animation-delay: 0.6s; }
-.accountItem:nth-child(n+7) { animation-delay: 0.7s; }
+.accountItem:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.accountItem:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.accountItem:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.accountItem:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.accountItem:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.accountItem:nth-child(6) {
+  animation-delay: 0.6s;
+}
+.accountItem:nth-child(n + 7) {
+  animation-delay: 0.7s;
+}
 
 .accountItem:hover {
   background: rgba(42, 42, 42, 0.8);
@@ -1659,7 +1762,6 @@ input:checked + .slider:hover {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
-
 
 .accountName {
   font-weight: bold;
@@ -1712,14 +1814,13 @@ input:checked + .slider:hover {
 }
 
 @keyframes glideText {
-  0% { 
-    transform: translateX(-100%); 
+  0% {
+    transform: translateX(-100%);
   }
-  100% { 
-    transform: translateX(100%); 
+  100% {
+    transform: translateX(100%);
   }
 }
-
 
 .accountItem:hover .accountName {
   color: var(--shield-accent);
@@ -1753,16 +1854,34 @@ input:checked + .slider:hover {
 }
 
 @keyframes pulseFade {
-  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
-  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+  from {
+    opacity: 1;
+    text-shadow: 0 0 12px var(--shield-glow);
+  }
+  to {
+    opacity: 0.7;
+    text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent);
+  }
 }
 @-webkit-keyframes pulseFade {
-  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
-  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+  from {
+    opacity: 1;
+    text-shadow: 0 0 12px var(--shield-glow);
+  }
+  to {
+    opacity: 0.7;
+    text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent);
+  }
 }
 @-moz-keyframes pulseFade {
-  from { opacity: 1; text-shadow: 0 0 12px var(--shield-glow); }
-  to { opacity: 0.7; text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent); }
+  from {
+    opacity: 1;
+    text-shadow: 0 0 12px var(--shield-glow);
+  }
+  to {
+    opacity: 0.7;
+    text-shadow: 0 0 25px var(--shield-glow), 0 0 10px var(--shield-accent);
+  }
 }
 
 .accountActions {
@@ -1774,8 +1893,8 @@ input:checked + .slider:hover {
   margin-top: 5px;
 }
 
-.countdown { 
-  width: 100%; 
+.countdown {
+  width: 100%;
   margin-top: 8px;
   display: flex;
   flex-direction: column;
@@ -1794,7 +1913,7 @@ input:checked + .slider:hover {
 }
 
 .progress-bar {
-  width: 100%; 
+  width: 100%;
   height: 6px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 4px;
@@ -1811,7 +1930,7 @@ input:checked + .slider:hover {
 }
 
 .progress-fill::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -1828,7 +1947,7 @@ input:checked + .slider:hover {
 }
 
 .progress-fill::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -1848,12 +1967,17 @@ input:checked + .slider:hover {
    11. RESPONSIVE DESIGN
    ═════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .shield-login-container { max-width: 98vw; }
-  .accountList { gap: 8px; margin-top: 40px; }
+  .shield-login-container {
+    max-width: 98vw;
+  }
+  .accountList {
+    gap: 8px;
+    margin-top: 40px;
+  }
   .accountItem {
     padding: 15px 10px;
   }
-  .accountName { 
+  .accountName {
     font-size: 14px;
   }
   .accountCode {
@@ -1861,69 +1985,77 @@ input:checked + .slider:hover {
     padding: 8px;
     letter-spacing: 1.5px;
   }
-  .accountActions { 
-    gap: 6px; 
+  .accountActions {
+    gap: 6px;
   }
   .countdown {
     margin-top: 6px;
   }
-  .settings-header { 
+  .settings-header {
     justify-content: space-between;
   }
-  
-  .settings-header h2 { 
-    font-size: 1.4rem; 
-    letter-spacing: 1.2px; 
+
+  .settings-header h2 {
+    font-size: 1.4rem;
+    letter-spacing: 1.2px;
   }
-  
+
   .profile-button {
     position: relative;
     right: auto;
     top: auto;
     padding: 10px 12px;
   }
-  
+
   .profile-button span {
     display: none;
   }
-  
+
   /* Settings Page Mobile */
   .settings-page {
     padding: 16px;
   }
-  
+
   .settings-page-header h1 {
     font-size: 1.6rem;
   }
 }
 
 @media (max-width: 600px) {
-  .shield-spinner { width: 2em; height: 2em; border-width: 0.22em; }
-  .shield-spinner-overlay .shield-spinner {
-    width: 3em; height: 3em; border-width: 0.26em;
+  .shield-spinner {
+    width: 2em;
+    height: 2em;
+    border-width: 0.22em;
   }
-  body { padding: 16px; }
+  .shield-spinner-overlay .shield-spinner {
+    width: 3em;
+    height: 3em;
+    border-width: 0.26em;
+  }
+  body {
+    padding: 16px;
+  }
 
   /* Center login form vertically */
   .login-form-outer {
-    min-height: 100vh;        /* full viewport height */
+    min-height: 100vh; /* full viewport height */
     display: flex;
-    justify-content: center;  /* horizontal center */
-    align-items: center;      /* vertical center */
+    justify-content: center; /* horizontal center */
+    align-items: center; /* vertical center */
     padding: 0 10px;
     box-sizing: border-box;
   }
 
   .shield-login-container {
-    padding: 1.5rem; 
-    border-radius: 10px; 
-    font-size: 1.15rem; 
+    padding: 1.5rem;
+    border-radius: 10px;
+    font-size: 1.15rem;
     max-width: calc(100% - 20px);
     margin: 0 auto;
     box-sizing: border-box;
     box-shadow: 0 0 15px var(--shield-glow);
   }
-  
+
   /* Keep login buttons side by side even on mobile */
   .shield-login-container > div {
     flex-direction: row;
@@ -1931,14 +2063,14 @@ input:checked + .slider:hover {
     justify-content: center;
     gap: 10px;
   }
-  
-  .shield-clean-input { 
-    font-size: 17px; 
-    padding: 14px 16px; 
+
+  .shield-clean-input {
+    font-size: 17px;
+    padding: 14px 16px;
     width: 100%;
     box-sizing: border-box;
   }
-  
+
   /* Mobile-specific button styling for login form */
   .shield-login-container .bw-btn {
     min-width: 100px;
@@ -1946,27 +2078,30 @@ input:checked + .slider:hover {
     padding: 10px 16px;
     font-size: 14px;
   }
-  
+
   .password-toggle {
     right: 8px;
     height: 30px;
   }
-  
-  .settings-header { padding: 0 8px; margin-bottom: 16px; }
-  
+
+  .settings-header {
+    padding: 0 8px;
+    margin-bottom: 16px;
+  }
+
   /* Settings Page Mobile */
   .settings-page {
     padding: 12px;
   }
-  
+
   .settings-page-header {
     margin-bottom: 24px;
   }
-  
+
   .settings-page-header h1 {
     font-size: 1.4rem;
   }
-  
+
   .back-button {
     padding: 8px 12px;
     font-size: 14px;
@@ -1983,15 +2118,15 @@ input:checked + .slider:hover {
     box-sizing: border-box;
   }
 
-  .shield-login-container { 
-    padding: 1rem; 
-    font-size: 1.05rem; 
+  .shield-login-container {
+    padding: 1rem;
+    font-size: 1.05rem;
     max-width: calc(100% - 16px);
     border-width: 1px;
     box-shadow: 0 0 10px var(--shield-glow);
     margin: 0 auto;
   }
-  
+
   /* Adjust Add Account form for very small screens */
   .addAccount {
     padding: 15px;
@@ -1999,27 +2134,27 @@ input:checked + .slider:hover {
     grid-gap: 12px;
     max-width: 100%;
   }
-  
+
   .addAccount .shield-clean-input {
     padding: 12px;
     font-size: 16px;
     margin: 4px 0;
   }
-  
+
   /* Ensure login buttons are side by side and centered */
   .shield-login-container > div {
     margin-top: 5px;
     justify-content: center;
     gap: 8px;
   }
-  
-  .shield-clean-input { 
-    font-size: 15px; 
+
+  .shield-clean-input {
+    font-size: 15px;
     padding: 12px 12px;
     width: 100%;
     box-sizing: border-box;
   }
-  
+
   /* Mobile-specific button styling for very small screens */
   .shield-login-container .bw-btn {
     min-width: 90px;
@@ -2027,49 +2162,53 @@ input:checked + .slider:hover {
     padding: 10px 14px;
     font-size: 13px;
   }
-  
+
   .password-toggle {
     right: 6px;
     height: 26px;
     min-width: 48px;
     font-size: 12px;
   }
-  
+
   /* Remove generic bw-btn style that would override our login form styles */
-  .accountName, .accountCode { font-size: 15px; min-width: 80px; }
+  .accountName,
+  .accountCode {
+    font-size: 15px;
+    min-width: 80px;
+  }
   .accountCode {
     min-width: 110px;
   }
-  
+
   /* Settings Page Very Small Screens */
   .settings-page {
     padding: 10px;
   }
-  
+
   .settings-page-header {
     flex-wrap: wrap;
     margin-bottom: 20px;
   }
-  
+
   .settings-page-header h1 {
     font-size: 1.3rem;
   }
-  
+
   .back-button {
     padding: 7px 10px;
     font-size: 13px;
   }
-  
+
   .settings-section {
     padding: 16px;
   }
 }
 
 @media (min-width: 769px) {
-  .settings-header { 
+  .settings-header {
     justify-content: center;
   }
-  .settings-header h2 { 
+  .settings-header h2 {
     text-align: center;
   }
 }
@@ -2078,11 +2217,15 @@ input:checked + .slider:hover {
 .confirm-backdrop {
   position: fixed;
   /* fallback for older Safari: explicit edges */
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
   z-index: 2000;
 }
 .confirm-dialog {
@@ -2092,9 +2235,164 @@ input:checked + .slider:hover {
   width: 90%;
   max-width: 480px;
   border-radius: 12px;
-  box-shadow: 0 6px 30px rgba(0,0,0,0.6), 0 0 20px var(--shield-glow);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6), 0 0 20px var(--shield-glow);
   text-align: center;
 }
+
+/* Enhanced vault dialog styling */
+.vault-dialog {
+  max-width: 520px;
+  padding: 28px 32px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #161616 100%);
+}
+
+.vault-dialog h3 {
+  margin: 0 0 12px 0;
+  color: var(--shield-accent);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vault-dialog p {
+  color: #bbb;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+/* Info box for hints and warnings */
+.vault-info-box {
+  background: rgba(241, 196, 15, 0.1);
+  border: 1px solid rgba(241, 196, 15, 0.3);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: #f1c40f;
+  font-size: 0.9rem;
+  text-align: left;
+  line-height: 1.5;
+}
+
+/* Warning box for errors */
+.vault-warning-box {
+  background: rgba(243, 156, 18, 0.08);
+  border: 2px solid rgba(243, 156, 18, 0.3);
+  border-radius: 10px;
+  padding: 24px;
+  margin: 20px 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Error box for validation errors */
+.vault-error-box {
+  background: rgba(231, 76, 60, 0.12);
+  border: 1px solid rgba(231, 76, 60, 0.4);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: #e74c3c;
+  font-size: 0.9rem;
+  text-align: left;
+  line-height: 1.5;
+}
+
+/* Actions layout */
+.vault-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Button variants */
+.vault-btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.vault-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.vault-btn-danger {
+  min-width: 100px;
+}
+
+/* Small button style for show/hide */
+.bw-btn-small {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ddd;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.bw-btn-small:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.bw-btn-small:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.bw-btn-small:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Password toggle button inside input */
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.password-toggle-btn:hover:not(:disabled) {
+  color: var(--shield-accent);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.password-toggle-btn:active:not(:disabled) {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.password-toggle-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .confirm-dialog h3 {
   margin: 0 0 8px 0;
   color: var(--shield-accent);

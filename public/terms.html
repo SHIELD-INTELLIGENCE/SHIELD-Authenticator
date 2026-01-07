@@ -49,7 +49,8 @@
       <p><strong>Software / Service:</strong> SHIELD‑AUTHENTICATOR in any form, including web app, Android app, PWA, APIs, and supporting scripts.</p>
       <p><strong>Account Data:</strong> Includes email, password, account names, and encrypted TOTP keys.</p>
       <p><strong>TOTP:</strong> Time-Based One-Time Passwords generated from encrypted secrets.</p>
-      <p><strong>Encryption Key / MASTER_KEY:</strong> Internal key used for encrypting TOTP secrets. Users cannot access it directly.</p>
+      <p><strong>Vault Passphrase:</strong> A passphrase chosen by the User and used on the User’s device to derive an encryption key for protecting TOTP secrets (“End‑to‑End Encryption” / “E2EE”). The Provider does not receive the Vault Passphrase.</p>
+      <p><strong>End‑to‑End Encryption (E2EE):</strong> A design where TOTP secrets are encrypted on the User’s device before being stored and can only be decrypted on the User’s device after the User provides the Vault Passphrase.</p>
 
       <h2>2. License Grant</h2>
       <ul>
@@ -64,9 +65,10 @@
 
       <h2>3. Account Data & Encryption</h2>
       <ul>
-        <li>All TOTP secrets are encrypted locally before storage.</li>
-        <li>Decryption happens only on your device when generating codes.</li>
-        <li>Users own their account data; Provider cannot access raw secrets.</li>
+        <li><strong>E2EE:</strong> All TOTP secrets are encrypted locally on your device before being stored.</li>
+        <li>Decryption happens only on your device after you provide your Vault Passphrase.</li>
+        <li>The Provider cannot decrypt your stored TOTP secrets without your Vault Passphrase.</li>
+        <li><strong>No Recovery if Forgotten:</strong> If you forget your Vault Passphrase, your encrypted secrets cannot be recovered by the Provider.</li>
         <li>Data is stored until deleted by the User.</li>
       </ul>
 

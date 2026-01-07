@@ -22,12 +22,12 @@ import AddAccountForm from "./components/AddAccountForm";
 import AccountList from "./components/AccountList";
 import SettingsPage from "./components/SettingsPage";
 import ConfirmDialog from "./components/ConfirmDialog";
+import VaultPassphraseDialog from "./components/VaultPassphraseDialog";
+import { unlockVault, lockVault, getVaultMeta, setupVault, recoverAndResetPassphrase } from "./vault";
 
-// Set worker path dynamically (works with Netlify)
-QrScanner.WORKER_PATH = new URL(
-  "qr-scanner/qr-scanner-worker.min.js",
-  import.meta.url
-).toString();
+function vaultRememberKeyForEmail(email) {
+  return `shield-vault-passphrase:${String(email || "").trim().toLowerCase()}`;
+}
 
 function SHIELDAuthenticator() {
   const [user, setUser] = useState(null);
@@ -74,22 +74,103 @@ function SHIELDAuthenticator() {
   const [editing, setEditing] = useState(null);
   const [showDelete, setShowDelete] = useState(null);
 
+  const [vaultDialogOpen, setVaultDialogOpen] = useState(false);
+  const [vaultMode, setVaultMode] = useState("unlock"); // 'unlock' | 'setup'
+  const [vaultRecoveryConfig, setVaultRecoveryConfig] = useState({ questions: [] });
+  const [vaultPassphrase, setVaultPassphrase] = useState("");
+  const [vaultRemember, setVaultRemember] = useState(true);
+  const [vaultError, setVaultError] = useState("");
+  const [vaultUnlocking, setVaultUnlocking] = useState(false);
+
+  const RECOVERY_QUESTION_BANK = React.useMemo(
+    () => [
+      { id: "moms-brother", label: "Your Mom's Brother's name" },
+      { id: "first-pet", label: "Your First Pet's name" },
+      { id: "first-school", label: "Your First School's name" },
+      { id: "favorite-teacher", label: "Your Favorite Teacher's name" },
+      { id: "birth-city", label: "The City You Were Born In" },
+    ],
+    []
+  );
+
   // Listen to auth state
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      if (u) loadAccounts(u.uid);
-      else setAccounts([]);
+      if (u) {
+        // Require vault unlock every login/session
+        setAccounts([]);
+        setVaultError("");
+        setVaultUnlocking(true);
+
+        getVaultMeta(u)
+          .then((meta) => {
+            if (!meta) {
+              setVaultMode("setup");
+              setVaultRecoveryConfig({ questions: [] });
+              setVaultDialogOpen(true);
+              return;
+            }
+
+            if (meta?.v === 2 && meta?.recovery?.questions?.length) {
+              const ids = meta.recovery.questions;
+              const questions = RECOVERY_QUESTION_BANK.filter((q) => ids.includes(q.id));
+              setVaultRecoveryConfig({ questions });
+            } else {
+              setVaultRecoveryConfig({ questions: [] });
+            }
+
+            setVaultMode("unlock");
+
+            // Try auto-unlock from localStorage if user opted in previously
+            const email = u?.email || "";
+            const remembered = email ? localStorage.getItem(vaultRememberKeyForEmail(email)) : null;
+
+            if (remembered) {
+              unlockVault(u, remembered)
+                .then(() => loadAccounts(u))
+                .then(() => {
+                  setVaultDialogOpen(false);
+                  setVaultPassphrase("");
+                  setVaultRemember(true);
+                })
+                .catch(() => {
+                  setVaultPassphrase("");
+                  setVaultRemember(true);
+                  setVaultDialogOpen(true);
+                })
+                .finally(() => setVaultUnlocking(false));
+            } else {
+              setVaultPassphrase("");
+              setVaultRemember(true);
+              setVaultDialogOpen(true);
+              setVaultUnlocking(false);
+            }
+          })
+          .catch(() => {
+            setVaultMode("setup");
+            setVaultRecoveryConfig({ questions: [] });
+            setVaultDialogOpen(true);
+            setVaultUnlocking(false);
+          });
+      } else {
+        setAccounts([]);
+        lockVault();
+        setVaultDialogOpen(false);
+        setVaultPassphrase("");
+        setVaultRemember(true);
+        setVaultError("");
+      }
       setLoadingAuth(false); // <-- auth check done
     });
     return unsub;
   }, []);
 
-  async function loadAccounts(uid) {
-    if (!uid) return;
+  async function loadAccounts(u) {
+    if (!u) return;
     setLoadingAccounts(true);
     try {
-      const data = await getAccounts(uid);
+      const data = await getAccounts(u);
       setAccounts(data);
     } catch (error) {
       console.error("Error loading accounts:", error);
@@ -151,15 +232,15 @@ function SHIELDAuthenticator() {
     if (!name || !secret) return toast.error("Fill both fields!");
     try {
       if (editing) {
-        await updateAccount(editing, { name, secret });
+        await updateAccount(user, editing, { name, secret });
         toast.success("✅ Account updated!");
         setEditing(null);
       } else {
-        await addAccount(user.uid, name, secret);
+        await addAccount(user, name, secret);
         toast.success("✅ Account added!");
       }
       setForm({ name: "", secret: "" });
-      loadAccounts(user.uid);
+      loadAccounts(user);
     } catch (err) {
       toast.error("❌ Failed to save account");
       console.error(err);
@@ -169,7 +250,7 @@ function SHIELDAuthenticator() {
   const handleSave = async () => saveAccountDirect(form.name, form.secret);
 
   const handleImportAccounts = async (importedAccounts) => {
-    if (!user?.uid) {
+    if (!user) {
       toast.error("❌ User not authenticated");
       return;
     }
@@ -179,7 +260,7 @@ function SHIELDAuthenticator() {
 
     for (const account of importedAccounts) {
       try {
-        await addAccount(user.uid, account.name, account.secret);
+        await addAccount(user, account.name, account.secret);
         successCount++;
       } catch (err) {
         console.error("Failed to import account:", account.name, err);
@@ -188,7 +269,7 @@ function SHIELDAuthenticator() {
     }
 
     // Reload accounts after import
-    await loadAccounts(user.uid);
+    await loadAccounts(user);
 
     if (failCount > 0) {
       toast.warning(`⚠️ Imported ${successCount} of ${importedAccounts.length} accounts`);
@@ -202,9 +283,9 @@ function SHIELDAuthenticator() {
 
   const handleDelete = async (id) => {
     try {
-      await deleteAccount(id);
+      await deleteAccount(user, id);
       toast.info("🗑️ Account deleted");
-      loadAccounts(user.uid);
+      loadAccounts(user);
       setShowDelete(null);
     } catch (err) {
       toast.error("❌ Failed to delete");
@@ -323,6 +404,13 @@ function SHIELDAuthenticator() {
   const handleLogout = () => {
     setShowSettings(false);
     setLoadingLogout(true);
+    lockVault();
+
+    // Ensure logout clears any remembered vault passphrase
+    const email = user?.email || "";
+    if (email) {
+      localStorage.removeItem(vaultRememberKeyForEmail(email));
+    }
     
     // Add a small delay to show the loading animation
     setTimeout(() => {
@@ -330,6 +418,114 @@ function SHIELDAuthenticator() {
         setLoadingLogout(false);
       });
     }, 500);
+  };
+
+  const handleUnlockVault = async () => {
+    if (!user) return;
+    setVaultError("");
+    if (!vaultPassphrase || vaultPassphrase.length < 8) {
+      setVaultError("Passphrase must be at least 8 characters");
+      return;
+    }
+    setVaultUnlocking(true);
+    try {
+      await unlockVault(user, vaultPassphrase);
+
+      // Persist passphrase on device only if user opted in
+      const email = user?.email || "";
+      if (email) {
+        const storageKey = vaultRememberKeyForEmail(email);
+        if (vaultRemember) localStorage.setItem(storageKey, vaultPassphrase);
+        else localStorage.removeItem(storageKey);
+      }
+
+      setVaultDialogOpen(false);
+      setVaultPassphrase("");
+      await loadAccounts(user);
+    } catch (e) {
+      setVaultError(e?.message || "Failed to unlock vault");
+    } finally {
+      setVaultUnlocking(false);
+    }
+  };
+
+  const handleSetupVault = async ({ selectedQuestions, answers }) => {
+    if (!user) return;
+    setVaultError("");
+    if (!vaultPassphrase || vaultPassphrase.length < 8) {
+      setVaultError("Passphrase must be at least 8 characters");
+      return;
+    }
+
+    const questionIds = Array.isArray(selectedQuestions) ? selectedQuestions.filter(Boolean) : [];
+    const uniqueIds = Array.from(new Set(questionIds));
+    if (uniqueIds.length < 1) {
+      setVaultError("Select at least one recovery question");
+      return;
+    }
+
+    const recoveryAnswers = uniqueIds.map((id) => String(answers?.[id] || "").toLowerCase());
+    if (recoveryAnswers.some((a) => !a.trim())) {
+      setVaultError("Provide answers for all selected questions (lowercase)");
+      return;
+    }
+
+    setVaultUnlocking(true);
+    try {
+      await setupVault(user, {
+        passphrase: vaultPassphrase,
+        recoveryQuestions: uniqueIds,
+        recoveryAnswers,
+      });
+
+      // Persist passphrase on device only if user opted in
+      const email = user?.email || "";
+      if (email) {
+        const storageKey = vaultRememberKeyForEmail(email);
+        if (vaultRemember) localStorage.setItem(storageKey, vaultPassphrase);
+        else localStorage.removeItem(storageKey);
+      }
+
+      const questions = RECOVERY_QUESTION_BANK.filter((q) => uniqueIds.includes(q.id));
+      setVaultRecoveryConfig({ questions });
+
+      setVaultDialogOpen(false);
+      setVaultPassphrase("");
+      setVaultMode("unlock");
+      await loadAccounts(user);
+    } catch (e) {
+      setVaultError(e?.message || "Failed to set up vault");
+    } finally {
+      setVaultUnlocking(false);
+    }
+  };
+
+  const handleRecoverVault = async ({ answers, newPassphrase }) => {
+    if (!user) return;
+    setVaultError("");
+    setVaultUnlocking(true);
+    try {
+      await recoverAndResetPassphrase(user, {
+        recoveryAnswers: Array.isArray(answers) ? answers.map((a) => String(a || "").toLowerCase()) : [],
+        newPassphrase,
+      });
+
+      // After recovery, remember the new passphrase if opted in
+      const email = user?.email || "";
+      if (email) {
+        const storageKey = vaultRememberKeyForEmail(email);
+        if (vaultRemember) localStorage.setItem(storageKey, newPassphrase);
+        else localStorage.removeItem(storageKey);
+      }
+
+      setVaultDialogOpen(false);
+      setVaultPassphrase("");
+      await loadAccounts(user);
+    } catch (e) {
+      setVaultError(e?.message || "Failed to recover vault");
+    } finally {
+      setVaultUnlocking(false);
+    }
   };
 
 
@@ -377,6 +573,22 @@ if (loadingAuth) {
 
   return (
     <div className="page-container">
+      <VaultPassphraseDialog
+        open={vaultDialogOpen}
+        userEmail={user?.email}
+        mode={vaultMode}
+        recoveryQuestions={vaultMode === "setup" ? RECOVERY_QUESTION_BANK : vaultRecoveryConfig.questions}
+        passphrase={vaultPassphrase}
+        setPassphrase={setVaultPassphrase}
+        remember={vaultRemember}
+        setRemember={setVaultRemember}
+        error={vaultError}
+        unlocking={vaultUnlocking}
+        onUnlock={handleUnlockVault}
+        onSetup={handleSetupVault}
+        onRecover={handleRecoverVault}
+        onLogout={handleLogout}
+      />
       {!showSettings ? (
         <>
           <div className="settings-header">
@@ -411,6 +623,8 @@ if (loadingAuth) {
                   <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                 </svg>
                 <input
+                  id="shield-search-accounts"
+                  name="searchAccounts"
                   type="text"
                   placeholder="Search accounts..."
                   value={searchQuery}
@@ -435,6 +649,8 @@ if (loadingAuth) {
                   <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
                 </svg>
                 <select 
+                  id="shield-sort-accounts"
+                  name="sortAccounts"
                   value={sortBy} 
                   onChange={(e) => setSortBy(e.target.value)}
                   className="sort-select"

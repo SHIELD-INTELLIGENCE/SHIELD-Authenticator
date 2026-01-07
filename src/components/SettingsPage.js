@@ -7,6 +7,7 @@ import {
   downloadCSV, 
   readCSVFile 
 } from "../csvUtils";
+import { updateRecoveryQuestions, getVaultMeta, clearRecoveryQuestions } from "../vault";
 
 const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskCodes, accounts, onImportAccounts }) => {
   const [exportPassphrase, setExportPassphrase] = useState("");
@@ -16,6 +17,41 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
   const [useExportEncryption, setUseExportEncryption] = useState(true);
   const [useImportDecryption, setUseImportDecryption] = useState(true);
   const fileInputRef = useRef(null);
+
+  const RECOVERY_QUESTION_BANK = [
+    { id: "moms-brother", label: "your mom's brother's name" },
+    { id: "first-pet", label: "your first pet's name" },
+    { id: "first-school", label: "your first school's name" },
+    { id: "favorite-teacher", label: "your favorite teacher's name" },
+    { id: "birth-city", label: "the city you were born in" },
+  ];
+
+  const [recoveryQ1, setRecoveryQ1] = useState("");
+  const [recoveryQ2, setRecoveryQ2] = useState("");
+  const [recoveryQ3, setRecoveryQ3] = useState("");
+  const [recoveryA1, setRecoveryA1] = useState("");
+  const [recoveryA2, setRecoveryA2] = useState("");
+  const [recoveryA3, setRecoveryA3] = useState("");
+  const [savingRecovery, setSavingRecovery] = useState(false);
+
+  // Load existing recovery questions from vault metadata
+  useEffect(() => {
+    const loadRecoveryQuestions = async () => {
+      if (!user) return;
+      try {
+        const meta = await getVaultMeta(user);
+        if (meta && meta.v === 2 && meta.recovery && meta.recovery.questions) {
+          const questionIds = meta.recovery.questions;
+          if (questionIds[0]) setRecoveryQ1(questionIds[0]);
+          if (questionIds[1]) setRecoveryQ2(questionIds[1]);
+          if (questionIds[2]) setRecoveryQ3(questionIds[2]);
+        }
+      } catch (err) {
+        console.error("Failed to load recovery questions:", err);
+      }
+    };
+    loadRecoveryQuestions();
+  }, [user]);
 
   const handleLogoutClick = () => {
     if (openConfirm) {
@@ -232,11 +268,161 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
           </div>
           <input
             ref={fileInputRef}
+            id="shield-import-file"
+            name="importFile"
             type="file"
             accept=".csv"
             style={{ display: "none" }}
             onChange={handleFileSelected}
           />
+        </div>
+
+        <div className="settings-section">
+          <h2>Security</h2>
+          <div className="settings-item security-recovery" style={{ display: "block" }}>
+            <div style={{ color: "#ddd", marginBottom: 10 }}>
+              <div style={{ color: "#ddd", fontWeight: 700, marginBottom: 6 }}>Recovery questions</div>
+              <div style={{ color: "#ddd" }}>Set or change your recovery questions (answers stored in lowercase).</div>
+            </div>
+
+            <select className="shield-clean-input" value={recoveryQ1} onChange={(e) => setRecoveryQ1(e.target.value)} disabled={savingRecovery}>
+              <option value="">Select question 1</option>
+              {RECOVERY_QUESTION_BANK.map((q) => (
+                <option key={q.id} value={q.id}>
+                  {q.label}
+                </option>
+              ))}
+            </select>
+            {recoveryQ1 ? (
+              <input
+                className="shield-clean-input"
+                type="text"
+                placeholder="answer 1 (lowercase)"
+                value={recoveryA1}
+                onChange={(e) => setRecoveryA1(String(e.target.value || "").toLowerCase())}
+                disabled={savingRecovery}
+                style={{ marginTop: 10 }}
+              />
+            ) : null}
+
+            <select className="shield-clean-input" value={recoveryQ2} onChange={(e) => setRecoveryQ2(e.target.value)} disabled={savingRecovery} style={{ marginTop: 10 }}>
+              <option value="">Select question 2</option>
+              {RECOVERY_QUESTION_BANK.map((q) => (
+                <option key={q.id} value={q.id}>
+                  {q.label}
+                </option>
+              ))}
+            </select>
+            {recoveryQ2 ? (
+              <input
+                className="shield-clean-input"
+                type="text"
+                placeholder="answer 2 (lowercase)"
+                value={recoveryA2}
+                onChange={(e) => setRecoveryA2(String(e.target.value || "").toLowerCase())}
+                disabled={savingRecovery}
+                style={{ marginTop: 10 }}
+              />
+            ) : null}
+
+            <select className="shield-clean-input" value={recoveryQ3} onChange={(e) => setRecoveryQ3(e.target.value)} disabled={savingRecovery} style={{ marginTop: 10 }}>
+              <option value="">Select question 3</option>
+              {RECOVERY_QUESTION_BANK.map((q) => (
+                <option key={q.id} value={q.id}>
+                  {q.label}
+                </option>
+              ))}
+            </select>
+            {recoveryQ3 ? (
+              <input
+                className="shield-clean-input"
+                type="text"
+                placeholder="answer 3 (lowercase)"
+                value={recoveryA3}
+                onChange={(e) => setRecoveryA3(String(e.target.value || "").toLowerCase())}
+                disabled={savingRecovery}
+                style={{ marginTop: 10 }}
+              />
+            ) : null}
+
+            <button
+              className="settings-action-btn"
+              style={{ marginTop: 12 }}
+              disabled={savingRecovery}
+              onClick={async () => {
+                const questionIds = [recoveryQ1, recoveryQ2, recoveryQ3].filter(Boolean);
+                const uniqueIds = Array.from(new Set(questionIds));
+                const answers = [
+                  recoveryQ1 ? recoveryA1 : null,
+                  recoveryQ2 ? recoveryA2 : null,
+                  recoveryQ3 ? recoveryA3 : null,
+                ].filter((a) => a !== null);
+
+                if (uniqueIds.length < 1) {
+                  toast.error("Select at least one recovery question");
+                  return;
+                }
+                if (answers.length !== uniqueIds.length || answers.some((a) => !String(a || "").trim())) {
+                  toast.error("Provide answers for all selected questions (lowercase)");
+                  return;
+                }
+
+                setSavingRecovery(true);
+                try {
+                  await updateRecoveryQuestions(user, {
+                    recoveryQuestions: uniqueIds,
+                    recoveryAnswers: answers.map((a) => String(a || "").toLowerCase()),
+                  });
+                  toast.success("✅ Recovery questions updated");
+                } catch (e) {
+                  toast.error(`❌ ${e?.message || "Failed to update recovery questions"}`);
+                } finally {
+                  setSavingRecovery(false);
+                }
+              }}
+            >
+              {savingRecovery ? "Saving..." : "Save recovery questions"}
+            </button>
+
+            {(recoveryQ1 || recoveryQ2 || recoveryQ3) && (
+              <button
+                className="settings-action-btn"
+                style={{ 
+                  marginTop: 12, 
+                  backgroundColor: "#e74c3c",
+                  color: "white"
+                }}
+                disabled={savingRecovery}
+                onClick={async () => {
+                  if (openConfirm) {
+                    openConfirm({
+                      title: 'Clear Recovery Questions',
+                      message: 'Are you sure you want to remove all recovery questions? You will not be able to recover your vault if you forget your passphrase.',
+                      onConfirm: async () => {
+                        setSavingRecovery(true);
+                        try {
+                          await clearRecoveryQuestions(user);
+                          setRecoveryQ1("");
+                          setRecoveryQ2("");
+                          setRecoveryQ3("");
+                          setRecoveryA1("");
+                          setRecoveryA2("");
+                          setRecoveryA3("");
+                          toast.success("✅ Recovery questions cleared");
+                        } catch (e) {
+                          toast.error(`❌ ${e?.message || "Failed to clear recovery questions"}`);
+                        } finally {
+                          setSavingRecovery(false);
+                        }
+                      },
+                    });
+                  }
+                }}
+              >
+                {savingRecovery ? "Clearing..." : "Clear recovery questions"}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="settings-section">
@@ -266,6 +452,8 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
               </div>
               <label className="switch">
                 <input
+                  id="shield-export-encryption-toggle"
+                  name="exportEncryptionEnabled"
                   type="checkbox"
                   checked={useExportEncryption}
                   onChange={(e) => setUseExportEncryption(e.target.checked)}
@@ -277,6 +465,8 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
 
             {useExportEncryption && (
               <input
+                id="shield-export-passphrase"
+                name="exportPassphrase"
                 type="password"
                 value={exportPassphrase}
                 onChange={(e) => setExportPassphrase(e.target.value)}
@@ -325,6 +515,8 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
               </div>
               <label className="switch">
                 <input
+                  id="shield-import-decryption-toggle"
+                  name="importDecryptionEnabled"
                   type="checkbox"
                   checked={useImportDecryption}
                   onChange={(e) => setUseImportDecryption(e.target.checked)}
@@ -336,6 +528,8 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
 
             {useImportDecryption && (
               <input
+                id="shield-import-passphrase"
+                name="importPassphrase"
                 type="password"
                 value={importPassphrase}
                 onChange={(e) => setImportPassphrase(e.target.value)}

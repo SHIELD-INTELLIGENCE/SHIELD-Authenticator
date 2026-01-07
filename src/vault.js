@@ -146,13 +146,17 @@ export async function unlockVault(user, passphrase) {
   }
 
   if (vault.v === 2) {
-    const kek = await deriveVaultKey({ passphrase, saltB64: vault.passphrase.salt, iterations: vault.passphrase.iterations });
-    const aad = getVaultAadForUser(user);
-    const masterKeyB64 = await decryptWithVaultKey({ ciphertext: vault.passphrase.wrappedMasterKey, vaultKey: kek, aad: `${aad}|wrap|passphrase` });
-    const masterKeyBytes = b64ToBytes(masterKeyB64);
-    const masterKey = await importVaultMasterKey(masterKeyBytes);
-    _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: vault, vaultKeyBytes: masterKeyBytes };
-    return vault;
+    try {
+      const kek = await deriveVaultKey({ passphrase, saltB64: vault.passphrase.salt, iterations: vault.passphrase.iterations });
+      const aad = getVaultAadForUser(user);
+      const masterKeyB64 = await decryptWithVaultKey({ ciphertext: vault.passphrase.wrappedMasterKey, vaultKey: kek, aad: `${aad}|wrap|passphrase` });
+      const masterKeyBytes = b64ToBytes(masterKeyB64);
+      const masterKey = await importVaultMasterKey(masterKeyBytes);
+      _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: vault, vaultKeyBytes: masterKeyBytes };
+      return vault;
+    } catch (err) {
+      throw new Error("Incorrect passphrase. Please try again Or Click Recover Vault.");
+    }
   }
 
   // v1 fallback

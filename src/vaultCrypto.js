@@ -176,15 +176,20 @@ export async function decryptWithVaultKey({ ciphertext, vaultKey, aad }) {
   const iv = fromBase64(parts[2]);
   const ct = fromBase64(parts[3]);
 
-  const ptBuf = await crypto.subtle.decrypt(
-    {
-      name: "AES-GCM",
-      iv,
-      additionalData: aad ? encodeUtf8(aad) : undefined,
-    },
-    vaultKey,
-    ct
-  );
+  try {
+    const ptBuf = await crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv,
+        additionalData: aad ? encodeUtf8(aad) : undefined,
+      },
+      vaultKey,
+      ct
+    );
 
-  return decodeUtf8(new Uint8Array(ptBuf));
+    return decodeUtf8(new Uint8Array(ptBuf));
+  } catch (err) {
+    // Decryption fails when wrong passphrase is used
+    throw new Error("Incorrect passphrase. Please try again Or Click Recover Vault.");
+  }
 }

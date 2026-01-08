@@ -46,7 +46,19 @@ Copyright © 2026 SHIELD Intelligence. All rights reserved.
 /* ═════════════════════════════════════════════════════════════════
    2. BASE ELEMENTS & RESET
    ═════════════════════════════════════════════════════════════════ */
-html,
+html {
+  margin: 0;
+  padding: 0;
+  font-family: var(--shield-font-sans);
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
+  background: var(--shield-black);
+  color: var(--shield-white);
+  min-height: 100vh;
+  height: 100%;
+}
+
 body {
   margin: 0;
   padding: 0 6px;
@@ -59,6 +71,7 @@ body {
     var(--shield-grey) 0%,
     var(--shield-black) 100%
   );
+  background-attachment: fixed;
   color: var(--shield-white);
   min-height: 100vh;
   opacity: 0;
@@ -1043,20 +1056,30 @@ input:checked + .slider:hover {
   height: 20px;
 }
 
+/* Prevent background scroll when modals are open */
+body.shield-modal-open {
+  overflow: hidden;
+}
+
 /* Dialog Overlay & Box */
 .dialog-overlay {
   position: fixed;
+  /* match the look & feel of confirm-backdrop */
   top: 0;
-  left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 20px;
+  /* Transparent, neutral overlay */
+  background: rgba(0, 0, 0, 0.72);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
   animation: fadeIn 0.2s ease-out;
+  overflow: hidden; /* prevent overlay scrolling */
+  overscroll-behavior: contain;
 }
 
 .dialog-box {
@@ -1068,6 +1091,11 @@ input:checked + .slider:hover {
   width: 100%;
   box-shadow: 0 0 30px var(--shield-glow), 0 8px 24px rgba(0, 0, 0, 0.4);
   animation: slideUp 0.3s var(--transition-decelerate);
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1001;
+  max-height: 82vh; /* keep center while allowing inner scroll */
+  overflow: auto;
 }
 
 @keyframes slideUp {
@@ -1198,6 +1226,74 @@ input:checked + .slider:hover {
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.recovery-dialog-box {
+  max-width: 550px;
+}
+
+.recovery-dialog-box .dialog-input {
+  margin-bottom: 10px;
+}
+
+.recovery-dialog-box select.dialog-input {
+  cursor: pointer;
+}
+
+.recovery-dialog-box select.dialog-input option {
+  background: #1a1a1a;
+  color: var(--shield-white);
+}
+
+@media (max-width: 768px) {
+  .recovery-dialog-box {
+    max-width: 100%;
+    padding: 20px;
+  }
+  
+  .recovery-dialog-box .dialog-input-group {
+    margin-bottom: 12px;
+  }
+  
+  .recovery-dialog-box .dialog-input,
+  .recovery-dialog-box select.dialog-input {
+    font-size: 16px;
+  }
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 45px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  color: var(--shield-accent);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.password-toggle-btn:hover {
+  opacity: 1;
+}
+
+.password-toggle-btn:focus {
+  outline: 2px solid var(--shield-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* Settings Header */
@@ -2224,9 +2320,11 @@ input:checked + .slider:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.72);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
 }
 .confirm-dialog {
   background: #161616;
@@ -2405,4 +2503,39 @@ input:checked + .slider:hover {
   display: flex;
   gap: 12px;
   justify-content: center;
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   OFFLINE BANNER
+   ═════════════════════════════════════════════════════════════════ */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: white;
+  padding: 12px 20px;
+  text-align: center;
+  z-index: 9999;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.offline-banner + * {
+  margin-top: 48px;
 }

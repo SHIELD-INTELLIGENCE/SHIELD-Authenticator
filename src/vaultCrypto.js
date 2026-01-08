@@ -44,6 +44,9 @@ export function vaultSaltFromString(saltB64) {
 }
 
 export async function deriveVaultKey({ passphrase, saltB64, iterations }) {
+  if (!window.crypto || !window.crypto.subtle) {
+    throw new Error("Crypto API unavailable. Please ensure you're using HTTPS or a secure context.");
+  }
   if (!passphrase || String(passphrase).length < 8) {
     throw new Error("Passphrase must be at least 8 characters");
   }
@@ -85,6 +88,9 @@ export function normalizeRecoveryAnswers(answers) {
 }
 
 export async function deriveRecoveryKey({ answers, saltB64, iterations }) {
+  if (!window.crypto || !window.crypto.subtle) {
+    throw new Error("Crypto API unavailable. Please ensure you're using HTTPS or a secure context.");
+  }
   const normalized = normalizeRecoveryAnswers(answers);
   if (!normalized.length || normalized.some((a) => !a)) {
     throw new Error("Missing recovery answers");
@@ -121,6 +127,9 @@ export function generateVaultMasterKeyBytes() {
 }
 
 export async function importVaultMasterKey(masterKeyBytes) {
+  if (!window.crypto || !window.crypto.subtle) {
+    throw new Error("Crypto API unavailable. Please ensure you're using HTTPS or a secure context.");
+  }
   const bytes = masterKeyBytes instanceof Uint8Array ? masterKeyBytes : new Uint8Array(masterKeyBytes);
   if (bytes.length !== 32) throw new Error("Invalid master key length");
   return crypto.subtle.importKey("raw", bytes, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
@@ -190,6 +199,6 @@ export async function decryptWithVaultKey({ ciphertext, vaultKey, aad }) {
     return decodeUtf8(new Uint8Array(ptBuf));
   } catch (err) {
     // Decryption fails when wrong passphrase is used
-    throw new Error("Incorrect passphrase. Please try again Or Click Recover Vault.");
+    throw new Error("Incorrect passphrase. Please try again or recover your vault.");
   }
 }

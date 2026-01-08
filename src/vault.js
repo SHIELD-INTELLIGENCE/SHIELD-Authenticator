@@ -314,32 +314,40 @@ export async function recoverAndResetPassphrase(user, { recoveryAnswers, newPass
   }
 
   const aad = getVaultAadForUser(user);
-  const recoveryKek = await deriveRecoveryKey({ answers: recoveryAnswers, saltB64: vault.recovery.salt, iterations: vault.recovery.iterations });
-  const masterKeyB64 = await decryptWithVaultKey({ ciphertext: vault.recovery.wrappedMasterKey, vaultKey: recoveryKek, aad: `${aad}|wrap|recovery` });
-  const masterKeyBytes = b64ToBytes(masterKeyB64);
-  const masterKey = await importVaultMasterKey(masterKeyBytes);
+  try {
+    const recoveryKek = await deriveRecoveryKey({ answers: recoveryAnswers, saltB64: vault.recovery.salt, iterations: vault.recovery.iterations });
+    const masterKeyB64 = await decryptWithVaultKey({ ciphertext: vault.recovery.wrappedMasterKey, vaultKey: recoveryKek, aad: `${aad}|wrap|recovery` });
+    const masterKeyBytes = b64ToBytes(masterKeyB64);
+    const masterKey = await importVaultMasterKey(masterKeyBytes);
 
-  // Re-wrap with new passphrase
-  const passphraseSalt = vaultSaltToString(generateVaultSaltBytes());
-  const passphraseKek = await deriveVaultKey({ passphrase: newPassphrase, saltB64: passphraseSalt, iterations: 310000 });
-  const wrappedMasterKeyPassphrase = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: passphraseKek, aad: `${aad}|wrap|passphrase` });
+    // Re-wrap with new passphrase
+    const passphraseSalt = vaultSaltToString(generateVaultSaltBytes());
+    const passphraseKek = await deriveVaultKey({ passphrase: newPassphrase, saltB64: passphraseSalt, iterations: 310000 });
+    const wrappedMasterKeyPassphrase = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: passphraseKek, aad: `${aad}|wrap|passphrase` });
 
-  const updated = {
-    ...vault,
-    passphrase: {
-      iterations: 310000,
-      salt: passphraseSalt,
-      wrappedMasterKey: wrappedMasterKeyPassphrase,
-    },
-  };
+    const updated = {
+      ...vault,
+      passphrase: {
+        iterations: 310000,
+        salt: passphraseSalt,
+        wrappedMasterKey: wrappedMasterKeyPassphrase,
+      },
+    };
 
-  await updateDoc(ref, {
-    secret: serializeVaultMeta(updated),
-    updatedAt: Timestamp.now(),
-  });
+    await updateDoc(ref, {
+      secret: serializeVaultMeta(updated),
+      updatedAt: Timestamp.now(),
+    });
 
-  _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: updated, vaultKeyBytes: masterKeyBytes };
-  return updated;
+    _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: updated, vaultKeyBytes: masterKeyBytes };
+    return updated;
+  } catch (err) {
+    // If decryption fails, it means wrong recovery answers
+    if (err.message && err.message.includes("Incorrect passphrase")) {
+      throw new Error("Incorrect recovery answers. Please try again.");
+    }
+    throw err;
+  }
 }
 
 export async function updateRecoveryQuestions(user, { recoveryQuestions, recoveryAnswers }) {
@@ -390,6 +398,70 @@ export async function updateRecoveryQuestions(user, { recoveryQuestions, recover
   _vaultState = { userEmail: emailId, vaultKey: _vaultState.vaultKey, vaultMeta: updated };
   return updated;
 }
+
+export async function updateVaultPassphrase(user, { currentPassphrase, newPassphrase }) {
+  const emailId = requireUserEmail(user);
+  if (!isVaultUnlockedForUser(user)) {
+    throw new Error("Vault locked. Unlock first.");
+  }
+
+  const ref = userVaultDocRef(user);
+  const vault = await readVaultMetaViaList(user);
+  if (!vault || vault.v !== 2) {
+    throw new Error("Vault upgrade required");
+  }
+
+  if (!currentPassphrase || String(currentPassphrase).trim() === '') {
+    throw new Error("Current passphrase is required");
+  }
+  if (!newPassphrase || String(newPassphrase).length < 8) {
+    throw new Error("New passphrase must be at least 8 characters");
+  }
+
+  const aad = getVaultAadForUser(user);
+
+  // Verify current passphrase by attempting to decrypt
+  try {
+    const currentKek = await deriveVaultKey({ passphrase: currentPassphrase, saltB64: vault.passphrase.salt, iterations: vault.passphrase.iterations });
+    const decrypted = await decryptWithVaultKey({ ciphertext: vault.passphrase.wrappedMasterKey, vaultKey: currentKek, aad: `${aad}|wrap|passphrase` });
+    if (!decrypted) {
+      throw new Error("Decryption failed");
+    }
+  } catch (err) {
+    // Silent error - toast message will be shown to user
+    throw new Error("Current passphrase is incorrect");
+  }
+
+  // Get master key from current state
+  const masterKeyBytes = _vaultState.vaultKeyBytes;
+  if (!masterKeyBytes) {
+    throw new Error("Vault key material not available. Please unlock again.");
+  }
+  const masterKeyB64 = bytesToB64(masterKeyBytes);
+
+  // Re-wrap with new passphrase
+  const newPassphraseSalt = vaultSaltToString(generateVaultSaltBytes());
+  const newPassphraseKek = await deriveVaultKey({ passphrase: newPassphrase, saltB64: newPassphraseSalt, iterations: 310000 });
+  const wrappedMasterKeyPassphrase = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: newPassphraseKek, aad: `${aad}|wrap|passphrase` });
+
+  const updated = {
+    ...vault,
+    passphrase: {
+      iterations: 310000,
+      salt: newPassphraseSalt,
+      wrappedMasterKey: wrappedMasterKeyPassphrase,
+    },
+  };
+
+  await updateDoc(ref, {
+    secret: serializeVaultMeta(updated),
+    updatedAt: Timestamp.now(),
+  });
+
+  _vaultState = { userEmail: emailId, vaultKey: _vaultState.vaultKey, vaultMeta: updated, vaultKeyBytes: _vaultState.vaultKeyBytes };
+  return updated;
+}
+
 export async function clearRecoveryQuestions(user) {
   const emailId = requireUserEmail(user);
   if (!isVaultUnlockedForUser(user)) {

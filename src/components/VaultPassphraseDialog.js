@@ -16,6 +16,7 @@ function VaultPassphraseDialog({
   onSetup,
   onRecover,
   onLogout,
+  onClearError,
 }) {
   const [show, setShow] = React.useState(false);
   const [showRecovery, setShowRecovery] = React.useState(false);
@@ -409,7 +410,10 @@ function VaultPassphraseDialog({
                 <button
                   type="button"
                   className="bw-btn-small"
-                  onClick={() => setShowRecovery((v) => !v)}
+                  onClick={() => {
+                    setShowRecovery((v) => !v);
+                    onClearError && onClearError();
+                  }}
                   disabled={unlocking}
                   style={{ padding: "6px 16px", fontSize: "0.85rem" }}
                 >

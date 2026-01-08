@@ -24,6 +24,8 @@ import SettingsPage from "./components/SettingsPage";
 import ConfirmDialog from "./components/ConfirmDialog";
 import VaultPassphraseDialog from "./components/VaultPassphraseDialog";
 import { unlockVault, lockVault, getVaultMeta, setupVault, recoverAndResetPassphrase } from "./vault";
+import { handleError, checkOnlineStatus } from "./networkUtils";
+import { secureSetItem, secureGetItem, secureRemoveItem } from "./secureStorage";
 
 function vaultRememberKeyForEmail(email) {
   return `shield-vault-passphrase:${String(email || "").trim().toLowerCase()}`;
@@ -46,12 +48,22 @@ function SHIELDAuthenticator() {
   const [loadingLogout, setLoadingLogout] = useState(false);
   const [loadingAccounts, setLoadingAccounts] = useState(false);
   const [loginMessage, setLoginMessage] = useState(null);
-  const [maskCodes, setMaskCodes] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [maskCodes, setMaskCodes] = useState(() => {
+    // Load mask codes preference from localStorage
+    const saved = localStorage.getItem("shield-mask-codes");
+    return saved === "true";
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState(() => {
     // Load sort preference from localStorage
     return localStorage.getItem("shield-sort-preference") || "name-asc";
   });
+
+  // Save mask codes preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("shield-mask-codes", maskCodes);
+  }, [maskCodes]);
 
   // Save sort preference to localStorage whenever it changes
   useEffect(() => {
@@ -81,6 +93,7 @@ function SHIELDAuthenticator() {
   const [vaultRemember, setVaultRemember] = useState(true);
   const [vaultError, setVaultError] = useState("");
   const [vaultUnlocking, setVaultUnlocking] = useState(false);
+  const [vaultUnlocked, setVaultUnlocked] = useState(false);
 
   const RECOVERY_QUESTION_BANK = React.useMemo(
     () => [
@@ -93,6 +106,37 @@ function SHIELDAuthenticator() {
     []
   );
 
+  // Check for secure context on mount
+  useEffect(() => {
+    if (!window.isSecureContext || !window.crypto || !window.crypto.subtle) {
+      console.error("App is not running in a secure context. Crypto APIs may not be available.");
+      toast.error("⚠️ Please access this app via HTTPS for security features to work properly.", {
+        autoClose: 5000,
+      });
+    }
+  }, []);
+
+  // Monitor network connectivity
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast.success("🌐 Back online", { autoClose: 2000 });
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.error("📡 No internet connection", { autoClose: false });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   // Listen to auth state
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -102,9 +146,10 @@ function SHIELDAuthenticator() {
         setAccounts([]);
         setVaultError("");
         setVaultUnlocking(true);
+        setVaultUnlocked(false);
 
         getVaultMeta(u)
-          .then((meta) => {
+          .then(async (meta) => {
             if (!meta) {
               setVaultMode("setup");
               setVaultRecoveryConfig({ questions: [] });
@@ -123,9 +168,9 @@ function SHIELDAuthenticator() {
 
             setVaultMode("unlock");
 
-            // Try auto-unlock from localStorage if user opted in previously
+            // Try auto-unlock from securely stored passphrase if user opted in previously
             const email = u?.email || "";
-            const remembered = email ? localStorage.getItem(vaultRememberKeyForEmail(email)) : null;
+            const remembered = email ? await secureGetItem(vaultRememberKeyForEmail(email)) : null;
 
             if (remembered) {
               unlockVault(u, remembered)
@@ -134,6 +179,7 @@ function SHIELDAuthenticator() {
                   setVaultDialogOpen(false);
                   setVaultPassphrase("");
                   setVaultRemember(true);
+                  setVaultUnlocked(true);
                 })
                 .catch(() => {
                   setVaultPassphrase("");
@@ -231,6 +277,10 @@ function SHIELDAuthenticator() {
 
   const saveAccountDirect = async (name, secret) => {
     if (!name || !secret) return toast.error("Fill both fields!");
+    if (!vaultUnlocked) {
+      toast.error("🔒 Vault is locked. Please unlock to make changes.");
+      return;
+    }
     try {
       if (editing) {
         await updateAccount(user, editing, { name, secret });
@@ -243,7 +293,8 @@ function SHIELDAuthenticator() {
       setForm({ name: "", secret: "" });
       loadAccounts(user);
     } catch (err) {
-      toast.error("❌ Failed to save account");
+      const errorMsg = handleError(err, "Failed to save account");
+      toast.error(errorMsg);
       console.error(err);
     }
   };
@@ -253,6 +304,11 @@ function SHIELDAuthenticator() {
   const handleImportAccounts = async (importedAccounts) => {
     if (!user) {
       toast.error("❌ User not authenticated");
+      return;
+    }
+
+    if (!vaultUnlocked) {
+      toast.error("🔒 Vault is locked. Please unlock to import accounts.");
       return;
     }
 
@@ -283,13 +339,18 @@ function SHIELDAuthenticator() {
   };
 
   const handleDelete = async (id) => {
+    if (!vaultUnlocked) {
+      toast.error("🔒 Vault is locked. Please unlock to make changes.");
+      return;
+    }
     try {
       await deleteAccount(user, id);
       toast.info("🗑️ Account deleted");
       loadAccounts(user);
       setShowDelete(null);
     } catch (err) {
-      toast.error("❌ Failed to delete");
+      const errorMsg = handleError(err, "Failed to delete account");
+      toast.error(errorMsg);
     }
   };
 
@@ -358,14 +419,8 @@ function SHIELDAuthenticator() {
         setLoginMessage(null);
       })
       .catch((err) => {
-        let msg = "Login failed. Please try again.";
-        if (err && err.code) {
-          if (err.code === "auth/user-not-found") msg = "No account found with this email.";
-          else if (err.code === "auth/wrong-password") msg = "Incorrect password. Please try again.";
-          else if (err.code === "auth/invalid-email") msg = "Invalid email address.";
-          else if (err.code === "auth/too-many-requests") msg = "Too many attempts. Please wait and try again.";
-        }
-        setLoginMessage({ type: 'error', text: msg });
+        const errorMsg = handleError(err);
+        setLoginMessage({ type: 'error', text: errorMsg });
       })
       .finally(() => setLoading(l => ({ ...l, login: false })));
   }
@@ -381,13 +436,8 @@ function SHIELDAuthenticator() {
     register(form.email, form.password)
       .then(setUser)
       .catch((err) => {
-        let msg = "Registration failed. Please try again.";
-        if (err && err.code) {
-          if (err.code === "auth/email-already-in-use") msg = "This email is already registered.";
-          else if (err.code === "auth/invalid-email") msg = "Invalid email address.";
-          else if (err.code === "auth/weak-password") msg = "Password is too weak. Please use at least 8 characters.";
-        }
-        setLoginMessage({ type: 'error', text: msg });
+        const errorMsg = handleError(err);
+        setLoginMessage({ type: 'error', text: errorMsg });
       })
       .finally(() => setLoading(l => ({ ...l, register: false })));
   }
@@ -405,12 +455,13 @@ function SHIELDAuthenticator() {
   const handleLogout = () => {
     setShowSettings(false);
     setLoadingLogout(true);
+    setVaultUnlocked(false);
     lockVault();
 
     // Ensure logout clears any remembered vault passphrase
     const email = user?.email || "";
     if (email) {
-      localStorage.removeItem(vaultRememberKeyForEmail(email));
+      secureRemoveItem(vaultRememberKeyForEmail(email));
     }
     
     // Add a small delay to show the loading animation
@@ -423,6 +474,10 @@ function SHIELDAuthenticator() {
 
   const handleUnlockVault = async () => {
     if (!user) return;
+    if (!checkOnlineStatus()) {
+      setVaultError("📡 No internet connection. Please check your network.");
+      return;
+    }
     setVaultError("");
     if (!vaultPassphrase || vaultPassphrase.length < 8) {
       setVaultError("Passphrase must be at least 8 characters");
@@ -432,19 +487,21 @@ function SHIELDAuthenticator() {
     try {
       await unlockVault(user, vaultPassphrase);
 
-      // Persist passphrase on device only if user opted in
+      // Persist passphrase securely on device only if user opted in
       const email = user?.email || "";
       if (email) {
         const storageKey = vaultRememberKeyForEmail(email);
-        if (vaultRemember) localStorage.setItem(storageKey, vaultPassphrase);
-        else localStorage.removeItem(storageKey);
+        if (vaultRemember) await secureSetItem(storageKey, vaultPassphrase);
+        else secureRemoveItem(storageKey);
       }
 
       setVaultDialogOpen(false);
       setVaultPassphrase("");
+      setVaultUnlocked(true);
       await loadAccounts(user);
     } catch (e) {
-      setVaultError(e?.message || "Failed to unlock vault");
+      const errorMsg = handleError(e, "Failed to unlock vault");
+      setVaultError(errorMsg);
     } finally {
       setVaultUnlocking(false);
     }
@@ -480,12 +537,12 @@ function SHIELDAuthenticator() {
         recoveryAnswers,
       });
 
-      // Persist passphrase on device only if user opted in
+      // Persist passphrase securely on device only if user opted in
       const email = user?.email || "";
       if (email) {
         const storageKey = vaultRememberKeyForEmail(email);
-        if (vaultRemember) localStorage.setItem(storageKey, vaultPassphrase);
-        else localStorage.removeItem(storageKey);
+        if (vaultRemember) await secureSetItem(storageKey, vaultPassphrase);
+        else secureRemoveItem(storageKey);
       }
 
       const questions = RECOVERY_QUESTION_BANK.filter((q) => uniqueIds.includes(q.id));
@@ -494,9 +551,11 @@ function SHIELDAuthenticator() {
       setVaultDialogOpen(false);
       setVaultPassphrase("");
       setVaultMode("unlock");
+      setVaultUnlocked(true);
       await loadAccounts(user);
     } catch (e) {
-      setVaultError(e?.message || "Failed to set up vault");
+      const errorMsg = handleError(e, "Failed to set up vault");
+      setVaultError(errorMsg);
     } finally {
       setVaultUnlocking(false);
     }
@@ -512,19 +571,21 @@ function SHIELDAuthenticator() {
         newPassphrase,
       });
 
-      // After recovery, remember the new passphrase if opted in
+      // After recovery, remember the new passphrase securely if opted in
       const email = user?.email || "";
       if (email) {
         const storageKey = vaultRememberKeyForEmail(email);
-        if (vaultRemember) localStorage.setItem(storageKey, newPassphrase);
-        else localStorage.removeItem(storageKey);
+        if (vaultRemember) await secureSetItem(storageKey, newPassphrase);
+        else secureRemoveItem(storageKey);
       }
 
       setVaultDialogOpen(false);
       setVaultPassphrase("");
+      setVaultUnlocked(true);
       await loadAccounts(user);
     } catch (e) {
-      setVaultError(e?.message || "Failed to recover vault");
+      const errorMsg = handleError(e, "Failed to recover vault");
+      setVaultError(errorMsg);
     } finally {
       setVaultUnlocking(false);
     }
@@ -575,6 +636,14 @@ if (loadingAuth) {
 
   return (
     <div className="page-container">
+      {!isOnline && (
+        <div className="offline-banner">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
+            <path d="M23.64 7c-.45-.34-4.93-4-11.64-4-1.5 0-2.89.19-4.15.48L18.18 13.8 23.64 7zm-6.6 8.22L3.27 1.44 2 2.72l2.05 2.06C1.91 5.76.59 6.82.36 7l11.63 14.49.01.01.01-.01 3.9-4.86 3.32 3.32 1.27-1.27-3.46-3.46z"/>
+          </svg>
+          📡 You're offline. Some features may not work.
+        </div>
+      )}
       <VaultPassphraseDialog
         open={vaultDialogOpen}
         userEmail={user?.email}
@@ -590,8 +659,9 @@ if (loadingAuth) {
         onSetup={handleSetupVault}
         onRecover={handleRecoverVault}
         onLogout={handleLogout}
+        onClearError={() => setVaultError("")}
       />
-      {!showSettings ? (
+      {vaultUnlocked && !showSettings ? (
         <>
           <div className="settings-header">
             <h2 style={{ marginBottom: '-45px' }}>SHIELD-Authenticator Dashboard</h2>
@@ -683,7 +753,7 @@ if (loadingAuth) {
             loadingAccounts={loadingAccounts}
           />
         </>
-      ) : (
+      ) : vaultUnlocked ? (
         <SettingsPage 
           user={user}
           onLogout={handleLogout}
@@ -694,7 +764,7 @@ if (loadingAuth) {
           accounts={accounts}
           onImportAccounts={handleImportAccounts}
         />
-      )}
+      ) : null}
       <ConfirmDialog
         open={confirmDialog.open}
         title={confirmDialog.title}

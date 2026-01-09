@@ -48,6 +48,17 @@ function VaultPassphraseDialog({
       aria-labelledby="vault-title"
     >
       <div className="confirm-dialog vault-dialog">
+        {showRecovery && (
+          <button 
+            className="dialog-back-button" 
+            onClick={() => setShowRecovery(false)}
+            aria-label="Back"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+            </svg>
+          </button>
+        )}
         <h3 id="vault-title" style={{ marginBottom: 16 }}>
           {mode === "setup"
             ? "Set Up Vault"
@@ -406,7 +417,7 @@ function VaultPassphraseDialog({
                 </span>
               </label>
 
-              {mode !== "setup" && (
+              {mode !== "setup" && !showRecovery && (
                 <button
                   type="button"
                   className="bw-btn-small"
@@ -424,13 +435,9 @@ function VaultPassphraseDialog({
                     fill="currentColor"
                     style={{ marginRight: 4 }}
                   >
-                    {showRecovery ? (
-                      <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                    ) : (
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                    )}
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
                   </svg>
-                  {showRecovery ? "Back" : "Recover Vault"}
+                  Recover Vault
                 </button>
               )}
             </div>

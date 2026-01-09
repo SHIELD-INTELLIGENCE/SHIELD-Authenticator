@@ -22,6 +22,8 @@ We've implemented a powerful new security feature with **End-to-End Encryption**
 - **Never lose access**: Set up 3 security questions to recover your vault if you forget your password
 - **Simple questions, big security**: Answer questions like "What's your first pet's name?" to restore access
 - **Complete privacy**: Your answers are encrypted and stored securely
+- **Reset your passphrase**: Use the "Recover Vault" option on the unlock screen to reset your forgotten passphrase by answering your recovery questions
+- **Set a new passphrase**: After successful recovery, you'll create a new passphrase to unlock your vault
 
 #### 📤 **Enhanced Backup & Import**
 
@@ -34,7 +36,16 @@ We've implemented a powerful new security feature with **End-to-End Encryption**
 - **New Vault section**: Manage your vault password and recovery questions all in one place
 - **Clear status display**: Always know if your vault is protected or not
 - **Easy recovery**: If you forget your password, use your security questions to regain access
+- **Change Passphrase**: Update your vault passphrase while unlocked
 - **Better organization**: All security and privacy settings in one convenient location
+
+### How Vault Recovery Works
+
+1. **Forgot Your Passphrase?** Click "Recover Vault" on the unlock screen
+2. **Answer Your Questions**: Enter the exact answers to your security questions
+3. **Set New Passphrase**: Create a new passphrase (min 8 characters)
+4. **Access Restored**: Your vault unlocks with the new passphrase
+5. **All Data Intact**: Your encrypted accounts remain secure and accessible
 
 ### Important Things to Know
 

@@ -16,18 +16,24 @@ The CSV export/import feature allows you to backup and restore your authenticato
 
 1. Navigate to **Settings** (Profile button)
 2. Click **"Export to CSV"** under "Backup & Restore"
-3. Enter a strong passphrase (min 8 characters)
-4. Click **"Export"**
-5. File is downloaded as `shield-authenticator-accounts-YYYY-MM-DD.csv`
+3. Toggle "Encrypt with passphrase" (Recommended - enabled by default)
+4. If encryption is enabled, enter a strong passphrase (min 8 characters)
+5. Click **"Export"
+6. File is downloaded as `shield-authenticator-accounts-YYYY-MM-DD.csv`
+
+**Note**: You can export without encryption by toggling off the encryption option, but this is not recommended for security reasons.
 
 ### 📥 Import Process
 
 1. Navigate to **Settings** (Profile button)
 2. Click **"Import from CSV"** under "Backup & Restore"
 3. Select your CSV file
-4. Enter the passphrase you used during export
-5. Click **"Import"**
-6. Accounts are added to your existing collection
+4. Toggle "File is encrypted" if your CSV was exported with encryption
+5. If encrypted, enter the passphrase you used during export
+6. Click **"Import"
+7. Accounts are added to your existing collection
+
+**Note**: The app automatically detects whether a file is encrypted, but you can manually toggle the encryption setting if needed.
 
 ## CSV Format
 

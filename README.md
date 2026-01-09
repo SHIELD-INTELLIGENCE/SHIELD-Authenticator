@@ -10,12 +10,37 @@ A secure, sleek, and futuristic 2FA authenticator built with **React** and **Fir
 
 ## Features
 
-- Add, edit, and delete multiple accounts.
-- Generate TOTP codes in real-time.
-- Countdown timers and progress bars for each account.
-- Copy codes to clipboard with a single click.
-- Modern, responsive, SHIELD-themed UI.
-- Firebase authentication for secure login and registration.
+### 🔐 Security
+- **End-to-End Encrypted Vault**: Military-grade encryption for all your 2FA secrets
+- **Vault Passphrase Protection**: Secure your accounts with a custom passphrase (min 8 characters)
+- **Recovery Questions**: Set up security questions to recover access if you forget your passphrase
+- **Vault Recovery**: Forgot your passphrase? Answer your recovery questions to reset it and regain access
+- **Change Passphrase**: Update your vault passphrase anytime in Settings
+- **Encrypted CSV Backups**: Export your accounts with passphrase protection
+
+### 🎯 Core Features
+- Add, edit, and delete multiple 2FA accounts
+- Generate TOTP codes in real-time with countdown timers
+- Progress bars showing time remaining for each code
+- Copy codes to clipboard with a single click
+- QR code scanning for easy account setup
+- Search and filter your accounts
+- Sort accounts by name or creation date
+
+### 🎨 User Experience
+- Modern, responsive, SHIELD-themed UI with gold accents
+- Dark mode optimized interface
+- Hide/Show codes for privacy
+- Back buttons in all dialogs for easy navigation
+- Professional SVG icons throughout
+- Smooth animations and transitions
+- Firebase authentication for secure login and registration
+
+### 💾 Backup & Restore
+- Export accounts to encrypted CSV files
+- Import accounts from CSV with passphrase decryption
+- Optional encryption toggle for exports
+- Secure device storage for "Remember me" feature
 
 ---
 
@@ -87,12 +112,12 @@ cp .env.example .env
 
 - In Netlify site settings, go to Build & deploy → Environment → Environment variables
 - Add the following keys with your values:
-    - `REACT_APP_FIREBASE_API_KEY`
-    - `REACT_APP_FIREBASE_AUTH_DOMAIN`
-    - `REACT_APP_FIREBASE_PROJECT_ID`
-    - `REACT_APP_FIREBASE_STORAGE_BUCKET`
-    - `REACT_APP_FIREBASE_MESSAGING_SENDER_ID`
-    - `REACT_APP_FIREBASE_APP_ID`
+  - `REACT_APP_FIREBASE_API_KEY`
+  - `REACT_APP_FIREBASE_AUTH_DOMAIN`
+  - `REACT_APP_FIREBASE_PROJECT_ID`
+  - `REACT_APP_FIREBASE_STORAGE_BUCKET`
+  - `REACT_APP_FIREBASE_MESSAGING_SENDER_ID`
+  - `REACT_APP_FIREBASE_APP_ID`
 - Trigger a new deploy (Netlify will inject env vars at build time)
 
 Security note: This app uses a user-provided **vault passphrase** for client-side end-to-end encryption (E2EE).
@@ -109,23 +134,39 @@ Security note: This app uses a user-provided **vault passphrase** for client-sid
 
 ```
 shield-authenticator/
-├── craco.config.js
-├── package.json
-├── package-lock.json
+├── android/                  # Android build configuration
+├── build/                    # Production build output
 ├── public/
-│   ├── favicon.ico
-│   ├── index.html
-│   ├── logo192.png
-│   ├── logo512.png
-│   └── manifest.json
+│   ├── index.html           # Main HTML file
+│   ├── manifest.json        # PWA manifest
+│   └── terms.html           # Terms of Use & Privacy
+├── src/
+│   ├── components/          # React components
+│   │   ├── AccountItem.js
+│   │   ├── AccountList.js
+│   │   ├── AddAccountForm.js
+│   │   ├── ConfirmDialog.js
+│   │   ├── LoginForm.js
+│   │   ├── SettingsPage.js
+│   │   ├── SettingsSidebar.js
+│   │   └── VaultPassphraseDialog.js
+│   ├── App.js               # Main application component
+│   ├── crypto.js            # TOTP crypto utilities
+│   ├── csvUtils.js          # CSV export/import functions
+│   ├── firebase.js          # Firebase configuration
+│   ├── index.js             # Application entry point
+│   ├── networkUtils.js      # Network error handling
+│   ├── secureStorage.js     # Secure local storage
+│   ├── services.js          # Firestore services
+│   ├── styles.css           # Global styles
+│   ├── vault.js             # Vault encryption logic
+│   └── vaultCrypto.js       # Vault cryptography
+├── CHANGELOG.md             # Version history
+├── CSV_EXPORT_IMPORT_GUIDE.md
 ├── README.md
-└── src/
-    ├── App.js
-    ├── crypto.js
-    ├── firebase.js
-    ├── index.js
-    ├── services.js
-    └── styles.css
+├── capacitor.config.ts      # Capacitor configuration
+├── craco.config.js          # Create React App override
+└── package.json
 ```
 
 ---

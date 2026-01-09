@@ -1113,8 +1113,39 @@ body.shield-modal-open {
   color: var(--shield-accent);
   font-size: 1.5rem;
   margin: 0 0 16px 0;
+  padding-left: 50px;
   text-shadow: 0 0 8px var(--shield-glow);
   letter-spacing: 0.5px;
+}
+
+.dialog-back-button {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background: rgba(42, 42, 42, 0.8);
+  border: 2px solid var(--shield-accent);
+  color: var(--shield-accent);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--animation-medium) var(--transition-smooth);
+  padding: 0;
+  z-index: 10;
+}
+
+.dialog-back-button:hover {
+  background: rgba(202, 169, 76, 0.15);
+  transform: translateX(-3px);
+  box-shadow: 0 0 12px var(--shield-glow);
+}
+
+.dialog-back-button svg {
+  width: 20px;
+  height: 20px;
 }
 
 .dialog-description {
@@ -2323,7 +2354,7 @@ body.shield-modal-open {
   background: rgba(0, 0, 0, 0.72);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
-  z-index: 2000;
+  z-index: 3000;
   animation: fadeIn 0.2s ease-out;
 }
 .confirm-dialog {
@@ -2335,6 +2366,7 @@ body.shield-modal-open {
   border-radius: 12px;
   box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6), 0 0 20px var(--shield-glow);
   text-align: center;
+  position: relative;
 }
 
 /* Enhanced vault dialog styling */
@@ -2342,10 +2374,12 @@ body.shield-modal-open {
   max-width: 520px;
   padding: 28px 32px;
   background: linear-gradient(135deg, #1a1a1a 0%, #161616 100%);
+  position: relative;
 }
 
 .vault-dialog h3 {
   margin: 0 0 12px 0;
+  padding-left: 50px;
   color: var(--shield-accent);
   font-size: 1.5rem;
   font-weight: 700;
@@ -2493,6 +2527,7 @@ body.shield-modal-open {
 
 .confirm-dialog h3 {
   margin: 0 0 8px 0;
+  padding-left: 50px;
   color: var(--shield-accent);
 }
 .confirm-dialog p {

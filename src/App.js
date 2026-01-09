@@ -1,6 +1,7 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
+import { App as CapacitorApp } from '@capacitor/app';
 import {
   register,
   login,
@@ -450,6 +451,35 @@ function SHIELDAuthenticator() {
   };
 
   const closeConfirm = () => setConfirmDialog({ open: false, title: '', message: '', onConfirm: null });
+  
+  // Handle Android hardware back button using Capacitor App plugin
+  useEffect(() => {
+    const backButtonListener = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+      // Priority order: ConfirmDialog > Editing Form > Settings > Vault Dialog > Prevent Exit
+      if (confirmDialog.open) {
+        closeConfirm();
+      } else if (editing) {
+        setEditing(null);
+        setForm({ email: "", password: "", name: "", secret: "" });
+      } else if (showSettings) {
+        setShowSettings(false);
+      } else if (vaultDialogOpen) {
+        // Don't close vault dialog - user needs to unlock or logout
+        // Do nothing, keep them on vault screen
+      } else if (vaultUnlocked || user) {
+        // On main screen, do nothing to prevent app exit
+        // User must explicitly use the logout button
+      } else if (canGoBack) {
+        // Only allow navigation back if there's history
+        window.history.back();
+      }
+    });
+    
+    return () => {
+      backButtonListener.then(listener => listener.remove());
+    };
+  }, [confirmDialog.open, editing, showSettings, vaultDialogOpen, vaultUnlocked, user]);
+  
   const handleSettingsClick = () => setShowSettings(true);
   const handleCloseSidebar = () => setShowSettings(false);
   const handleLogout = () => {
@@ -500,8 +530,8 @@ function SHIELDAuthenticator() {
       setVaultUnlocked(true);
       await loadAccounts(user);
     } catch (e) {
-      const errorMsg = handleError(e, "Failed to unlock vault");
-      setVaultError(errorMsg);
+      // Show the actual error message from vault.js, not a generic one
+      setVaultError(e.message || "Failed to unlock vault");
     } finally {
       setVaultUnlocking(false);
     }

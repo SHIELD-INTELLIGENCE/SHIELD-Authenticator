@@ -75,6 +75,27 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
               {loading.register ? "Registering..." : "Register"}
             </button>
           </div>
+          <div 
+            style={{ 
+              marginTop: '16px', 
+              padding: '12px', 
+              backgroundColor: 'rgba(241, 196, 15, 0.1)', 
+              border: '1px solid rgba(241, 196, 15, 0.3)', 
+              borderRadius: '8px',
+              fontSize: '0.85rem',
+              lineHeight: '1.5',
+              color: '#f1c40f'
+            }}
+          >
+            <strong>⚠️ Password Recovery:</strong> If you forget your password, email us at{' '}
+            <a 
+              href="mailto:queriesshield@gmail.com" 
+              style={{ color: '#f1c40f', textDecoration: 'underline' }}
+            >
+              queriesshield@gmail.com
+            </a>
+            {' '}with your desired new password. We don't provide on-site password changing for security reasons.
+          </div>
         </form>
         {loginMessage && (
           <div 

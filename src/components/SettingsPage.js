@@ -376,8 +376,8 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
       }
     };
 
-    const handlePopState = (e) => {
-      e.preventDefault();
+    const handlePopState = () => {
+      // Handle back button for dialogs
       if (showChangePassphraseDialog) {
         handleChangePassphraseCancel();
       } else if (showRecoveryDialog) {
@@ -387,17 +387,19 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
       } else if (showImportDialog) {
         handleCancelImport();
       } else {
+        // If no dialog is open, go back to main page
         onBack();
       }
     };
 
-    // Push a state to handle back button
-    if (showChangePassphraseDialog || showRecoveryDialog || showExportDialog || showImportDialog) {
-      window.history.pushState({ modal: true }, '');
-    }
-
     window.addEventListener('keydown', handleEscape);
     window.addEventListener('popstate', handlePopState);
+    
+    // Push a state when a dialog opens to enable back button handling
+    const anyDialogOpen = showChangePassphraseDialog || showRecoveryDialog || showExportDialog || showImportDialog;
+    if (anyDialogOpen) {
+      window.history.pushState({ modal: true }, '');
+    }
     
     return () => {
       window.removeEventListener('keydown', handleEscape);

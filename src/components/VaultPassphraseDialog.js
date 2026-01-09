@@ -35,6 +35,29 @@ function VaultPassphraseDialog({
     }
   }, [open, setPassphrase]);
 
+  // Handle mobile back button for recovery mode
+  React.useEffect(() => {
+    if (!open) return;
+
+    const handlePopState = () => {
+      if (showRecovery) {
+        // Close recovery mode and return to main unlock screen
+        setShowRecovery(false);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    
+    // Push a state when recovery mode opens
+    if (showRecovery) {
+      window.history.pushState({ recovery: true }, '');
+    }
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [open, showRecovery]);
+
   if (!open) return null;
 
   const hasRecoveryQuestions = (recoveryQuestions || []).length > 0;

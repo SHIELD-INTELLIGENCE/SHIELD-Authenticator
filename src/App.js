@@ -467,6 +467,7 @@ function SHIELDAuthenticator() {
   }
 
   const [showSettings, setShowSettings] = useState(false);
+  const [settingsHasOpenDialog, setSettingsHasOpenDialog] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: '', message: '', onConfirm: null });
 
   const openConfirm = ({ title, message, onConfirm }) => {
@@ -480,14 +481,24 @@ function SHIELDAuthenticator() {
     let listenerHandle;
     
     CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-      // Priority order: ConfirmDialog > Editing Form > Settings > Vault Dialog > Dashboard (minimize)
+      // Priority order: ConfirmDialog > SettingsDialogs > Editing Form > Settings > Vault Dialog > ShowDelete > Dashboard (minimize)
       if (confirmDialog.open) {
         closeConfirm();
+      } else if (settingsHasOpenDialog) {
+        // Settings page has its own dialogs open, let it handle them
+        // Don't navigate away, just trigger a signal (the dialogs will close themselves)
+        return;
+      } else if (showDelete) {
+        setShowDelete(null);
       } else if (editing) {
         setEditing(null);
         setForm({ email: "", password: "", name: "", secret: "", website: "" });
       } else if (showSettings) {
+        // Reset scroll position when going back to dashboard
         setShowSettings(false);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+        }, 0);
       } else if (vaultDialogOpen) {
         // Don't close vault dialog - user needs to unlock or logout
         // Do nothing, keep them on vault screen
@@ -510,7 +521,7 @@ function SHIELDAuthenticator() {
         listenerHandle.remove();
       }
     };
-  }, [confirmDialog.open, editing, showSettings, vaultDialogOpen, vaultUnlocked, user]);
+  }, [confirmDialog.open, settingsHasOpenDialog, showDelete, editing, showSettings, vaultDialogOpen, vaultUnlocked, user]);
   
   const handleSettingsClick = () => setShowSettings(true);
   const handleCloseSidebar = () => setShowSettings(false);
@@ -825,6 +836,7 @@ if (loadingAuth) {
           setMaskCodes={setMaskCodes}
           accounts={accounts}
           onImportAccounts={handleImportAccounts}
+          onDialogStateChange={setSettingsHasOpenDialog}
         />
       ) : null}
       <ConfirmDialog

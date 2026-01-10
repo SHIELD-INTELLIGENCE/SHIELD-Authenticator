@@ -11,7 +11,7 @@ import {
 import { updateRecoveryQuestions, getVaultMeta, clearRecoveryQuestions, isVaultUnlockedForUser, updateVaultPassphrase } from "../vault";
 import { handleError } from "../networkUtils";
 
-const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskCodes, accounts, onImportAccounts }) => {
+const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskCodes, accounts, onImportAccounts, onDialogStateChange }) => {
   const [exportPassphrase, setExportPassphrase] = useState("");
   const [importPassphrase, setImportPassphrase] = useState("");
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -45,6 +45,50 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
   const [showCurrentPassphrase, setShowCurrentPassphrase] = useState(false);
   const [showNewPassphrase, setShowNewPassphrase] = useState(false);
   const [showConfirmPassphrase, setShowConfirmPassphrase] = useState(false);
+
+  // Notify parent when any dialog opens/closes
+  useEffect(() => {
+    const hasOpenDialog = showExportDialog || showImportDialog || showRecoveryDialog || showChangePassphraseDialog;
+    if (onDialogStateChange) {
+      onDialogStateChange(hasOpenDialog);
+    }
+  }, [showExportDialog, showImportDialog, showRecoveryDialog, showChangePassphraseDialog, onDialogStateChange]);
+
+  // Handle back button in Settings page to close dialogs
+  useEffect(() => {
+    // Only import Capacitor if we have open dialogs
+    if (!showExportDialog && !showImportDialog && !showRecoveryDialog && !showChangePassphraseDialog) {
+      return;
+    }
+
+    let listenerHandle;
+    
+    // Dynamically import to avoid issues on web
+    import('@capacitor/app').then(({ App: CapacitorApp }) => {
+      CapacitorApp.addListener('backButton', () => {
+        // Close the most recently opened dialog
+        if (showChangePassphraseDialog) {
+          handleChangePassphraseCancel();
+        } else if (showRecoveryDialog) {
+          handleRecoveryCancel();
+        } else if (showExportDialog) {
+          handleCancelExport();
+        } else if (showImportDialog) {
+          handleCancelImport();
+        }
+      }).then(handle => {
+        listenerHandle = handle;
+      });
+    }).catch(() => {
+      // Capacitor not available (web), ignore
+    });
+
+    return () => {
+      if (listenerHandle) {
+        listenerHandle.remove();
+      }
+    };
+  }, [showExportDialog, showImportDialog, showRecoveryDialog, showChangePassphraseDialog]);
 
   // Load existing recovery questions from vault metadata
   useEffect(() => {

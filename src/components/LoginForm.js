@@ -30,6 +30,17 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
             aria-invalid={!!formErrors.email}
             aria-required="true"
           />
+          {/* Honeypot field - invisible to humans, visible to bots */}
+          <input
+            type="text"
+            name="website"
+            value={form.website || ''}
+            onChange={(e) => setForm({ ...form, website: e.target.value })}
+            style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
+            tabIndex="-1"
+            autoComplete="off"
+            aria-hidden="true"
+          />
           {formErrors.password && <div className="form-error" role="alert">{formErrors.password}</div>}
           <div className="password-container">
             <input

@@ -1,0 +1,22 @@
+# Security Headers for Netlify
+/*
+  # Content Security Policy - protects against XSS attacks
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com wss://*.firebaseio.com; frame-src https://www.google.com; object-src 'none'; base-uri 'self'; form-action 'self';
+  
+  # Prevent clickjacking attacks
+  X-Frame-Options: SAMEORIGIN
+  
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+  
+  # Enable XSS protection in older browsers
+  X-XSS-Protection: 1; mode=block
+  
+  # Control referrer information
+  Referrer-Policy: strict-origin-when-cross-origin
+  
+  # Feature policy / Permissions policy
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=()
+  
+  # Strict Transport Security - force HTTPS
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload

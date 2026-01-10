@@ -42,6 +42,7 @@ function SHIELDAuthenticator() {
     password: "",
     name: "",
     secret: "",
+    website: "", // honeypot field
   });
   const [formErrors, setFormErrors] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState({ login: false, register: false });
@@ -407,6 +408,17 @@ function SHIELDAuthenticator() {
 
 
   function handleLogin() {
+    // Honeypot bot detection
+    if (form.website) {
+      // Silently reject bot submissions
+      setLoading(l => ({ ...l, login: true }));
+      setTimeout(() => {
+        setLoading(l => ({ ...l, login: false }));
+        setLoginMessage({ type: 'error', text: 'An error occurred. Please try again.' });
+      }, 2000);
+      return;
+    }
+    
     let errors = { email: "", password: "" };
     setLoginMessage(null);
     if (!validateEmail(form.email)) errors.email = "Please enter a valid email address.";
@@ -427,6 +439,17 @@ function SHIELDAuthenticator() {
   }
 
   function handleRegister() {
+    // Honeypot bot detection
+    if (form.website) {
+      // Silently reject bot submissions
+      setLoading(l => ({ ...l, register: true }));
+      setTimeout(() => {
+        setLoading(l => ({ ...l, register: false }));
+        setLoginMessage({ type: 'error', text: 'An error occurred. Please try again.' });
+      }, 2000);
+      return;
+    }
+    
     let errors = { email: "", password: "" };
     setLoginMessage(null);
     if (!validateEmail(form.email)) errors.email = "Please enter a valid email address.";
@@ -454,29 +477,38 @@ function SHIELDAuthenticator() {
   
   // Handle Android hardware back button using Capacitor App plugin
   useEffect(() => {
-    const backButtonListener = CapacitorApp.addListener('backButton', ({ canGoBack }) => {
-      // Priority order: ConfirmDialog > Editing Form > Settings > Vault Dialog > Prevent Exit
+    let listenerHandle;
+    
+    CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+      // Priority order: ConfirmDialog > Editing Form > Settings > Vault Dialog > Dashboard (minimize)
       if (confirmDialog.open) {
         closeConfirm();
       } else if (editing) {
         setEditing(null);
-        setForm({ email: "", password: "", name: "", secret: "" });
+        setForm({ email: "", password: "", name: "", secret: "", website: "" });
       } else if (showSettings) {
         setShowSettings(false);
       } else if (vaultDialogOpen) {
         // Don't close vault dialog - user needs to unlock or logout
         // Do nothing, keep them on vault screen
-      } else if (vaultUnlocked || user) {
-        // On main screen, do nothing to prevent app exit
-        // User must explicitly use the logout button
+      } else if (vaultUnlocked && user) {
+        // On main dashboard, minimize app to background (send to home screen)
+        CapacitorApp.minimizeApp().catch(() => {
+          // Fallback for web or if minimize fails
+          console.log('Minimize not available');
+        });
       } else if (canGoBack) {
         // Only allow navigation back if there's history
         window.history.back();
       }
+    }).then(handle => {
+      listenerHandle = handle;
     });
     
     return () => {
-      backButtonListener.then(listener => listener.remove());
+      if (listenerHandle) {
+        listenerHandle.remove();
+      }
     };
   }, [confirmDialog.open, editing, showSettings, vaultDialogOpen, vaultUnlocked, user]);
   

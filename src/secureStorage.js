@@ -45,6 +45,10 @@ async function getDeviceFingerprint() {
     screen.height || '',
     new Date().getTimezoneOffset() || '',
     navigator.platform || '',
+    // Add more entropy
+    navigator.maxTouchPoints || '',
+    navigator.vendor || '',
+    (navigator.connection?.effectiveType) || '',
   ];
   
   const fingerprint = components.join('|');
@@ -56,14 +60,17 @@ async function getDeviceFingerprint() {
 }
 
 /**
- * Derive a device-specific encryption key
+ * Derive a device-specific encryption key with unique per-user salt
+ * @param {string} userEmail - User's email to generate unique salt
  */
-async function deriveDeviceKey() {
+async function deriveDeviceKey(userEmail = '') {
   const fingerprint = await getDeviceFingerprint();
-  const salt = new Uint8Array([
-    0x53, 0x48, 0x49, 0x45, 0x4c, 0x44, 0x2d, 0x44,
-    0x45, 0x56, 0x49, 0x43, 0x45, 0x2d, 0x53, 0x41
-  ]); // "SHIELD-DEVICE-SA"
+  
+  // Generate unique salt per user to prevent rainbow table attacks
+  const userSaltSource = `SHIELD-DEVICE-${userEmail || 'default'}`;
+  const saltData = textEncoder.encode(userSaltSource);
+  const saltHash = await crypto.subtle.digest('SHA-256', saltData);
+  const salt = new Uint8Array(saltHash).slice(0, 16);
   
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -98,7 +105,9 @@ export async function secureSetItem(key, passphrase) {
       throw new Error('Web Crypto API not available');
     }
     
-    const deviceKey = await deriveDeviceKey();
+    // Extract user email from key for unique salt
+    const userEmail = key.replace('shield-vault-passphrase:', '');
+    const deviceKey = await deriveDeviceKey(userEmail);
     const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV for AES-GCM
     const plaintext = textEncoder.encode(passphrase);
     
@@ -141,7 +150,9 @@ export async function secureGetItem(key) {
     const iv = fromBase64(parts[1]);
     const ciphertext = fromBase64(parts[2]);
     
-    const deviceKey = await deriveDeviceKey();
+    // Extract user email from key for unique salt
+    const userEmail = key.replace('shield-vault-passphrase:', '');
+    const deviceKey = await deriveDeviceKey(userEmail);
     
     const plaintext = await crypto.subtle.decrypt(
       {

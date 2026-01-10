@@ -51,4 +51,19 @@ module.exports = {
       return config;
     },
   },
+  devServer: (devServerConfig) => {
+    // Fix for webpack-dev-server 5.x compatibility
+    // Create new config without deprecated properties
+    const { onAfterSetupMiddleware, onBeforeSetupMiddleware, https, ...cleanConfig } = devServerConfig;
+    
+    // Convert https to server format if needed
+    if (https) {
+      cleanConfig.server = {
+        type: 'https',
+        options: typeof https === 'object' ? https : {},
+      };
+    }
+    
+    return cleanConfig;
+  },
 };

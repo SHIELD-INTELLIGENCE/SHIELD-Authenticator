@@ -50,6 +50,12 @@ export async function deriveVaultKey({ passphrase, saltB64, iterations }) {
   if (!passphrase || String(passphrase).length < 8) {
     throw new Error("Passphrase must be at least 8 characters");
   }
+  // Validate passphrase complexity: must contain both numbers and letters
+  const hasNumber = /[0-9]/.test(passphrase);
+  const hasLetter = /[a-z]/i.test(passphrase);
+  if (!hasNumber || !hasLetter) {
+    throw new Error("Passphrase must contain both letters and numbers");
+  }
   if (!saltB64) throw new Error("Missing vault salt");
 
   const salt = vaultSaltFromString(saltB64);

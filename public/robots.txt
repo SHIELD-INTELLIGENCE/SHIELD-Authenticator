@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Sitemap: /sitemap.xml
+Sitemap: https://shield-auth.shieldintelligence.in/sitemap.xml
 
 # Disallow build and private files
 Disallow: /static/

@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Sitemap: https://shield-authenticator.web.app/sitemap.xml
+Sitemap: /sitemap.xml
 
 # Disallow build and private files
 Disallow: /static/

@@ -865,6 +865,14 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
             <p className="dialog-description">
               Change your vault passphrase. You must enter your current passphrase to verify your identity.
             </p>
+            <div style={{ 
+              fontSize: "0.85rem", 
+              color: "#aaa", 
+              marginBottom: 16,
+              lineHeight: 1.4
+            }}>
+              Use alphanumeric characters for a strong passphrase.
+            </div>
 
             <div className="dialog-input-group">
               <label htmlFor="current-passphrase">Current Passphrase</label>

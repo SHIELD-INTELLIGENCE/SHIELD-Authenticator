@@ -183,6 +183,15 @@ function VaultPassphraseDialog({
                     </svg>
                   </button>
                 </div>
+                <div style={{ 
+                  fontSize: "0.85rem", 
+                  color: "#aaa", 
+                  marginTop: 8,
+                  textAlign: "left",
+                  lineHeight: 1.4
+                }}>
+                  Use alphanumeric characters for a strong passphrase.
+                </div>
               </>
             ) : (
               <div className="vault-warning-box">
@@ -214,15 +223,16 @@ function VaultPassphraseDialog({
             )}
           </>
         ) : (
-          <div style={{ position: "relative", width: "100%" }}>
-            <input
-              id="shield-vault-passphrase"
-              name="vaultPassphrase"
-              className="shield-clean-input"
-              type={show ? "text" : "password"}
-              placeholder="Vault passphrase (min 8 chars)"
-              value={passphrase}
-              onChange={(e) => setPassphrase(e.target.value)}
+          <>
+            <div style={{ position: "relative", width: "100%" }}>
+              <input
+                id="shield-vault-passphrase"
+                name="vaultPassphrase"
+                className="shield-clean-input"
+                type={show ? "text" : "password"}
+                placeholder="Vault passphrase (min 8 chars)"
+                value={passphrase}
+                onChange={(e) => setPassphrase(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   if (mode === "setup")
@@ -250,7 +260,17 @@ function VaultPassphraseDialog({
                 )}
               </svg>
             </button>
-          </div>
+            </div>
+            <div style={{ 
+              fontSize: "0.85rem", 
+              color: "#aaa", 
+              marginTop: 8,
+              textAlign: "left",
+              lineHeight: 1.4
+            }}>
+              Use alphanumeric characters for a strong passphrase.
+            </div>
+          </>
         )}
 
         {mode === "setup" ? (

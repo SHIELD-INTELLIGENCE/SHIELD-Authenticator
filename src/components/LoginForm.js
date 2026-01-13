@@ -1,10 +1,15 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLogin, loginMessage }) {
   const [showPassword, setShowPassword] = React.useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <div className="login-form-outer" style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>

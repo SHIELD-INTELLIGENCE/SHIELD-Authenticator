@@ -1,16 +1,36 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function LandingPage() {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleLogin = () => {
+    window.scrollTo(0, 0);
     navigate("/login");
+    setMobileMenuOpen(false);
   };
 
   const handleRegister = () => {
+    window.scrollTo(0, 0);
     navigate("/register");
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -26,43 +46,76 @@ function LandingPage() {
             <h1>SHIELD Intelligence</h1>
             <p className="tagline">Spies Hub for Intelligence, Elegance, Learning, and Defence</p>
           </div>
-          <div className="header-actions" style={{ marginLeft: 'auto', display: 'flex', gap: '12px' }}>
-            <button 
-              className="header-btn-secondary" 
-              onClick={handleLogin}
-              style={{
-                padding: '8px 20px',
-                backgroundColor: 'transparent',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                color: 'white',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Login
-            </button>
-            <button 
-              className="header-btn-primary" 
-              onClick={handleRegister}
-              style={{
-                padding: '8px 20px',
-                backgroundColor: '#3498db',
-                border: 'none',
-                color: 'white',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Sign Up
-            </button>
+          <div className="header-actions">
+            {!isMobile ? (
+              <>
+                <button 
+                  className="header-btn-secondary" 
+                  onClick={handleLogin}
+                  style={{
+                    padding: '8px 20px',
+                    backgroundColor: 'transparent',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    color: 'white',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.3s ease',
+                    marginLeft: 'auto'
+                  }}
+                >
+                  Login
+                </button>
+                <button 
+                  className="header-btn-primary" 
+                  onClick={handleRegister}
+                  style={{
+                    padding: '8px 20px',
+                    backgroundColor: '#3498db',
+                    border: 'none',
+                    color: 'white',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  Sign Up
+                </button>
+              </>
+            ) : null}
+            {isMobile && (
+              <button
+                className="mobile-menu-btn"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  color: 'white',
+                  padding: '8px 12px',
+                  cursor: 'pointer',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                  marginLeft: 'auto'
+                }}
+              >
+                <span style={{ width: '20px', height: '2px', backgroundColor: 'white' }}></span>
+                <span style={{ width: '20px', height: '2px', backgroundColor: 'white' }}></span>
+                <span style={{ width: '20px', height: '2px', backgroundColor: 'white' }}></span>
+              </button>
+            )}
           </div>
         </div>
+        {isMobile && mobileMenuOpen && (
+          <div className="mobile-menu">
+            <button className="mobile-menu-item" onClick={handleLogin}>Login</button>
+            <button className="mobile-menu-item" onClick={handleRegister}>Sign Up</button>
+          </div>
+        )}
       </header>
 
       <section className="hero-section">
@@ -339,7 +392,7 @@ function LandingPage() {
         <div className="cta-content">
           <h2>Ready to Secure Your Digital Life?</h2>
           <p>Join thousands of users protecting their accounts with SHIELD Authenticator</p>
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '30px' }}>
             <button className="cta-button-large" onClick={handleRegister}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '10px' }}>
                 <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
@@ -374,7 +427,7 @@ function LandingPage() {
         <div className="footer-content">
           <div className="footer-section">
             <img src="/shield-logo.png" alt="SHIELD" className="footer-logo" />
-            <p className="footer-tagline">Securing Towmorrow with Strategic Intelligence</p>
+            <p className="footer-tagline">Securing Tomorrow with Strategic Intelligence</p>
           </div>
           <div className="footer-section">
             <h4>SHIELD Intelligence</h4>

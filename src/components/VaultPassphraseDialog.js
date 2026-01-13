@@ -233,18 +233,20 @@ function VaultPassphraseDialog({
                 placeholder="Vault passphrase (min 8 chars)"
                 value={passphrase}
                 onChange={(e) => setPassphrase(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  if (mode === "setup")
-                    onSetup && onSetup({ selectedQuestions, answers });
-                  else onUnlock && onUnlock();
-                }
-              }}
-              aria-label="Vault passphrase"
-              aria-required="true"
-              disabled={unlocking}
-              style={{ paddingRight: "45px" }}
-            />
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    if (mode === "setup")
+                      onSetup && onSetup({ selectedQuestions, answers });
+                    else onUnlock && onUnlock();
+                  }
+                }}
+                aria-label="Vault passphrase"
+                aria-required="true"
+                disabled={unlocking}
+                autoComplete="off"
+                data-form-type="other"
+                style={{ paddingRight: "45px" }}
+              />
             <button
               type="button"
               className="password-toggle-btn"

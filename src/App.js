@@ -26,6 +26,7 @@ import Dashboard from "./components/Dashboard";
 import LandingPage from "./components/LandingPage";
 import MobileLandingPage from "./components/MobileLandingPage";
 import SettingsPage from "./components/SettingsPage";
+import NotFound404 from "./components/NotFound404";
 import ConfirmDialog from "./components/ConfirmDialog";
 import VaultPassphraseDialog from "./components/VaultPassphraseDialog";
 import { unlockVault, lockVault, getVaultMeta, setupVault, recoverAndResetPassphrase } from "./vault";
@@ -847,9 +848,10 @@ function SHIELDAuthenticatorContent({
   useEffect(() => {
     if (!user && (location.pathname === '/dashboard' || location.pathname === '/settings')) {
       navigate('/login', { replace: true });
-    } else if (user && vaultUnlocked && (location.pathname === '/login' || location.pathname === '/register')) {
+    } else if (user && (location.pathname === '/login' || location.pathname === '/register')) {
+      // Redirect logged-in users from login/register to dashboard (vault dialog will show if locked)
       navigate('/dashboard', { replace: true });
-    } else if (user && vaultUnlocked && location.pathname === '/' && isInitialLoad.current) {
+    } else if (user && location.pathname === '/' && isInitialLoad.current) {
       // Only redirect to dashboard on true initial load, not when user intentionally navigates to home
       navigate('/dashboard', { replace: true });
     }
@@ -894,7 +896,7 @@ function SHIELDAuthenticatorContent({
         } />
         <Route path="/dashboard" element={<Navigate to="/login" replace />} />
         <Route path="/settings" element={<Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFound404 />} />
       </Routes>
     );
   }
@@ -937,35 +939,33 @@ function SHIELDAuthenticatorContent({
         } />
         <Route path="/mobile-start" element={<MobileLandingPage />} />
         <Route path="/dashboard" element={
-          vaultUnlocked ? (
-            <Dashboard
-              user={user}
-              accounts={accounts}
-              codes={codes}
-              countdowns={countdowns}
-              form={form}
-              setForm={setForm}
-              handleSave={handleSave}
-              editing={editing}
-              setEditing={setEditing}
-              handleQRUpload={handleQRUpload}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              getFilteredAndSortedAccounts={getFilteredAndSortedAccounts}
-              handleCopy={handleCopy}
-              maskCodes={maskCodes}
-              setMaskCodes={setMaskCodes}
-              setShowDelete={setShowDelete}
-              showDelete={showDelete}
-              handleDelete={handleDelete}
-              openConfirm={openConfirm}
-              loadingAccounts={loadingAccounts}
-              isOnline={isOnline}
-              vaultUnlocked={vaultUnlocked}
-            />
-          ) : null
+          <Dashboard
+            user={user}
+            accounts={accounts}
+            codes={codes}
+            countdowns={countdowns}
+            form={form}
+            setForm={setForm}
+            handleSave={handleSave}
+            editing={editing}
+            setEditing={setEditing}
+            handleQRUpload={handleQRUpload}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            getFilteredAndSortedAccounts={getFilteredAndSortedAccounts}
+            handleCopy={handleCopy}
+            maskCodes={maskCodes}
+            setMaskCodes={setMaskCodes}
+            setShowDelete={setShowDelete}
+            showDelete={showDelete}
+            handleDelete={handleDelete}
+            openConfirm={openConfirm}
+            loadingAccounts={loadingAccounts}
+            isOnline={isOnline}
+            vaultUnlocked={vaultUnlocked}
+          />
         } />
         <Route path="/settings" element={
           vaultUnlocked ? (
@@ -981,7 +981,7 @@ function SHIELDAuthenticatorContent({
             />
           ) : <Navigate to="/dashboard" replace />
         } />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<NotFound404 />} />
       </Routes>
       
       <ConfirmDialog

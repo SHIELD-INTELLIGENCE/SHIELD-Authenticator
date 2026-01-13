@@ -1,10 +1,15 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function RegisterForm({ form, formErrors, loading, setForm, setFormErrors, handleRegister, loginMessage }) {
   const [showPassword, setShowPassword] = React.useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+  }, []);
 
   const onSubmit = (e) => {
     e.preventDefault();

@@ -1,5 +1,6 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
 const webpack = require("webpack");
+const path = require('path');
 
 // Mock localStorage for Node.js environment to fix HtmlWebpackPlugin error in Node.js v22+
 try {
@@ -32,19 +33,30 @@ try {
 module.exports = {
   webpack: {
     configure: (config) => {
+      // Resolve fallbacks for Node.js modules
       config.resolve.fallback = {
         ...config.resolve.fallback,
         crypto: require.resolve("crypto-browserify"),
         stream: require.resolve("stream-browserify"),
         buffer: require.resolve("buffer"),
         vm: require.resolve("vm-browserify"),
-        process: require.resolve("process/browser"),
+        process: require.resolve("process/browser.js"),
       };
 
+      // Add explicit aliases for process/browser imports
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'process/browser': path.resolve(__dirname, 'node_modules/process/browser.js'),
+      };
+
+      // Ensure proper extension resolution
+      config.resolve.extensions = [...(config.resolve.extensions || []), '.js', '.jsx', '.json', '.mjs'];
+      
+      // Provide global polyfills
       config.plugins = (config.plugins || []).concat([
         new webpack.ProvidePlugin({
           Buffer: ["buffer", "Buffer"],
-          process: "process/browser",
+          process: "process/browser.js",
         }),
       ]);
 

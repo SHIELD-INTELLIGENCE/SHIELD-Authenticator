@@ -2,28 +2,30 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLogin, loginMessage }) {
+function RegisterForm({ form, formErrors, loading, setForm, setFormErrors, handleRegister, loginMessage }) {
   const [showPassword, setShowPassword] = React.useState(false);
   const navigate = useNavigate();
 
+  const onSubmit = (e) => {
+    e.preventDefault();
+    handleRegister();
+  };
+
   return (
     <div className="login-form-outer" style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-      <div className="shield-login-container" role="form" aria-labelledby="shield-login-title">
-        <h2 id="shield-login-title" className="high-contrast-text">Welcome Back</h2>
+      <div className="shield-login-container" role="form" aria-labelledby="shield-register-title">
+        <h2 id="shield-register-title" className="high-contrast-text">Create Your Account</h2>
         <p style={{ textAlign: 'center', marginBottom: '20px', color: '#95a5a6' }}>
-          Login to access your totp codes and secure your accounts
+          Join SHIELD Authenticator for military-grade security
         </p>
         {formErrors.email && <div className="form-error" role="alert">{formErrors.email}</div>}
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleLogin();
-          }}
+          onSubmit={onSubmit}
           style={{ width: "100%" }}
-          aria-label="Login form"
+          aria-label="Registration form"
         >
           <input
-            id="shield-login-email"
+            id="shield-register-email"
             name="email"
             className="shield-clean-input"
             placeholder="Email"
@@ -36,7 +38,7 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
             aria-invalid={!!formErrors.email}
             aria-required="true"
           />
-          {/* Honeypot field - invisible to humans, visible to bots */}
+          {/* Honeypot field - invisible to humans, visible to bots */} 
           <input
             type="text"
             name="website"
@@ -50,7 +52,7 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
           {formErrors.password && <div className="form-error" role="alert">{formErrors.password}</div>}
           <div className="password-container">
             <input
-              id="shield-login-password"
+              id="shield-register-password"
               name="password"
               className="shield-clean-input"
               type={showPassword ? "text" : "password"}
@@ -73,17 +75,40 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
               {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
+          
+          <div 
+            style={{ 
+              marginTop: '12px', 
+              padding: '10px', 
+              backgroundColor: 'rgba(52, 152, 219, 0.1)', 
+              border: '1px solid rgba(52, 152, 219, 0.3)', 
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              lineHeight: '1.4',
+              color: '#3498db'
+            }}
+          >
+            <strong>Password Tips:</strong>
+            <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
+              <li>Use at least 8 characters</li>
+              <li>Mix uppercase and lowercase letters</li>
+              <li>Include numbers and symbols</li>
+              <li>Make it unique - don't reuse passwords</li>
+            </ul>
+          </div>
+
           <div>
             <button
               type="submit"
               className="bw-btn touch-target"
-              aria-label="Login"
-              disabled={loading.login}
-              style={{ width: '100%' }}
+              aria-label="Register"
+              disabled={loading.register}
+              style={{ width: '100%', marginTop: '16px' }}
             >
-              {loading.login ? "Logging in..." : "Login"}
+              {loading.register ? "Creating Account..." : "Create Account"}
             </button>
           </div>
+
           <div 
             style={{ 
               marginTop: '16px', 
@@ -107,10 +132,10 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
           </div>
 
           <div style={{ marginTop: '20px', textAlign: 'center', color: '#95a5a6' }}>
-            Don't have an account?{' '}
+            Already have an account?{' '}
             <button
               type="button"
-              onClick={() => navigate('/register')}
+              onClick={() => navigate('/login')}
               style={{
                 background: 'none',
                 border: 'none',
@@ -121,7 +146,7 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
                 padding: '0'
               }}
             >
-              Create one here
+              Login here
             </button>
           </div>
         </form>
@@ -139,4 +164,4 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
   );
 }
 
-export default LoginForm;
+export default RegisterForm;

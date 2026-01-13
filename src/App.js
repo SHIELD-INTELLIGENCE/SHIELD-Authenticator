@@ -1,7 +1,9 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import {
   register,
   login,
@@ -19,8 +21,10 @@ import "react-toastify/dist/ReactToastify.css";
 import "./styles.css"; // SHIELD theme
 import QrScanner from "qr-scanner";
 import LoginForm from "./components/LoginForm";
-import AddAccountForm from "./components/AddAccountForm";
-import AccountList from "./components/AccountList";
+import RegisterForm from "./components/RegisterForm";
+import Dashboard from "./components/Dashboard";
+import LandingPage from "./components/LandingPage";
+import MobileLandingPage from "./components/MobileLandingPage";
 import SettingsPage from "./components/SettingsPage";
 import ConfirmDialog from "./components/ConfirmDialog";
 import VaultPassphraseDialog from "./components/VaultPassphraseDialog";
@@ -33,10 +37,17 @@ function vaultRememberKeyForEmail(email) {
 }
 
 function SHIELDAuthenticator() {
+  // Detect platform synchronously at initialization
+  const platformName = Capacitor.getPlatform();
+  const isAndroidDevice = platformName === 'android';
+  const hasSeenLanding = isAndroidDevice ? localStorage.getItem('shield-mobile-landing-seen') : 'true';
+  
   const [user, setUser] = useState(null);
   const [accounts, setAccounts] = useState([]);
   const [codes, setCodes] = useState({});
   const [countdowns, setCountdowns] = useState({});
+  const [isAndroid] = useState(isAndroidDevice);
+  const [showMobileLanding] = useState(isAndroidDevice && !hasSeenLanding);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -112,8 +123,13 @@ function SHIELDAuthenticator() {
   useEffect(() => {
     if (!window.isSecureContext || !window.crypto || !window.crypto.subtle) {
       console.error("App is not running in a secure context. Crypto APIs may not be available.");
-      toast.error("⚠️ Please access this app via HTTPS for security features to work properly.", {
+      toast.error("Please access this app via HTTPS for security features to work properly.", {
         autoClose: 5000,
+        icon: () => (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+          </svg>
+        ),
       });
     }
   }, []);
@@ -122,12 +138,26 @@ function SHIELDAuthenticator() {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      toast.success("🌐 Back online", { autoClose: 2000 });
+      toast.success("Back online", { 
+        autoClose: 2000,
+        icon: () => (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        ),
+      });
     };
 
     const handleOffline = () => {
       setIsOnline(false);
-      toast.error("📡 No internet connection", { autoClose: false });
+      toast.error("No internet connection", { 
+        autoClose: false,
+        icon: () => (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23.64 7c-.45-.34-4.93-4-11.64-4-1.5 0-2.89.19-4.15.48L18.18 13.8 23.64 7zm-6.6 8.22L3.27 1.44 2 2.72l2.05 2.06C1.91 5.76.59 6.82.36 7l11.63 14.49.01.01.01-.01 3.9-4.86 3.32 3.32 1.27-1.27-3.46-3.46z"/>
+          </svg>
+        ),
+      });
     };
 
     window.addEventListener('online', handleOnline);
@@ -223,7 +253,7 @@ function SHIELDAuthenticator() {
       setAccounts(data);
     } catch (error) {
       console.error("Error loading accounts:", error);
-      toast.error("❌ Failed to load accounts");
+      toast.error("Failed to load accounts");
     } finally {
       setLoadingAccounts(false);
     }
@@ -280,17 +310,17 @@ function SHIELDAuthenticator() {
   const saveAccountDirect = async (name, secret) => {
     if (!name || !secret) return toast.error("Fill both fields!");
     if (!vaultUnlocked) {
-      toast.error("🔒 Vault is locked. Please unlock to make changes.");
+      toast.error("Vault is locked. Please unlock to make changes.");
       return;
     }
     try {
       if (editing) {
         await updateAccount(user, editing, { name, secret });
-        toast.success("✅ Account updated!");
+        toast.success("Account updated!");
         setEditing(null);
       } else {
         await addAccount(user, name, secret);
-        toast.success("✅ Account added!");
+        toast.success("Account added!");
       }
       setForm({ name: "", secret: "" });
       loadAccounts(user);
@@ -305,12 +335,12 @@ function SHIELDAuthenticator() {
 
   const handleImportAccounts = async (importedAccounts) => {
     if (!user) {
-      toast.error("❌ User not authenticated");
+      toast.error("User not authenticated");
       return;
     }
 
     if (!vaultUnlocked) {
-      toast.error("🔒 Vault is locked. Please unlock to import accounts.");
+      toast.error("Vault is locked. Please unlock to import accounts.");
       return;
     }
 
@@ -331,23 +361,23 @@ function SHIELDAuthenticator() {
     await loadAccounts(user);
 
     if (failCount > 0) {
-      toast.warning(`⚠️ Imported ${successCount} of ${importedAccounts.length} accounts`);
+      toast.warning(`Imported ${successCount} of ${importedAccounts.length} accounts`);
     }
   };
 
   const handleCopy = (code) => {
     navigator.clipboard.writeText(code);
-    toast.info("📋 Copied!");
+    toast.info("Copied!");
   };
 
   const handleDelete = async (id) => {
     if (!vaultUnlocked) {
-      toast.error("🔒 Vault is locked. Please unlock to make changes.");
+      toast.error("Vault is locked. Please unlock to make changes.");
       return;
     }
     try {
       await deleteAccount(user, id);
-      toast.info("🗑️ Account deleted");
+      toast.info("Account deleted");
       loadAccounts(user);
       setShowDelete(null);
     } catch (err) {
@@ -366,7 +396,7 @@ function SHIELDAuthenticator() {
       const text = typeof result === "string" ? result : result?.data;
 
       if (!text || !text.startsWith("otpauth://totp/")) {
-        toast.error("❌ Invalid QR code format");
+        toast.error("Invalid QR code format");
         return;
       }
 
@@ -375,16 +405,16 @@ function SHIELDAuthenticator() {
       const secret = url.searchParams.get("secret");
 
       if (!name || !secret) {
-        toast.error("❌ QR missing secret or name");
+        toast.error("QR missing secret or name");
         return;
       }
 
       setForm({ name, secret });
       saveAccountDirect(name, secret);
-      toast.success(`✅ QR code for ${name} added!`);
+      toast.success(`QR code for ${name} added!`);
     } catch (err) {
       console.error("QR scan error:", err);
-      toast.error("❌ Could not read QR code. Make sure the image is clear.");
+      toast.error("Could not read QR code. Make sure the image is clear.");
     }
   };
 
@@ -523,8 +553,6 @@ function SHIELDAuthenticator() {
     };
   }, [confirmDialog.open, settingsHasOpenDialog, showDelete, editing, showSettings, vaultDialogOpen, vaultUnlocked, user]);
   
-  const handleSettingsClick = () => setShowSettings(true);
-  const handleCloseSidebar = () => setShowSettings(false);
   const handleLogout = () => {
     setShowSettings(false);
     setLoadingLogout(true);
@@ -548,7 +576,7 @@ function SHIELDAuthenticator() {
   const handleUnlockVault = async () => {
     if (!user) return;
     if (!checkOnlineStatus()) {
-      setVaultError("📡 No internet connection. Please check your network.");
+      setVaultError("No internet connection. Please check your network.");
       return;
     }
     setVaultError("");
@@ -690,31 +718,195 @@ if (loadingAuth) {
   );
 }
 
+  return (
+    <Router>
+      <SHIELDAuthenticatorContent
+        user={user}
+        accounts={accounts}
+        codes={codes}
+        countdowns={countdowns}
+        isAndroid={isAndroid}
+        showMobileLanding={showMobileLanding}
+        form={form}
+        setForm={setForm}
+        formErrors={formErrors}
+        setFormErrors={setFormErrors}
+        loading={loading}
+        loginMessage={loginMessage}
+        maskCodes={maskCodes}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        getFilteredAndSortedAccounts={getFilteredAndSortedAccounts}
+        editing={editing}
+        setEditing={setEditing}
+        showDelete={showDelete}
+        setShowDelete={setShowDelete}
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        settingsHasOpenDialog={settingsHasOpenDialog}
+        setSettingsHasOpenDialog={setSettingsHasOpenDialog}
+        setMaskCodes={setMaskCodes}
+        confirmDialog={confirmDialog}
+        vaultDialogOpen={vaultDialogOpen}
+        vaultMode={vaultMode}
+        vaultRecoveryConfig={vaultRecoveryConfig}
+        RECOVERY_QUESTION_BANK={RECOVERY_QUESTION_BANK}
+        vaultPassphrase={vaultPassphrase}
+        setVaultPassphrase={setVaultPassphrase}
+        vaultRemember={vaultRemember}
+        setVaultRemember={setVaultRemember}
+        vaultError={vaultError}
+        setVaultError={setVaultError}
+        vaultUnlocking={vaultUnlocking}
+        vaultUnlocked={vaultUnlocked}
+        isOnline={isOnline}
+        loadingAccounts={loadingAccounts}
+        handleLogin={handleLogin}
+        handleRegister={handleRegister}
+        handleSave={handleSave}
+        handleCopy={handleCopy}
+        handleDelete={handleDelete}
+        handleQRUpload={handleQRUpload}
+        handleLogout={handleLogout}
+        handleUnlockVault={handleUnlockVault}
+        handleSetupVault={handleSetupVault}
+        handleRecoverVault={handleRecoverVault}
+        handleImportAccounts={handleImportAccounts}
+        openConfirm={openConfirm}
+        closeConfirm={closeConfirm}
+      />
+    </Router>
+  );
+}
+
+function SHIELDAuthenticatorContent({
+  user,
+  accounts,
+  codes,
+  countdowns,
+  isAndroid,
+  showMobileLanding,
+  form,
+  setForm,
+  formErrors,
+  setFormErrors,
+  loading,
+  loginMessage,
+  maskCodes,
+  searchQuery,
+  setSearchQuery,
+  sortBy,
+  setSortBy,
+  getFilteredAndSortedAccounts,
+  editing,
+  setEditing,
+  showDelete,
+  setShowDelete,
+  showSettings,
+  setShowSettings,
+  settingsHasOpenDialog,
+  setSettingsHasOpenDialog,
+  setMaskCodes,
+  confirmDialog,
+  vaultDialogOpen,
+  vaultMode,
+  vaultRecoveryConfig,
+  RECOVERY_QUESTION_BANK,
+  vaultPassphrase,
+  setVaultPassphrase,
+  vaultRemember,
+  setVaultRemember,
+  vaultError,
+  setVaultError,
+  vaultUnlocking,
+  vaultUnlocked,
+  isOnline,
+  loadingAccounts,
+  handleLogin,
+  handleRegister,
+  handleSave,
+  handleCopy,
+  handleDelete,
+  handleQRUpload,
+  handleLogout,
+  handleUnlockVault,
+  handleSetupVault,
+  handleRecoverVault,
+  handleImportAccounts,
+  openConfirm,
+  closeConfirm
+}) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isInitialLoad = React.useRef(true);
+
+  // Redirect logic: non-logged users trying to access protected routes go to /login
+  // Logged-in users default to /dashboard on initial load only
+  useEffect(() => {
+    if (!user && (location.pathname === '/dashboard' || location.pathname === '/settings')) {
+      navigate('/login', { replace: true });
+    } else if (user && vaultUnlocked && (location.pathname === '/login' || location.pathname === '/register')) {
+      navigate('/dashboard', { replace: true });
+    } else if (user && vaultUnlocked && location.pathname === '/' && isInitialLoad.current) {
+      // Only redirect to dashboard on true initial load, not when user intentionally navigates to home
+      navigate('/dashboard', { replace: true });
+    }
+    
+    // After first effect run, mark as no longer initial load
+    isInitialLoad.current = false;
+  }, [user, vaultUnlocked, location.pathname, navigate]);
 
 
   if (!user) {
     return (
-      <LoginForm
-        form={form}
-        formErrors={formErrors}
-        loading={loading}
-        setForm={setForm}
-        setFormErrors={setFormErrors}
-        handleLogin={handleLogin}
-        handleRegister={handleRegister}
-        loginMessage={loginMessage}
-      />
+      <Routes>
+        <Route path="/" element={
+          isAndroid && showMobileLanding ? (
+            <MobileLandingPage />
+          ) : (
+            <LandingPage />
+          )
+        } />
+        <Route path="/mobile-start" element={<MobileLandingPage />} />
+        <Route path="/login" element={
+          <LoginForm
+            form={form}
+            formErrors={formErrors}
+            loading={loading}
+            setForm={setForm}
+            setFormErrors={setFormErrors}
+            handleLogin={handleLogin}
+            loginMessage={loginMessage}
+          />
+        } />
+        <Route path="/register" element={
+          <RegisterForm
+            form={form}
+            formErrors={formErrors}
+            loading={loading}
+            setForm={setForm}
+            setFormErrors={setFormErrors}
+            handleRegister={handleRegister}
+            loginMessage={loginMessage}
+          />
+        } />
+        <Route path="/dashboard" element={<Navigate to="/login" replace />} />
+        <Route path="/settings" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     );
   }
 
   return (
-    <div className="page-container">
+    <>
       {!isOnline && (
         <div className="offline-banner">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
             <path d="M23.64 7c-.45-.34-4.93-4-11.64-4-1.5 0-2.89.19-4.15.48L18.18 13.8 23.64 7zm-6.6 8.22L3.27 1.44 2 2.72l2.05 2.06C1.91 5.76.59 6.82.36 7l11.63 14.49.01.01.01-.01 3.9-4.86 3.32 3.32 1.27-1.27-3.46-3.46z"/>
           </svg>
-          📡 You're offline. Some features may not work.
+          You're offline. Some features may not work.
         </div>
       )}
       <VaultPassphraseDialog
@@ -734,111 +926,64 @@ if (loadingAuth) {
         onLogout={handleLogout}
         onClearError={() => setVaultError("")}
       />
-      {vaultUnlocked && !showSettings ? (
-        <>
-          <div className="settings-header">
-            <h2 style={{ marginBottom: '-45px' }}>SHIELD-Authenticator Dashboard</h2>
-          </div>
-          <button 
-            className="profile-button" 
-            style={{ position: 'absolute', top: '10px', right: '10px' }} 
-            onClick={handleSettingsClick} 
-            title="Profile & Settings"
-            aria-label="Profile & Settings"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-            </svg>
-            <span>Profile</span>
-          </button>
-          <AddAccountForm
-            form={form}
-            setForm={setForm}
-            handleSave={handleSave}
-            editing={editing}
-            setEditing={setEditing}
-            handleQRUpload={handleQRUpload}
-          />
-          
-          {/* Search and Sort Controls */}
-          {accounts.length > 0 && (
-            <div className="search-sort-container">
-              <div className="search-box">
-                <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                </svg>
-                <input
-                  id="shield-search-accounts"
-                  name="searchAccounts"
-                  type="text"
-                  placeholder="Search accounts..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="search-input"
-                />
-                {searchQuery && (
-                  <button 
-                    className="search-clear" 
-                    onClick={() => setSearchQuery("")}
-                    aria-label="Clear search"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                    </svg>
-                  </button>
-                )}
-              </div>
-              
-              <div className="sort-box">
-                <svg className="sort-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
-                </svg>
-                <select 
-                  id="shield-sort-accounts"
-                  name="sortAccounts"
-                  value={sortBy} 
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="sort-select"
-                >
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                  <option value="time-newest">Newest First</option>
-                  <option value="time-oldest">Oldest First</option>
-                </select>
-              </div>
-            </div>
-          )}
-
-          <AccountList
-            accounts={getFilteredAndSortedAccounts()}
-            codes={codes}
-            countdowns={countdowns}
-            handleCopy={handleCopy}
-            maskCodes={maskCodes}
-            setEditing={setEditing}
-            setForm={setForm}
-            setShowDelete={setShowDelete}
-            showDelete={showDelete}
-            handleDelete={handleDelete}
-            openConfirm={openConfirm}
-            searchQuery={searchQuery}
-            totalAccounts={accounts.length}
-            loadingAccounts={loadingAccounts}
-          />
-        </>
-      ) : vaultUnlocked ? (
-        <SettingsPage 
-          user={user}
-          onLogout={handleLogout}
-          onBack={handleCloseSidebar}
-          openConfirm={openConfirm}
-          maskCodes={maskCodes}
-          setMaskCodes={setMaskCodes}
-          accounts={accounts}
-          onImportAccounts={handleImportAccounts}
-          onDialogStateChange={setSettingsHasOpenDialog}
-        />
-      ) : null}
+      
+      <Routes>
+        <Route path="/" element={
+          isAndroid && showMobileLanding ? (
+            <MobileLandingPage />
+          ) : (
+            <LandingPage />
+          )
+        } />
+        <Route path="/mobile-start" element={<MobileLandingPage />} />
+        <Route path="/dashboard" element={
+          vaultUnlocked ? (
+            <Dashboard
+              user={user}
+              accounts={accounts}
+              codes={codes}
+              countdowns={countdowns}
+              form={form}
+              setForm={setForm}
+              handleSave={handleSave}
+              editing={editing}
+              setEditing={setEditing}
+              handleQRUpload={handleQRUpload}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              getFilteredAndSortedAccounts={getFilteredAndSortedAccounts}
+              handleCopy={handleCopy}
+              maskCodes={maskCodes}
+              setMaskCodes={setMaskCodes}
+              setShowDelete={setShowDelete}
+              showDelete={showDelete}
+              handleDelete={handleDelete}
+              openConfirm={openConfirm}
+              loadingAccounts={loadingAccounts}
+              isOnline={isOnline}
+              vaultUnlocked={vaultUnlocked}
+            />
+          ) : null
+        } />
+        <Route path="/settings" element={
+          vaultUnlocked ? (
+            <SettingsPage
+              user={user}
+              onLogout={handleLogout}
+              openConfirm={openConfirm}
+              maskCodes={maskCodes}
+              setMaskCodes={setMaskCodes}
+              accounts={accounts}
+              onImportAccounts={handleImportAccounts}
+              onDialogStateChange={setSettingsHasOpenDialog}
+            />
+          ) : <Navigate to="/dashboard" replace />
+        } />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+      
       <ConfirmDialog
         open={confirmDialog.open}
         title={confirmDialog.title}
@@ -858,34 +1003,9 @@ if (loadingAuth) {
         autoClose={1500}
         hideProgressBar
       />
-    </div>
-  );
-}
-
-
-function CopyrightFooter() {
-  return (
-    <footer style={{
-      textAlign: "center",
-      padding: "1rem 0",
-      color: "#888",
-      fontSize: "0.95rem",
-      background: "transparent",
-      marginTop: "2rem"
-    }}>
-      © 2026 SHIELD Intelligence. All rights reserved. · {" "}
-      <a href="/terms.html" rel="noopener noreferrer">Terms of Use & Privacy</a>
-    </footer>
-  );
-}
-
-function AppWithFooter(props) {
-  return (
-    <>
-      <SHIELDAuthenticator {...props} />
-      <CopyrightFooter />
     </>
   );
 }
 
-export default AppWithFooter;
+
+export default SHIELDAuthenticator;

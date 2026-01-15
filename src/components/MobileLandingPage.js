@@ -13,7 +13,8 @@ function MobileLandingPage() {
     {
       title: "Welcome to SHIELD",
       subtitle: "Authenticator",
-      description: "Military-grade two-factor authentication for ultimate account security",
+      description: "Military-grade two-factor authentication for ultimate account security with End-to-End Encryption",
+      highlights: ["End-to-End Encryption", "Time-Based Codes", "Offline Access"],
       icon: (
         <img 
           src="/icon-192.png" 
@@ -26,6 +27,7 @@ function MobileLandingPage() {
       title: "Proudly Developed",
       subtitle: "& Maintained by SHIELD",
       description: "Built by the developers at SHIELD Intelligence with dedication to security and excellence",
+      highlights: ["Zero-Trust Architecture", "Source-Available (No Redistribution)"],
       icon: (
         <img 
           src="/shield-logo.png" 
@@ -39,6 +41,7 @@ function MobileLandingPage() {
       title: "Encrypted Vault",
       subtitle: "Your Security, Your Control",
       description: "Store your accounts in an encrypted vault with a passphrase only you know",
+      highlights: ["Encrypted Vault", "Privacy Controls", "Encrypted CSV Backup"],
       icon: (
         <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z"/>
@@ -49,6 +52,7 @@ function MobileLandingPage() {
       title: "Easy Setup",
       subtitle: "Get Started in Seconds",
       description: "Scan QR codes or manually add accounts. Generate secure codes instantly",
+      highlights: ["QR Code Support", "Manual Setup", "Works Offline"],
       icon: (
         <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor">
           <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm4-4h2v2h-2v-2zm0 4h2v2h-2v-2zm2-2h2v2h-2v-2zm0-4h2v2h-2v-2zm-4 8h2v2h-2v-2zm2 0h2v2h-2v-2zm2 0h2v2h-2v-2z"/>
@@ -59,6 +63,7 @@ function MobileLandingPage() {
       title: "Ready to Start?",
       subtitle: "Join SHIELD Today",
       description: "Create your account and secure all your online services",
+      highlights: ["Cross-Platform", "Secure Backups", "Get Started Free"],
       icon: (
         <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
@@ -108,12 +113,14 @@ function MobileLandingPage() {
   const handleGetStarted = () => {
     // Mark that user has seen mobile landing
     localStorage.setItem('shield-mobile-landing-seen', 'true');
+    localStorage.setItem('shield-auth-entry-route', '/register');
     navigate("/register");
   };
 
   const handleSkip = () => {
     // Mark that user has seen mobile landing
     localStorage.setItem('shield-mobile-landing-seen', 'true');
+    localStorage.setItem('shield-auth-entry-route', '/login');
     navigate("/login");
   };
 
@@ -162,6 +169,14 @@ function MobileLandingPage() {
           <h1 className="mobile-landing-title">{currentPageData.title}</h1>
           <h2 className="mobile-landing-subtitle">{currentPageData.subtitle}</h2>
           <p className="mobile-landing-description">{currentPageData.description}</p>
+
+          {Array.isArray(currentPageData.highlights) && currentPageData.highlights.length > 0 && (
+            <ul className="mobile-landing-highlights">
+              {currentPageData.highlights.map((text) => (
+                <li key={text} className="mobile-landing-highlight-item">{text}</li>
+              ))}
+            </ul>
+          )}
           
           {/* Learn More button for developer page */}
           {currentPageData.hasButton && (

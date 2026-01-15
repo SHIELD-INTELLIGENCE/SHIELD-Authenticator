@@ -2,7 +2,8 @@ User-agent: *
 Allow: /
 Sitemap: https://shield-auth.shieldintelligence.in/sitemap.xml
 
-# Disallow build and private files
-Disallow: /static/
-Disallow: /*.json$
-Disallow: /manifest.json
+# Private/authenticated app routes (SPA)
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /mobile-start
+

@@ -11,6 +11,7 @@ A secure, sleek, and futuristic 2FA authenticator built with **React** and **Fir
 ## Features
 
 ### 🔐 Security
+
 - **End-to-End Encrypted Vault**: Military-grade encryption for all your 2FA secrets
 - **Vault Passphrase Protection**: Secure your accounts with a custom passphrase (min 8 characters)
 - **Recovery Questions**: Set up security questions to recover access if you forget your passphrase
@@ -19,6 +20,7 @@ A secure, sleek, and futuristic 2FA authenticator built with **React** and **Fir
 - **Encrypted CSV Backups**: Export your accounts with passphrase protection
 
 ### 🎯 Core Features
+
 - Add, edit, and delete multiple 2FA accounts
 - Generate TOTP codes in real-time with countdown timers
 - Progress bars showing time remaining for each code
@@ -28,6 +30,7 @@ A secure, sleek, and futuristic 2FA authenticator built with **React** and **Fir
 - Sort accounts by name or creation date
 
 ### 🎨 User Experience
+
 - Modern, responsive, SHIELD-themed UI with gold accents
 - Dark mode optimized interface
 - Hide/Show codes for privacy
@@ -37,6 +40,7 @@ A secure, sleek, and futuristic 2FA authenticator built with **React** and **Fir
 - Firebase authentication for secure login and registration
 
 ### 💾 Backup & Restore
+
 - Export accounts to encrypted CSV files
 - Import accounts from CSV with passphrase decryption
 - Optional encryption toggle for exports
@@ -103,12 +107,12 @@ This app uses Create React App, so only variables prefixed with `REACT_APP_` are
 
 1) Copy `.env.example` to `.env` and fill values for local development:
 
-```
+```bash
 cp .env.example .env
 # edit .env and set values
 ```
 
-2) Netlify deployment:
+1) Netlify deployment:
 
 - In Netlify site settings, go to Build & deploy → Environment → Environment variables
 - Add the following keys with your values:
@@ -132,7 +136,7 @@ Security note: This app uses a user-provided **vault passphrase** for client-sid
 
 ## Folder Structure
 
-```
+```text
 shield-authenticator/
 ├── android/                  # Android build configuration
 ├── build/                    # Production build output
@@ -173,17 +177,20 @@ shield-authenticator/
 
 ## Contributing
 
-1. Fork the repository.  
-2. Create your feature branch (`git checkout -b feature-name`).  
-3. Commit your changes (`git commit -m "Feature: ..."`)  
-4. Push to the branch (`git push origin feature-name`)  
-5. Open a Pull Request.
+We welcome feedback and bug reports.
+
+Because this project is **source-available** and **does not permit public redistribution**, we do not accept contributions via public forks.
+
+- Please open an Issue describing the change or bug.
+- For security-sensitive reports, contact SHIELD Intelligence directly.
 
 ---
 
 ## License
 
-MIT License © 2026 **SHIELD-Authenticator Team**
+This project is licensed under the **SHIELD Source-Available License (No Redistribution) v1.0**.
+
+See [LICENSE](LICENSE).
 
 ---
 

@@ -14,6 +14,9 @@ Copyright © 2026 SHIELD Intelligence. All rights reserved.
   --shield-glow: rgba(202, 169, 76, 0.35);
   --shield-font-sans: "Elixia", Arial, sans-serif;
 
+  /* Ensure toast notifications appear above dialogs/modals */
+  --toastify-z-index: 999999;
+
   /* Status Colors */
   --shield-success: #26c281;
   --shield-success-bg: rgba(38, 194, 129, 0.08);
@@ -306,6 +309,11 @@ body {
   z-index: 3001;
 }
 
+/* On the full-screen loading page the spinner is its own line, so remove inline offset */
+.shield-loading-screen .shield-spinner {
+  margin-left: 0;
+}
+
 .shield-loading-title {
   font-size: 3rem;
   font-weight: bold;
@@ -431,6 +439,11 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 3001;
+}
+
+/* On the full-screen logout page the spinner is its own line, so remove inline offset */
+.logout-loading-screen .logout-spinner {
+  margin-left: 0;
 }
 
 .logout-loading-title {
@@ -1473,7 +1486,7 @@ body.shield-modal-open {
 
 .addAccount::before {
   content: "Add New Account";
-  position: fixed;
+  position: absolute;
   top: -15px;
   left: 50%;
   transform: translateX(-50%);
@@ -2338,6 +2351,7 @@ body.shield-modal-open {
 @media (min-width: 769px) {
   .settings-header {
     justify-content: center;
+    margin-top: 24px;
   }
   .settings-header h2 {
     text-align: center;
@@ -2676,6 +2690,26 @@ body.shield-modal-open {
   color: #ccc;
   margin-bottom: 40px;
   line-height: 1.6;
+}
+
+.trust-badges {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: -18px 0 28px 0;
+}
+
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(202, 169, 76, 0.22);
+  background: rgba(255, 255, 255, 0.03);
+  color: #ddd;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .cta-button {
@@ -3671,6 +3705,25 @@ body.shield-modal-open {
   padding: 0 20px;
 }
 
+.mobile-landing-highlights {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-landing-highlight-item {
+  color: #ddd;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(202, 169, 76, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+}
+
 .mobile-page-indicators {
   display: flex;
   gap: 12px;
@@ -3862,6 +3915,16 @@ body.shield-modal-open {
   
   .mobile-landing-description {
     font-size: 0.9rem;
+  }
+
+  .mobile-landing-highlights {
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  .mobile-landing-highlight-item {
+    font-size: 0.85rem;
+    padding: 8px 12px;
   }
   
   .mobile-page-indicators {

@@ -149,33 +149,42 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
       return;
     }
 
-    if (!currentPassphrase) {
+    const trimmedCurrent = (currentPassphrase || "").trim();
+    const trimmedNew = (newPassphrase || "").trim();
+    const trimmedConfirm = (confirmPassphrase || "").trim();
+
+    if (!trimmedCurrent) {
       toast.error("Please enter your current passphrase");
       return;
     }
 
-    if (!newPassphrase) {
+    if (!trimmedNew) {
       toast.error("Please enter a new passphrase");
       return;
     }
 
-    if (newPassphrase.length < 8) {
+    if (trimmedNew.length < 8) {
       toast.error("New passphrase must be at least 8 characters");
       return;
     }
 
-    if (newPassphrase !== confirmPassphrase) {
+    if (!trimmedConfirm) {
+      toast.error("Please confirm your new passphrase");
+      return;
+    }
+
+    if (trimmedNew !== trimmedConfirm) {
       toast.error("New passphrase and confirmation do not match");
       return;
     }
 
-    if (newPassphrase === currentPassphrase) {
+    if (trimmedNew === trimmedCurrent) {
       toast.error("New passphrase must be different from current passphrase");
       return;
     }
 
     try {
-      await updateVaultPassphrase(user, { currentPassphrase, newPassphrase });
+      await updateVaultPassphrase(user, { currentPassphrase: trimmedCurrent, newPassphrase: trimmedNew });
       toast.success("✅ Vault passphrase updated successfully");
       handleChangePassphraseCancel();
     } catch (err) {
@@ -206,11 +215,18 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
     ].filter((a) => a !== null);
 
     if (uniqueIds.length < 1) {
-      setRecoveryError("Select at least one recovery question");
+      setRecoveryError("Please select at least one recovery question");
       return;
     }
-    if (answers.length !== uniqueIds.length || answers.some((a) => !String(a || "").trim())) {
-      setRecoveryError("Provide answers for all selected questions");
+    
+    // Validate all answers are provided and not empty/whitespace
+    const trimmedAnswers = answers.map((a) => String(a || "").trim());
+    if (answers.length !== uniqueIds.length) {
+      setRecoveryError("Please provide answers for all selected questions");
+      return;
+    }
+    if (trimmedAnswers.some((a) => !a)) {
+      setRecoveryError("Please provide non-empty answers for all selected questions");
       return;
     }
 
@@ -218,7 +234,7 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
     try {
       await updateRecoveryQuestions(user, {
         recoveryQuestions: uniqueIds,
-        recoveryAnswers: answers.map((a) => String(a || "").toLowerCase()),
+        recoveryAnswers: trimmedAnswers.map((a) => a.toLowerCase()),
       });
       toast.success("✅ Recovery questions updated");
       setShowRecoveryDialog(false);
@@ -289,12 +305,19 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
 
   const handleExportConfirm = () => {
     try {
-      if (useExportEncryption && (!exportPassphrase || exportPassphrase.length < 8)) {
-        toast.error("Passphrase must be at least 8 characters");
-        return;
+      const trimmedPassphrase = (exportPassphrase || "").trim();
+      if (useExportEncryption) {
+        if (!trimmedPassphrase) {
+          toast.error("Please enter export passphrase");
+          return;
+        }
+        if (trimmedPassphrase.length < 8) {
+          toast.error("Passphrase must be at least 8 characters");
+          return;
+        }
       }
 
-      const csvContent = exportAccountsToCSV(accounts, exportPassphrase, useExportEncryption);
+      const csvContent = exportAccountsToCSV(accounts, trimmedPassphrase, useExportEncryption);
       
       // Generate filename with sanitized email username
       const emailUsername = user?.email ? user.email.split('@')[0] : 'user';
@@ -351,9 +374,16 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
 
   const handleImportConfirm = async () => {
     try {
-      if (useImportDecryption && (!importPassphrase || importPassphrase.length < 8)) {
-        toast.error("Passphrase must be at least 8 characters");
-        return;
+      const trimmedPassphrase = (importPassphrase || "").trim();
+      if (useImportDecryption) {
+        if (!trimmedPassphrase) {
+          toast.error("Please enter import passphrase");
+          return;
+        }
+        if (trimmedPassphrase.length < 8) {
+          toast.error("Passphrase must be at least 8 characters");
+          return;
+        }
       }
 
       const csvContent = window._pendingCSVImport;
@@ -362,7 +392,7 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
         return;
       }
 
-      const { accounts: importedAccounts, errors } = importAccountsFromCSV(csvContent, importPassphrase, useImportDecryption);
+      const { accounts: importedAccounts, errors } = importAccountsFromCSV(csvContent, trimmedPassphrase, useImportDecryption);
       
       if (importedAccounts.length === 0) {
         toast.error("No accounts could be imported");
@@ -415,7 +445,7 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
         } else if (showImportDialog) {
           handleCancelImport();
         } else {
-          onBack();
+          onBack && onBack();
         }
       }
     };
@@ -432,7 +462,7 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
         handleCancelImport();
       } else {
         // If no dialog is open, go back to main page
-        onBack();
+        onBack && onBack();
       }
     };
 
@@ -468,7 +498,7 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
       <div className="settings-page-header">
         <button 
           className="back-button" 
-          onClick={onBack}
+          onClick={() => onBack && onBack()}
           title="Back to Dashboard"
           aria-label="Back to Dashboard"
         >

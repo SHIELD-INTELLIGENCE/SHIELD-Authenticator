@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 
 function Dashboard({
   user,
+  isAndroid,
   accounts,
   codes,
   countdowns,
@@ -49,7 +50,7 @@ function Dashboard({
       {vaultUnlocked ? (
         <>
           <div className="settings-header">
-            <h2 style={{ marginBottom: '-45px' }}>SHIELD-Authenticator Dashboard</h2>
+            <h2>SHIELD-Authenticator Dashboard</h2>
           </div>
           <button 
             className="profile-button" 
@@ -157,7 +158,7 @@ function Dashboard({
           fontSize: "0.9rem"
         }}>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate(isAndroid ? '/mobile-start' : '/')}
             style={{
               background: "transparent",
               border: "1px solid rgba(202, 169, 76, 0.3)",

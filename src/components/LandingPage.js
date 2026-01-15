@@ -129,8 +129,12 @@ function LandingPage() {
           </div>
           <h1 className="hero-title">SHIELD Authenticator</h1>
           <p className="hero-subtitle">
-            Military-grade two-factor authentication for ultimate account security
+            Military-grade two-factor authentication for ultimate account security and End-to-End Encryption
           </p>
+          <div className="trust-badges" aria-label="Security and transparency highlights">
+            <span className="trust-badge">Zero-Trust Architecture</span>
+            <span className="trust-badge">Source-Available (No Redistribution)</span>
+          </div>
           <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="cta-button" onClick={handleRegister}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
@@ -174,8 +178,8 @@ function LandingPage() {
                 <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
               </svg>
             </div>
-            <h3>Military-Grade Security</h3>
-            <p>Bank-level encryption with secure vault technology protects your authentication codes with zero knowledge architecture.</p>
+            <h3>Military-Grade Security with End-to-End Encryption</h3>
+            <p>End-to-end encryption with secure vault technology protects your authentication codes with a zero-trust, zero-knowledge approach.</p>
           </div>
 
           <div className="feature-card">
@@ -226,6 +230,47 @@ function LandingPage() {
             </div>
             <h3>Offline Access</h3>
             <p>Generate codes even without internet connection. Your vault works anywhere, anytime.</p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+                <path d="M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h6v2H7v-2z"/>
+              </svg>
+            </div>
+            <h3>Encrypted CSV Backup</h3>
+            <p>Export and import your accounts via CSV with optional encryption, so you can keep secure backups and migrate safely.</p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-1 7h2v-1.07c1.14-.24 2-.95 2-1.93 0-1.28-1.07-1.93-2.5-2.3-1.22-.32-1.5-.6-1.5-1.02 0-.49.45-.83 1.2-.83.82 0 1.13.39 1.2.95h1.78c-.09-.86-.56-1.68-1.68-2.02V9h-2v.74c-1.14.24-2 .98-2 2.02 0 1.25.98 1.9 2.5 2.26 1.27.3 1.5.68 1.5 1.07 0 .3-.22.78-1.2.78-.92 0-1.28-.41-1.33-.95H9.7c.06 1.1.88 1.72 2.3 1.98V18z"/>
+              </svg>
+            </div>
+            <h3>Account Recovery Options</h3>
+            <p>Set recovery questions for your vault to help you regain access if you ever forget your vault passphrase.</p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 6c3.79 0 7.17 2.13 8.82 5.5C19.17 14.87 15.79 17 12 17s-7.17-2.13-8.82-5.5C4.83 8.13 8.21 6 12 6zm0 9c1.93 0 3.5-1.57 3.5-3.5S13.93 8 12 8s-3.5 1.57-3.5 3.5S10.07 15 12 15zm0-2c-.83 0-1.5-.67-1.5-1.5S11.17 10 12 10s1.5.67 1.5 1.5S12.83 13 12 13z"/>
+              </svg>
+            </div>
+            <h3>Privacy Controls</h3>
+            <p>Mask your codes when needed and copy instantly—designed for safe use in public spaces and on shared screens.</p>
+          </div>
+
+          <div className="feature-card">
+            <div className="feature-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 11h-2V7h2v6zm0 4h-2v-2h2v2z"/>
+              </svg>
+            </div>
+            <h3>Secure Device Convenience</h3>
+            <p>Optionally remember your vault passphrase on trusted devices to unlock faster—without weakening your vault protection.</p>
           </div>
         </div>
       </section>

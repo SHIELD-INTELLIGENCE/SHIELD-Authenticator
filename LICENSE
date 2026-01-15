@@ -1,0 +1,45 @@
+# SHIELD Source-Available License (No Redistribution) v1.0
+
+Copyright (c) 2026 SHIELD Intelligence.
+
+IMPORTANT: This is a source-available license. It is not an OSI-approved “open source” license.
+
+1) Definitions
+
+- “Software” means the SHIELD-Authenticator source code and any accompanying files in this repository.
+- “You” means an individual or legal entity exercising rights under this license.
+- “Internal Use” means use within your own devices and/or within your organization, where access is limited to you and/or your employees/contractors.
+- “Redistribute” means to publish, share, provide, transfer, upload, host, or otherwise make the Software (or a Derivative Work) available to any third party.
+- “Derivative Work” means any modified version of the Software, or any work based on the Software.
+
+1) Grant of Rights (Personal/Internal Use)
+Subject to the restrictions below, SHIELD Intelligence grants You a non-exclusive, non-transferable, revocable license to:
+
+- Use the Software.
+- Copy the Software to your devices.
+- Clone the repository to your devices.
+- Modify the Software for Personal/Internal Use.
+- Build and run the Software for Personal/Internal Use.
+
+1) Restrictions (No Redistribution / No Public Copies)
+You may NOT, and you may not permit others to:
+
+- Redistribute the Software or any Derivative Work, in source or binary form.
+- Publish the Software or any Derivative Work in any public code hosting service.
+  (This includes creating public forks, mirrors, or re-uploading the code to a public repository.)
+- Distribute builds or installers of the Software or any Derivative Work to third parties.
+- Offer the Software or any Derivative Work as a hosted service (SaaS) to third parties.
+- Sublicense, sell, rent, or commercially exploit the Software or any Derivative Work.
+- Remove or alter copyright, proprietary notices, or this license.
+
+1) Trademarks
+This license does not grant any rights to SHIELD Intelligence trademarks, logos, or brand assets.
+
+2) Termination
+This license terminates automatically if You violate any term. Upon termination, You must stop using the Software and delete all copies in Your possession or control.
+
+3) Disclaimer of Warranty
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+4) Limitation of Liability
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL SHIELD INTELLIGENCE BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

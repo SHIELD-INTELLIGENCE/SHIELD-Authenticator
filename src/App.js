@@ -309,18 +309,32 @@ function SHIELDAuthenticator() {
   }, [accounts]);
 
   const saveAccountDirect = async (name, secret) => {
-    if (!name || !secret) return toast.error("Fill both fields!");
+    // Trim inputs
+    const trimmedName = (name || "").trim();
+    const trimmedSecret = (secret || "").trim();
+    
+    // Validate inputs
+    if (!trimmedName && !trimmedSecret) {
+      return toast.error("Please enter account name and secret");
+    }
+    if (!trimmedName) {
+      return toast.error("Please enter account name");
+    }
+    if (!trimmedSecret) {
+      return toast.error("Please enter secret");
+    }
+    
     if (!vaultUnlocked) {
       toast.error("Vault is locked. Please unlock to make changes.");
       return;
     }
     try {
       if (editing) {
-        await updateAccount(user, editing, { name, secret });
+        await updateAccount(user, editing, { name: trimmedName, secret: trimmedSecret });
         toast.success("Account updated!");
         setEditing(null);
       } else {
-        await addAccount(user, name, secret);
+        await addAccount(user, trimmedName, trimmedSecret);
         toast.success("Account added!");
       }
       setForm({ name: "", secret: "" });
@@ -452,12 +466,27 @@ function SHIELDAuthenticator() {
     
     let errors = { email: "", password: "" };
     setLoginMessage(null);
-    if (!validateEmail(form.email)) errors.email = "Please enter a valid email address.";
-    if (!validatePassword(form.password)) errors.password = "Password must be at least 8 characters.";
+    
+    // Trim and validate email
+    const trimmedEmail = (form.email || "").trim();
+    if (!trimmedEmail) {
+      errors.email = "Please enter your email address";
+    } else if (!validateEmail(trimmedEmail)) {
+      errors.email = "Please enter a valid email address";
+    }
+    
+    // Trim and validate password
+    const trimmedPassword = (form.password || "").trim();
+    if (!trimmedPassword) {
+      errors.password = "Please enter your password";
+    } else if (!validatePassword(trimmedPassword)) {
+      errors.password = "Password must be at least 8 characters";
+    }
+    
     setFormErrors(errors);
     if (errors.email || errors.password) return;
     setLoading(l => ({ ...l, login: true }));
-    login(form.email, form.password)
+    login(trimmedEmail, trimmedPassword)
       .then((user) => {
         setUser(user);
         setLoginMessage(null);
@@ -483,12 +512,27 @@ function SHIELDAuthenticator() {
     
     let errors = { email: "", password: "" };
     setLoginMessage(null);
-    if (!validateEmail(form.email)) errors.email = "Please enter a valid email address.";
-    if (!validatePassword(form.password)) errors.password = "Password must be at least 8 characters.";
+    
+    // Trim and validate email
+    const trimmedEmail = (form.email || "").trim();
+    if (!trimmedEmail) {
+      errors.email = "Please enter your email address";
+    } else if (!validateEmail(trimmedEmail)) {
+      errors.email = "Please enter a valid email address";
+    }
+    
+    // Trim and validate password
+    const trimmedPassword = (form.password || "").trim();
+    if (!trimmedPassword) {
+      errors.password = "Please enter your password";
+    } else if (!validatePassword(trimmedPassword)) {
+      errors.password = "Password must be at least 8 characters";
+    }
+    
     setFormErrors(errors);
     if (errors.email || errors.password) return;
     setLoading(l => ({ ...l, register: true }));
-    register(form.email, form.password)
+    register(trimmedEmail, trimmedPassword)
       .then(setUser)
       .catch((err) => {
         const errorMsg = handleError(err);
@@ -512,6 +556,7 @@ function SHIELDAuthenticator() {
     let listenerHandle;
     
     CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+      const currentPath = window.location?.pathname || '';
       // Priority order: ConfirmDialog > SettingsDialogs > Editing Form > Settings > Vault Dialog > ShowDelete > Dashboard (minimize)
       if (confirmDialog.open) {
         closeConfirm();
@@ -519,6 +564,15 @@ function SHIELDAuthenticator() {
         // Settings page has its own dialogs open, let it handle them
         // Don't navigate away, just trigger a signal (the dialogs will close themselves)
         return;
+      } else if (currentPath === '/settings') {
+        // Always return to dashboard from Settings on mobile back
+        if (canGoBack) {
+          window.history.back();
+        } else {
+          // No history entry (e.g. deep link). Navigate without reload.
+          window.history.replaceState({}, '', '/dashboard');
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }
       } else if (showDelete) {
         setShowDelete(null);
       } else if (editing) {
@@ -533,8 +587,8 @@ function SHIELDAuthenticator() {
       } else if (vaultDialogOpen) {
         // Don't close vault dialog - user needs to unlock or logout
         // Do nothing, keep them on vault screen
-      } else if (vaultUnlocked && user) {
-        // On main dashboard, minimize app to background (send to home screen)
+      } else if (vaultUnlocked && user && (currentPath === '/dashboard' || currentPath === '/')) {
+        // Only minimize when on the dashboard
         CapacitorApp.minimizeApp().catch(() => {
           // Fallback for web or if minimize fails
           console.log('Minimize not available');
@@ -581,19 +635,26 @@ function SHIELDAuthenticator() {
       return;
     }
     setVaultError("");
-    if (!vaultPassphrase || vaultPassphrase.length < 8) {
+    
+    const trimmedPassphrase = (vaultPassphrase || "").trim();
+    if (!trimmedPassphrase) {
+      setVaultError("Please enter vault passphrase");
+      return;
+    }
+    if (trimmedPassphrase.length < 8) {
       setVaultError("Passphrase must be at least 8 characters");
       return;
     }
+    
     setVaultUnlocking(true);
     try {
-      await unlockVault(user, vaultPassphrase);
+      await unlockVault(user, trimmedPassphrase);
 
       // Persist passphrase securely on device only if user opted in
       const email = user?.email || "";
       if (email) {
         const storageKey = vaultRememberKeyForEmail(email);
-        if (vaultRemember) await secureSetItem(storageKey, vaultPassphrase);
+        if (vaultRemember) await secureSetItem(storageKey, trimmedPassphrase);
         else secureRemoveItem(storageKey);
       }
 
@@ -612,7 +673,13 @@ function SHIELDAuthenticator() {
   const handleSetupVault = async ({ selectedQuestions, answers }) => {
     if (!user) return;
     setVaultError("");
-    if (!vaultPassphrase || vaultPassphrase.length < 8) {
+    
+    const trimmedPassphrase = (vaultPassphrase || "").trim();
+    if (!trimmedPassphrase) {
+      setVaultError("Please enter vault passphrase");
+      return;
+    }
+    if (trimmedPassphrase.length < 8) {
       setVaultError("Passphrase must be at least 8 characters");
       return;
     }
@@ -622,19 +689,19 @@ function SHIELDAuthenticator() {
 
     // If questions are selected, validate that all have answers
     if (uniqueIds.length > 0) {
-      const recoveryAnswers = uniqueIds.map((id) => String(answers?.[id] || "").toLowerCase());
-      if (recoveryAnswers.some((a) => !a.trim())) {
-        setVaultError("Provide answers for all selected questions (lowercase)");
+      const recoveryAnswers = uniqueIds.map((id) => String(answers?.[id] || "").toLowerCase().trim());
+      if (recoveryAnswers.some((a) => !a)) {
+        setVaultError("Please provide answers for all selected recovery questions");
         return;
       }
     }
 
-    const recoveryAnswers = uniqueIds.map((id) => String(answers?.[id] || "").toLowerCase());
+    const recoveryAnswers = uniqueIds.map((id) => String(answers?.[id] || "").toLowerCase().trim());
 
     setVaultUnlocking(true);
     try {
       await setupVault(user, {
-        passphrase: vaultPassphrase,
+        passphrase: trimmedPassphrase,
         recoveryQuestions: uniqueIds,
         recoveryAnswers,
       });
@@ -643,7 +710,7 @@ function SHIELDAuthenticator() {
       const email = user?.email || "";
       if (email) {
         const storageKey = vaultRememberKeyForEmail(email);
-        if (vaultRemember) await secureSetItem(storageKey, vaultPassphrase);
+        if (vaultRemember) await secureSetItem(storageKey, trimmedPassphrase);
         else secureRemoveItem(storageKey);
       }
 
@@ -666,18 +733,37 @@ function SHIELDAuthenticator() {
   const handleRecoverVault = async ({ answers, newPassphrase }) => {
     if (!user) return;
     setVaultError("");
+    
+    // Validate recovery answers
+    const trimmedAnswers = Array.isArray(answers) ? answers.map((a) => String(a || "").toLowerCase().trim()) : [];
+    if (trimmedAnswers.some((a) => !a)) {
+      setVaultError("Please provide answers for all recovery questions");
+      return;
+    }
+    
+    // Validate new passphrase
+    const trimmedNewPassphrase = (newPassphrase || "").trim();
+    if (!trimmedNewPassphrase) {
+      setVaultError("Please enter a new vault passphrase");
+      return;
+    }
+    if (trimmedNewPassphrase.length < 8) {
+      setVaultError("New passphrase must be at least 8 characters");
+      return;
+    }
+    
     setVaultUnlocking(true);
     try {
       await recoverAndResetPassphrase(user, {
-        recoveryAnswers: Array.isArray(answers) ? answers.map((a) => String(a || "").toLowerCase()) : [],
-        newPassphrase,
+        recoveryAnswers: trimmedAnswers,
+        newPassphrase: trimmedNewPassphrase,
       });
 
       // After recovery, remember the new passphrase securely if opted in
       const email = user?.email || "";
       if (email) {
         const storageKey = vaultRememberKeyForEmail(email);
-        if (vaultRemember) await secureSetItem(storageKey, newPassphrase);
+        if (vaultRemember) await secureSetItem(storageKey, trimmedNewPassphrase);
         else secureRemoveItem(storageKey);
       }
 
@@ -843,6 +929,17 @@ function SHIELDAuthenticatorContent({
   const location = useLocation();
   const isInitialLoad = React.useRef(true);
 
+  // On Android APK, after onboarding we should land on auth (login/register), not the desktop landing page.
+  const androidAuthEntryRoute = React.useMemo(() => {
+    if (!isAndroid) return "/login";
+    try {
+      const saved = localStorage.getItem('shield-auth-entry-route');
+      return saved === '/register' || saved === '/login' ? saved : '/login';
+    } catch {
+      return '/login';
+    }
+  }, [isAndroid]);
+
   // Redirect logic: non-logged users trying to access protected routes go to /login
   // Logged-in users default to /dashboard on initial load only
   useEffect(() => {
@@ -865,8 +962,12 @@ function SHIELDAuthenticatorContent({
     return (
       <Routes>
         <Route path="/" element={
-          isAndroid && showMobileLanding ? (
-            <MobileLandingPage />
+          isAndroid ? (
+            showMobileLanding ? (
+              <MobileLandingPage />
+            ) : (
+              <Navigate to={androidAuthEntryRoute} replace />
+            )
           ) : (
             <LandingPage />
           )
@@ -930,17 +1031,15 @@ function SHIELDAuthenticatorContent({
       />
       
       <Routes>
-        <Route path="/" element={
-          isAndroid && showMobileLanding ? (
-            <MobileLandingPage />
-          ) : (
-            <LandingPage />
-          )
-        } />
+        <Route
+          path="/"
+          element={isAndroid ? <Navigate to="/dashboard" replace /> : <LandingPage />}
+        />
         <Route path="/mobile-start" element={<MobileLandingPage />} />
         <Route path="/dashboard" element={
           <Dashboard
             user={user}
+            isAndroid={isAndroid}
             accounts={accounts}
             codes={codes}
             countdowns={countdowns}
@@ -972,6 +1071,11 @@ function SHIELDAuthenticatorContent({
             <SettingsPage
               user={user}
               onLogout={handleLogout}
+              onBack={() => {
+                // Prefer real back if available, otherwise force dashboard
+                if (window.history.length > 1) navigate(-1);
+                else navigate('/dashboard', { replace: true });
+              }}
               openConfirm={openConfirm}
               maskCodes={maskCodes}
               setMaskCodes={setMaskCodes}

@@ -283,6 +283,7 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
         title: 'Logout',
         message: 'Are you sure you want to logout?',
         onConfirm: onLogout,
+        center: true,
       });
     } else {
       onLogout && onLogout();

@@ -20,15 +20,16 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles.css"; // SHIELD theme
 import QrScanner from "qr-scanner";
-import LoginForm from "./components/LoginForm";
-import RegisterForm from "./components/RegisterForm";
-import Dashboard from "./components/Dashboard";
-import LandingPage from "./components/LandingPage";
-import MobileLandingPage from "./components/MobileLandingPage";
-import SettingsPage from "./components/SettingsPage";
-import NotFound404 from "./components/NotFound404";
+import LoginForm from "./pages/LoginForm";
+import RegisterForm from "./pages/RegisterForm";
+import Dashboard from "./pages/Dashboard";
+import LandingPage from "./pages/LandingPage";
+import MobileLandingPage from "./pages/MobileLandingPage";
+import SettingsPage from "./pages/SettingsPage";
+import NotFound404 from "./pages/NotFound404";
 import ConfirmDialog from "./components/ConfirmDialog";
 import VaultPassphraseDialog from "./components/VaultPassphraseDialog";
+import TermsPage from "./pages/TermsPage";
 import { unlockVault, lockVault, getVaultMeta, setupVault, recoverAndResetPassphrase } from "./vault";
 import { handleError, checkOnlineStatus } from "./networkUtils";
 import { secureSetItem, secureGetItem, secureRemoveItem } from "./secureStorage";
@@ -201,9 +202,10 @@ function SHIELDAuthenticator() {
 
             setVaultMode("unlock");
 
-            // Try auto-unlock from securely stored passphrase if user opted in previously
             const email = u?.email || "";
             const remembered = email ? await secureGetItem(vaultRememberKeyForEmail(email)) : null;
+            
+            const shouldRemember = !!remembered;
 
             if (remembered) {
               unlockVault(u, remembered)
@@ -211,18 +213,19 @@ function SHIELDAuthenticator() {
                 .then(() => {
                   setVaultDialogOpen(false);
                   setVaultPassphrase("");
-                  setVaultRemember(true);
+                  setVaultRemember(shouldRemember);
                   setVaultUnlocked(true);
                 })
                 .catch(() => {
+                  secureRemoveItem(vaultRememberKeyForEmail(u?.email || ""));
                   setVaultPassphrase("");
-                  setVaultRemember(true);
+                  setVaultRemember(false);
                   setVaultDialogOpen(true);
                 })
                 .finally(() => setVaultUnlocking(false));
             } else {
               setVaultPassphrase("");
-              setVaultRemember(true);
+              setVaultRemember(false);
               setVaultDialogOpen(true);
               setVaultUnlocking(false);
             }
@@ -238,10 +241,9 @@ function SHIELDAuthenticator() {
         lockVault();
         setVaultDialogOpen(false);
         setVaultPassphrase("");
-        setVaultRemember(true);
         setVaultError("");
       }
-      setLoadingAuth(false); // <-- auth check done
+      setLoadingAuth(false);
     });
     return unsub;
   }, [RECOVERY_QUESTION_BANK]);
@@ -997,6 +999,7 @@ function SHIELDAuthenticatorContent({
         } />
         <Route path="/dashboard" element={<Navigate to="/login" replace />} />
         <Route path="/settings" element={<Navigate to="/login" replace />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route path="*" element={<NotFound404 />} />
       </Routes>
     );
@@ -1085,6 +1088,7 @@ function SHIELDAuthenticatorContent({
             />
           ) : <Navigate to="/dashboard" replace />
         } />
+        <Route path="/terms" element={<TermsPage />} />
         <Route path="*" element={<NotFound404 />} />
       </Routes>
       

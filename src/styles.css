@@ -1,3 +1,35 @@
+@media (max-width: 600px) {
+  .settings-header {
+    justify-content: flex-start !important;
+  }
+  .settings-header h2 {
+    text-align: left !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+  }
+  .settings-header > div:first-child {
+    display: none !important;
+  }
+  .settings-header > div:last-child {
+    justify-content: flex-end !important;
+  }
+}
+@media (max-width: 600px) {
+  .settings-header h2 {
+    text-align: left !important;
+  }
+}
+/* Show Dashboard on new line on mobile */
+.break-mobile {
+  display: inline;
+}
+@media (max-width: 600px) {
+  .break-mobile {
+    display: block;
+  }
+}
 /*
 Copyright © 2026 SHIELD Intelligence. All rights reserved.
 */
@@ -6,6 +38,24 @@ Copyright © 2026 SHIELD Intelligence. All rights reserved.
    1. VARIABLES & ROOT SETTINGS
    ═════════════════════════════════════════════════════════════════ */
 :root {
+  /* Prevent any element from overflowing horizontally */
+  *, *::before, *::after {
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+  /* Remove all default margin/padding from html, body, and direct children */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  body > * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
   /* Brand Colors */
   --shield-black: #1a1a1a;
   --shield-white: #fafafa;
@@ -18,7 +68,7 @@ Copyright © 2026 SHIELD Intelligence. All rights reserved.
   --toastify-z-index: 999999;
 
   /* Status Colors */
-  --shield-success: #26c281;
+  --shield-success: #171c1a;
   --shield-success-bg: rgba(38, 194, 129, 0.08);
   --shield-error: #f85149;
   --shield-error-bg: rgba(218, 54, 51, 0.08);
@@ -60,11 +110,13 @@ html {
   color: var(--shield-white);
   min-height: 100vh;
   height: 100%;
+  width: 100vw;
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  padding: 0 6px;
+  padding: 0;
   font-family: var(--shield-font-sans);
   box-sizing: border-box;
   width: 100%;
@@ -1339,23 +1391,38 @@ body.shield-modal-open {
 }
 
 .password-toggle-btn:focus {
-  outline: 2px solid var(--shield-accent);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: none;
 }
 
 /* Settings Header */
-.settings-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  margin: 0 auto 24px;
-  max-width: 1100px;
-  width: 100%;
-  padding: 0 6px;
-  box-sizing: border-box;
-  animation: slideInFromRight 0.4s var(--transition-decelerate) forwards;
+
+  @media (min-width: 769px) {
+    .settings-header {
+      justify-content: center;
+    }
+    .settings-header h2 {
+      flex: 1 1 auto;
+      text-align: center;
+    }
+  .profile-button {
+      position: absolute;
+      right: 32px;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-left: 0;
+    }
+  }
+  .settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    margin: 24px auto 0 auto;
+    max-width: 1100px;
+    width: 100%;
+    padding: 0 6px;
+    box-sizing: border-box;
+    animation: slideInFromRight 0.4s var(--transition-decelerate) forwards;
 }
 
 .settings-header h2 {
@@ -1383,10 +1450,10 @@ body.shield-modal-open {
   transition: all var(--animation-medium) var(--transition-smooth);
   font-family: var(--shield-font-sans);
   box-shadow: 0 0 8px var(--shield-glow);
-  position: fixed;
-  right: 20px;
-  top: 10px;
-  z-index: 100;
+  position: static;
+  margin-left: auto;
+  box-shadow: 0 0 12px var(--shield-glow);
+  z-index: 1;
 }
 
 .profile-button:hover {
@@ -1471,7 +1538,7 @@ body.shield-modal-open {
   background: rgba(30, 30, 30, 0.8);
   border-radius: var(--radius-medium);
   padding: 20px;
-  margin: 100px auto 20px;
+  margin: 30px auto 20px;
   max-width: 600px;
   width: 100%;
   display: grid;
@@ -2398,7 +2465,6 @@ body.shield-modal-open {
 
 .vault-dialog h3 {
   margin: 0 0 12px 0;
-  padding-left: 50px;
   color: var(--shield-accent);
   font-size: 1.5rem;
   font-weight: 700;
@@ -2546,8 +2612,8 @@ body.shield-modal-open {
 
 .confirm-dialog h3 {
   margin: 0 0 8px 0;
-  padding-left: 50px;
   color: var(--shield-accent);
+  text-align: center;
 }
 .confirm-dialog p {
   color: #ddd;

@@ -84,11 +84,15 @@ function AccountItem({
           onClick={() => {
             // open centralized confirm dialog
             if (openConfirm) {
-              openConfirm({
+                openConfirm({
                 title: 'Delete account',
-                message: `Are you sure you want to delete ${acc.name}? This action cannot be undone.`,
+                message: (
+                  <div style={{ textAlign: 'center' }}>
+                  Are you sure you want to delete {acc.name}? This action cannot be undone.
+                  </div>
+                ),
                 onConfirm: () => handleDelete(acc.id),
-              });
+                });
             } else {
               // Fallback to previous behaviour
               setShowDelete(acc.id);

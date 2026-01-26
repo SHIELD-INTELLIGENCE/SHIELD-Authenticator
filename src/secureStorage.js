@@ -30,65 +30,28 @@ function fromBase64(b64) {
   return bytes;
 }
 
-/**
- * Generate a device fingerprint based on browser characteristics
- * This creates a consistent identifier for the device/browser
- */
-async function getDeviceFingerprint() {
-  const components = [
-    navigator.userAgent || '',
-    navigator.language || '',
-    navigator.hardwareConcurrency || '',
-    navigator.deviceMemory || '',
-    screen.colorDepth || '',
-    screen.width || '',
-    screen.height || '',
-    new Date().getTimezoneOffset() || '',
-    navigator.platform || '',
-    // Add more entropy
-    navigator.maxTouchPoints || '',
-    navigator.vendor || '',
-    (navigator.connection?.effectiveType) || '',
-  ];
-  
-  const fingerprint = components.join('|');
-  const encoder = new TextEncoder();
-  const data = encoder.encode(fingerprint);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = new Uint8Array(hashBuffer);
-  return toBase64(hashArray);
-}
+
 
 /**
- * Derive a device-specific encryption key with unique per-user salt
- * @param {string} userEmail - User's email to generate unique salt
+ * Get or generate a stable, random device key for encryption (per browser profile)
+ * @returns {Promise<CryptoKey>}
  */
-async function deriveDeviceKey(userEmail = '') {
-  const fingerprint = await getDeviceFingerprint();
-  
-  // Generate unique salt per user to prevent rainbow table attacks
-  const userSaltSource = `SHIELD-DEVICE-${userEmail || 'default'}`;
-  const saltData = textEncoder.encode(userSaltSource);
-  const saltHash = await crypto.subtle.digest('SHA-256', saltData);
-  const salt = new Uint8Array(saltHash).slice(0, 16);
-  
-  const keyMaterial = await crypto.subtle.importKey(
+async function getOrCreateDeviceKey() {
+  const keyName = 'shield-vault-device-key-v2';
+  let keyB64 = localStorage.getItem(keyName);
+  let rawKey;
+  if (!keyB64) {
+    // Generate a new 256-bit key
+    rawKey = crypto.getRandomValues(new Uint8Array(32));
+    keyB64 = toBase64(rawKey);
+    localStorage.setItem(keyName, keyB64);
+  } else {
+    rawKey = fromBase64(keyB64);
+  }
+  return crypto.subtle.importKey(
     'raw',
-    textEncoder.encode(fingerprint),
-    { name: 'PBKDF2' },
-    false,
-    ['deriveKey']
-  );
-  
-  return crypto.subtle.deriveKey(
-    {
-      name: 'PBKDF2',
-      salt: salt,
-      iterations: 100000,
-      hash: 'SHA-256'
-    },
-    keyMaterial,
-    { name: 'AES-GCM', length: 256 },
+    rawKey,
+    { name: 'AES-GCM' },
     false,
     ['encrypt', 'decrypt']
   );
@@ -104,13 +67,9 @@ export async function secureSetItem(key, passphrase) {
     if (!window.crypto || !window.crypto.subtle) {
       throw new Error('Web Crypto API not available');
     }
-    
-    // Extract user email from key for unique salt
-    const userEmail = key.replace('shield-vault-passphrase:', '');
-    const deviceKey = await deriveDeviceKey(userEmail);
+    const deviceKey = await getOrCreateDeviceKey();
     const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV for AES-GCM
     const plaintext = textEncoder.encode(passphrase);
-    
     const ciphertext = await crypto.subtle.encrypt(
       {
         name: 'AES-GCM',
@@ -119,9 +78,8 @@ export async function secureSetItem(key, passphrase) {
       deviceKey,
       plaintext
     );
-    
     // Store: version|iv|ciphertext (all base64 encoded)
-    const stored = `v1|${toBase64(iv)}|${toBase64(new Uint8Array(ciphertext))}`;
+    const stored = `v2|${toBase64(iv)}|${toBase64(new Uint8Array(ciphertext))}`;
     localStorage.setItem(key, stored);
     return true;
   } catch (err) {
@@ -139,21 +97,15 @@ export async function secureGetItem(key) {
   try {
     const stored = localStorage.getItem(key);
     if (!stored) return null;
-    
     const parts = stored.split('|');
-    if (parts.length !== 3 || parts[0] !== 'v1') {
-      // Invalid format or old plaintext storage - remove it
+    if (parts.length !== 3 || parts[0] !== 'v2') {
+      // Invalid format or old storage - remove it
       localStorage.removeItem(key);
       return null;
     }
-    
     const iv = fromBase64(parts[1]);
     const ciphertext = fromBase64(parts[2]);
-    
-    // Extract user email from key for unique salt
-    const userEmail = key.replace('shield-vault-passphrase:', '');
-    const deviceKey = await deriveDeviceKey(userEmail);
-    
+    const deviceKey = await getOrCreateDeviceKey();
     const plaintext = await crypto.subtle.decrypt(
       {
         name: 'AES-GCM',
@@ -162,7 +114,6 @@ export async function secureGetItem(key) {
       deviceKey,
       ciphertext
     );
-    
     return textDecoder.decode(plaintext);
   } catch (err) {
     // Decryption failed - likely different device or tampered data

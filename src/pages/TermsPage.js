@@ -1,13 +1,24 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 function TermsPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="terms-page">
       <Header />
       <main className="container" style={{ maxWidth: 960, margin: "0 auto", padding: 24 }}>
+          <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: 12 }}>
+            <button className="back-button" onClick={() => navigate("/dashboard")}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Back to Dashboard
+            </button>
+          </div>
           <h1 style={{ color: "#bfa24f", fontSize: "1.6rem", margin: 0, padding: "18px 0" }}>
             SHIELD‑AUTHENTICATOR — Terms of Use & Privacy Addendum
           </h1>

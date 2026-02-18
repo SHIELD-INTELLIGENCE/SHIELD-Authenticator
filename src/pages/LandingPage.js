@@ -88,24 +88,7 @@ function LandingPage() {
               </svg>
               Get Started Free
             </button>
-            <button
-              className="cta-button-secondary"
-              onClick={handleLogin}
-              style={{
-                padding: "14px 32px",
-                fontSize: "16px",
-                fontWeight: "600",
-                backgroundColor: "transparent",
-                border: "2px solid #3498db",
-                color: "#3498db",
-                borderRadius: "8px",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <button className="cta-button-secondary" onClick={handleLogin}>
               <svg
                 width="20"
                 height="20"
@@ -117,6 +100,52 @@ function LandingPage() {
               </svg>
               Login
             </button>
+          </div>
+          <div className="hero-downloads" aria-label="Download options">
+            <a
+              className="store-badge archive-badge"
+              href="https://download.shieldintelligence.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Download SHIELD Authenticator from the SHIELD Archive"
+            >
+              <span className="store-badge-icon" aria-hidden="true">
+                <svg
+                  width="34"
+                  height="34"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 3v10.17l3.59-3.58L17 11l-5 5-5-5 1.41-1.41L11 13.17V3h1zM5 19h14v2H5v-2z" />
+                </svg>
+              </span>
+              <span className="store-badge-text">
+                <span className="store-badge-top"> Download From</span>
+                <span className="store-badge-bottom">SHIELD App Archive</span>
+              </span>
+            </a>
+            <a
+              className="store-badge github-badge"
+              href="https://github.com/SHIELD-INTELLIGENCE/SHIELD-Authenticator/releases"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Get SHIELD Authenticator on GitHub releases"
+            >
+              <span className="store-badge-icon" aria-hidden="true">
+                <svg
+                  width="34"
+                  height="34"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 .5a12 12 0 00-3.79 23.39c.6.11.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61-.55-1.4-1.34-1.77-1.34-1.77-1.1-.75.08-.73.08-.73 1.21.09 1.85 1.25 1.85 1.25 1.08 1.84 2.84 1.31 3.53 1 .11-.78.43-1.31.78-1.61-2.66-.31-5.46-1.34-5.46-5.96 0-1.32.47-2.4 1.24-3.25-.12-.31-.54-1.57.12-3.27 0 0 1.01-.32 3.3 1.24a11.43 11.43 0 016 0c2.29-1.56 3.29-1.24 3.29-1.24.66 1.7.24 2.96.12 3.27.77.85 1.24 1.93 1.24 3.25 0 4.63-2.8 5.65-5.48 5.95.44.38.83 1.13.83 2.29v3.39c0 .32.22.69.82.58A12 12 0 0012 .5z" />
+                </svg>
+              </span>
+              <span className="store-badge-text">
+                <span className="store-badge-top">GET IT ON</span>
+                <span className="store-badge-bottom">GitHub</span>
+              </span>
+            </a>
           </div>
         </div>
       </section>
@@ -588,20 +617,6 @@ function LandingPage() {
             <button
               className="cta-button-large-secondary"
               onClick={handleLogin}
-              style={{
-                padding: "16px 40px",
-                fontSize: "18px",
-                fontWeight: "700",
-                backgroundColor: "transparent",
-                border: "2px solid #3498db",
-                color: "#3498db",
-                borderRadius: "10px",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
             >
               Login to Your Account
             </button>

@@ -2,7 +2,7 @@
 
 ## Version 2.0 - January 7, 2026
 
-### 🔐 Major New Feature: End-to-End Encrypted Vault
+### Major New Feature: End-to-End Encrypted Vault
 
 **Your 2FA codes are now protected with military-grade End-to-End Encryption (E2EE)!**
 
@@ -10,14 +10,14 @@ We've implemented a powerful new security feature with **End-to-End Encryption**
 
 ### What's New for You
 
-#### 🔒 **Password-Protected Vault**
+#### **Password-Protected Vault**
 
 - **Lock your accounts with a password**: Choose a secure password (at least 8 characters) to encrypt all your 2FA codes
 - **Your password never leaves your device**: We can't see or recover your password - it stays 100% private on your phone/computer
 - **Change or remove your password anytime**: Full control over your vault security in Settings
 - **Works without a password too**: You can choose not to use a password if you prefer (not recommended)
 
-#### 🆘 **Account Recovery Questions**
+#### **Account Recovery Questions**
 
 - **Never lose access**: Set up 3 security questions to recover your vault if you forget your password
 - **Simple questions, big security**: Answer questions like "What's your first pet's name?" to restore access
@@ -25,13 +25,13 @@ We've implemented a powerful new security feature with **End-to-End Encryption**
 - **Reset your passphrase**: Use the "Recover Vault" option on the unlock screen to reset your forgotten passphrase by answering your recovery questions
 - **Set a new passphrase**: After successful recovery, you'll create a new passphrase to unlock your vault
 
-#### 📤 **Enhanced Backup & Import**
+#### **Enhanced Backup & Import**
 
 - **Encrypt your backups**: When exporting your accounts to CSV, you can now add password protection
 - **Import protected backups**: Easily restore password-protected CSV files
 - **Your choice**: Use encryption or export without it - you decide
 
-#### ⚡ **Improved Settings**
+#### **Improved Settings**
 
 - **New Vault section**: Manage your vault password and recovery questions all in one place
 - **Clear status display**: Always know if your vault is protected or not

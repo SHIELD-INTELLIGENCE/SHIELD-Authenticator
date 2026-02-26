@@ -8,6 +8,7 @@
     "@capacitor/app": "^7.0.0",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
+    "@capacitor/network": "^7.0.4",
     "@yudiel/react-qr-scanner": "^2.3.1",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",

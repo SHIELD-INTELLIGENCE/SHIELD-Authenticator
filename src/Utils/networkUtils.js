@@ -19,7 +19,7 @@ export function isNetworkError(error) {
     errorCode.includes('network') ||
     errorCode === 'unavailable' ||
     errorCode === 'auth/network-request-failed' ||
-    !navigator.onLine
+    !checkOnlineStatus()
   );
 }
 
@@ -27,7 +27,7 @@ export function isNetworkError(error) {
  * Get user-friendly error message
  */
 export function getNetworkErrorMessage(error) {
-  if (!navigator.onLine) {
+  if (!checkOnlineStatus()) {
     return 'No internet connection. Please check your network and try again.';
   }
   
@@ -85,6 +85,10 @@ export function getNetworkErrorMessage(error) {
  * Check if device is online
  */
 export function checkOnlineStatus() {
+  if (typeof window !== 'undefined' && typeof window.__shieldOnlineStatus === 'boolean') {
+    return window.__shieldOnlineStatus;
+  }
+
   return navigator.onLine;
 }
 

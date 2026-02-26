@@ -2653,6 +2653,10 @@ body.shield-modal-open {
   animation: slideDown 0.3s ease-out;
 }
 
+.offline-banner.online {
+  background: linear-gradient(135deg, var(--shield-success) 0%, var(--shield-grey) 100%);
+}
+
 @keyframes slideDown {
   from {
     transform: translateY(-100%);

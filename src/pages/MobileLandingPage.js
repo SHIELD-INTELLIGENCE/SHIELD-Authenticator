@@ -14,7 +14,7 @@ function MobileLandingPage() {
       title: "Welcome to SHIELD",
       subtitle: "Authenticator",
       description: "Military-grade two-factor authentication for ultimate account security with End-to-End Encryption",
-      highlights: ["End-to-End Encryption", "Time-Based Codes", "Offline Access"],
+      highlights: ["End-to-End Encryption", "Time-Based Codes", "Offline Access after first online sync"],
       icon: (
         <img 
           src="/icon-192.png" 
@@ -51,8 +51,8 @@ function MobileLandingPage() {
     {
       title: "Easy Setup",
       subtitle: "Get Started in Seconds",
-      description: "Scan QR codes or manually add accounts. Generate secure codes instantly",
-      highlights: ["QR Code Support", "Manual Setup", "Works Offline"],
+      description: "Scan QR codes or manually add accounts. After one successful online sync on this device, your vault is offline ready.",
+      highlights: ["QR Code Support", "Manual Setup", "Offline, but Ready"],
       icon: (
         <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor">
           <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2v-2zm2 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm4-4h2v2h-2v-2zm0 4h2v2h-2v-2zm2-2h2v2h-2v-2zm0-4h2v2h-2v-2zm-4 8h2v2h-2v-2zm2 0h2v2h-2v-2zm2 0h2v2h-2v-2z"/>

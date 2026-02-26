@@ -7,9 +7,9 @@ import {
   importAccountsFromCSV, 
   downloadCSV, 
   readCSVFile 
-} from "../csvUtils";
-import { updateRecoveryQuestions, getVaultMeta, clearRecoveryQuestions, isVaultUnlockedForUser, updateVaultPassphrase } from "../vault";
-import { handleError } from "../networkUtils";
+} from "../Utils/csvUtils";
+import { updateRecoveryQuestions, getVaultMeta, clearRecoveryQuestions, isVaultUnlockedForUser, updateVaultPassphrase } from "../Utils/vault";
+import { handleError } from "../Utils/networkUtils";
 
 const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskCodes, accounts, onImportAccounts, onDialogStateChange }) => {
   const [exportPassphrase, setExportPassphrase] = useState("");

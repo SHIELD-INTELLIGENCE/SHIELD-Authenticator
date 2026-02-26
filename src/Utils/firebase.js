@@ -1,7 +1,12 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentSingleTabManager,
+} from "firebase/firestore";
 
 // ---------------- Firebase Config ----------------
 const firebaseConfig = {
@@ -27,4 +32,18 @@ if (missing.length) {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+let dbInstance;
+try {
+  dbInstance = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentSingleTabManager(),
+    }),
+  });
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.warn("Falling back to default Firestore instance without persistent local cache:", err);
+  dbInstance = getFirestore(app);
+}
+
+export const db = dbInstance;

@@ -17,6 +17,8 @@
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
+export const SECURE_STORAGE_GET_KEY_ERROR = "failed to get the key from securestorage error";
+
 function toBase64(bytes) {
   let binary = "";
   for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
@@ -94,14 +96,36 @@ export async function secureSetItem(key, passphrase) {
  * @returns {string|null} - decrypted passphrase or null if not found/failed
  */
 export async function secureGetItem(key) {
+  const { value } = await secureGetItemWithStatus(key);
+  return value;
+}
+
+/**
+ * Retrieve and decrypt a passphrase with detailed error status
+ * @param {string} key - localStorage key
+ * @returns {Promise<{ value: string|null, error: Error|null }>} - decrypted value and optional error
+ */
+export async function secureGetItemWithStatus(key) {
   try {
     const stored = localStorage.getItem(key);
-    if (!stored) return null;
+    if (!stored) return { value: null, error: null };
+
+    // Legacy fallback: previously remembered passphrase may be stored as plaintext.
+    // Read it once for backward compatibility, then let caller migrate to secure v2.
+    if (!String(stored).startsWith('v2|')) {
+      const legacyValue = String(stored);
+      if (legacyValue.trim().length >= 8) {
+        return { value: legacyValue, error: null };
+      }
+      localStorage.removeItem(key);
+      return { value: null, error: null };
+    }
+
     const parts = stored.split('|');
     if (parts.length !== 3 || parts[0] !== 'v2') {
       // Invalid format or old storage - remove it
       localStorage.removeItem(key);
-      return null;
+      return { value: null, error: null };
     }
     const iv = fromBase64(parts[1]);
     const ciphertext = fromBase64(parts[2]);
@@ -114,12 +138,11 @@ export async function secureGetItem(key) {
       deviceKey,
       ciphertext
     );
-    return textDecoder.decode(plaintext);
+    return { value: textDecoder.decode(plaintext), error: null };
   } catch (err) {
     // Decryption failed - likely different device or tampered data
     console.error('Secure retrieval failed:', err);
-    localStorage.removeItem(key);
-    return null;
+    return { value: null, error: new Error(SECURE_STORAGE_GET_KEY_ERROR) };
   }
 }
 

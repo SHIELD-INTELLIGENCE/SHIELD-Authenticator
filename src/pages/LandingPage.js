@@ -203,7 +203,8 @@ function LandingPage() {
             <h3>Cross-Platform</h3>
             <p>
               Access your codes anywhere - web browser or mobile app. Your
-              encrypted data syncs securely across all devices.
+              encrypted data syncs securely across all devices after your first
+              successful cloud sync.
             </p>
           </div>
 
@@ -256,8 +257,8 @@ function LandingPage() {
             </div>
             <h3>Offline Access</h3>
             <p>
-              Generate codes even without internet connection. Your vault works
-              anywhere, anytime.
+              Generate codes without internet after one successful online sync
+              on this device. Status shows as "offline, but ready" when cached.
             </p>
           </div>
 

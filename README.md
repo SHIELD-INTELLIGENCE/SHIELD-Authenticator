@@ -38,6 +38,7 @@ A secure, sleek, and futuristic 2FA authenticator built with **React** and **Fir
 - Professional SVG icons throughout
 - Smooth animations and transitions
 - Firebase authentication for secure login and registration
+- Online/offline status banner with explicit offline-ready messaging
 
 ### 💾 Backup & Restore
 
@@ -45,6 +46,14 @@ A secure, sleek, and futuristic 2FA authenticator built with **React** and **Fir
 - Import accounts from CSV with passphrase decryption
 - Optional encryption toggle for exports
 - Secure device storage for "Remember me" feature
+
+### 📶 Offline Compatibility
+
+- **Offline indicator**: The app shows an offline banner when there is no internet.
+- **Offline ready indicator**: After at least one successful sync, the banner changes to **"offline, but ready"**.
+- **One-time sync requirement**: A device must complete at least one successful cloud sync while online before full offline access is available.
+- **Fresh install behavior**: On a brand-new install with no completed sync, offline mode can open but may not have cached accounts yet.
+- **Vault flow offline**: Existing users are kept in unlock flow; setup is only for users without a known vault on that device.
 
 ---
 

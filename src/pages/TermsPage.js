@@ -63,6 +63,7 @@ function TermsPage() {
               <li>Login is handled securely through Firebase Authentication.</li>
               <li>Passwords must be at least 8 characters.</li>
               <li>Error messages are user-friendly.</li>
+              <li>Offline access requires at least one successful online sync on the same device to populate local encrypted cache.</li>
             </ul>
 
             <h2 style={{ color: "#f0f0f0", borderLeft: "4px solid #bfa24f", paddingLeft: 10, fontSize: "1.2rem", marginTop: "2rem" }}>5. QR Code Integration</h2>

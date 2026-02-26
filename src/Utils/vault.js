@@ -4,6 +4,7 @@ import {
   collection,
   doc,
   documentId,
+  getDoc,
   getDocs,
   query,
   setDoc,
@@ -36,6 +37,35 @@ function userVaultDocRef(user) {
   // Store vault metadata under the same collection path as accounts so
   // existing Firestore rules for accounts usually apply.
   return doc(db, "user", emailId, "accounts", "__vault");
+}
+
+function vaultMetaCacheKey(user) {
+  const emailId = requireUserEmail(user).toLowerCase();
+  return `shield-vault-meta:${emailId}`;
+}
+
+function readCachedVaultMeta(user) {
+  try {
+    const raw = localStorage.getItem(vaultMetaCacheKey(user));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.kdf !== "pbkdf2-sha256") return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedVaultMeta(user, vaultMeta) {
+  try {
+    if (!vaultMeta) {
+      localStorage.removeItem(vaultMetaCacheKey(user));
+      return;
+    }
+    localStorage.setItem(vaultMetaCacheKey(user), JSON.stringify(vaultMeta));
+  } catch {
+    // best-effort cache write; ignore storage failures
+  }
 }
 
 function serializeVaultMeta(vault) {
@@ -84,12 +114,38 @@ function parseVaultMeta(secretStr) {
 
 async function readVaultMetaViaList(user) {
   const emailId = requireUserEmail(user);
+  const cached = readCachedVaultMeta(user);
+
+  // First try direct document lookup; this often resolves from Firestore local cache
+  // in offline mode more reliably than a filtered list query.
+  try {
+    const directSnap = await getDoc(userVaultDocRef(user));
+    if (directSnap.exists()) {
+      const parsedDirect = parseVaultMeta(directSnap.data()?.secret);
+      if (parsedDirect) {
+        writeCachedVaultMeta(user, parsedDirect);
+        return parsedDirect;
+      }
+    }
+  } catch {
+    // Ignore and fallback to list query path
+  }
+
   const col = collection(db, "user", emailId, "accounts");
-  // Uses LIST permission (allowed by your rules for the path owner)
-  const q = query(col, where(documentId(), "==", "__vault"));
-  const snap = await getDocs(q);
-  if (snap.empty) return null;
-  return parseVaultMeta(snap.docs[0].data()?.secret);
+  try {
+    // Uses LIST permission (allowed by your rules for the path owner)
+    const q = query(col, where(documentId(), "==", "__vault"));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      return cached || null;
+    }
+    const parsed = parseVaultMeta(snap.docs[0].data()?.secret);
+    if (parsed) writeCachedVaultMeta(user, parsed);
+    return parsed || cached || null;
+  } catch (err) {
+    if (cached) return cached;
+    throw err;
+  }
 }
 
 let _vaultState = {
@@ -153,6 +209,7 @@ export async function unlockVault(user, passphrase) {
       const masterKeyBytes = b64ToBytes(masterKeyB64);
       const masterKey = await importVaultMasterKey(masterKeyBytes);
       _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: vault, vaultKeyBytes: masterKeyBytes };
+      writeCachedVaultMeta(user, vault);
       return vault;
     } catch (err) {
       throw new Error("Incorrect passphrase. Please try again Or Click Recover Vault.");
@@ -176,6 +233,7 @@ export async function unlockVault(user, passphrase) {
     });
     const vaultKey = await deriveVaultKey({ passphrase, saltB64: v1.salt, iterations: v1.iterations });
     _vaultState = { userEmail: emailId, vaultKey, vaultMeta: v1, vaultKeyBytes: null };
+    writeCachedVaultMeta(user, v1);
     return v1;
   }
 
@@ -225,10 +283,12 @@ export async function unlockVault(user, passphrase) {
     await batch.commit();
 
     _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: v2, vaultKeyBytes: masterKeyBytes };
+    writeCachedVaultMeta(user, v2);
     return v2;
   } catch {
     // If upgrade fails, remain on v1 to avoid breaking unlock.
     _vaultState = { userEmail: emailId, vaultKey, vaultMeta: vault, vaultKeyBytes: null };
+    writeCachedVaultMeta(user, vault);
     return vault;
   }
 }
@@ -299,6 +359,7 @@ export async function setupVault(user, { passphrase, recoveryQuestions, recovery
   });
 
   _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: v2, vaultKeyBytes: masterKeyBytes };
+  writeCachedVaultMeta(user, v2);
   return v2;
 }
 
@@ -340,6 +401,7 @@ export async function recoverAndResetPassphrase(user, { recoveryAnswers, newPass
     });
 
     _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: updated, vaultKeyBytes: masterKeyBytes };
+    writeCachedVaultMeta(user, updated);
     return updated;
   } catch (err) {
     // If decryption fails, it means wrong recovery answers
@@ -396,6 +458,7 @@ export async function updateRecoveryQuestions(user, { recoveryQuestions, recover
   });
 
   _vaultState = { userEmail: emailId, vaultKey: _vaultState.vaultKey, vaultMeta: updated };
+  writeCachedVaultMeta(user, updated);
   return updated;
 }
 
@@ -459,6 +522,7 @@ export async function updateVaultPassphrase(user, { currentPassphrase, newPassph
   });
 
   _vaultState = { userEmail: emailId, vaultKey: _vaultState.vaultKey, vaultMeta: updated, vaultKeyBytes: _vaultState.vaultKeyBytes };
+  writeCachedVaultMeta(user, updated);
   return updated;
 }
 
@@ -485,5 +549,6 @@ export async function clearRecoveryQuestions(user) {
   });
 
   _vaultState = { userEmail: emailId, vaultKey: _vaultState.vaultKey, vaultMeta: updated, vaultKeyBytes: _vaultState.vaultKeyBytes };
+  writeCachedVaultMeta(user, updated);
   return updated;
 }

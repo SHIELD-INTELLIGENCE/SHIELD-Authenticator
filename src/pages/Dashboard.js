@@ -3,7 +3,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import AddAccountForm from "../components/AddAccountForm";
 import AccountList from "../components/AccountList";
-import { ToastContainer } from "react-toastify";
 
 function Dashboard({
   user,
@@ -188,12 +187,6 @@ function Dashboard({
           />
         </>
       ) : null}
-
-      <ToastContainer
-        position="bottom-right"
-        autoClose={1500}
-        hideProgressBar
-      />
 
       {/* Dashboard Footer with optional home link */}
       {vaultUnlocked && (

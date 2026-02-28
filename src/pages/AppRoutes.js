@@ -75,6 +75,8 @@ function AppRoutes({
   const location = useLocation();
   const isInitialLoad = React.useRef(true);
   const previousOnlineRef = React.useRef(isOnline);
+  const backOnlineTimerRef = React.useRef(null);
+  const lastBackOnlineShownAtRef = React.useRef(0);
   const [showBackOnlineBanner, setShowBackOnlineBanner] = React.useState(false);
 
   const androidAuthEntryRoute = React.useMemo(() => {
@@ -101,11 +103,21 @@ function AppRoutes({
   }, [user, vaultUnlocked, location.pathname, navigate]);
 
   useEffect(() => {
-    let timer = null;
+    if (backOnlineTimerRef.current) {
+      clearTimeout(backOnlineTimerRef.current);
+      backOnlineTimerRef.current = null;
+    }
 
     if (!previousOnlineRef.current && isOnline) {
-      setShowBackOnlineBanner(true);
-      timer = setTimeout(() => setShowBackOnlineBanner(false), 2200);
+      const now = Date.now();
+      if (now - lastBackOnlineShownAtRef.current > 2400) {
+        setShowBackOnlineBanner(true);
+        lastBackOnlineShownAtRef.current = now;
+        backOnlineTimerRef.current = setTimeout(() => {
+          setShowBackOnlineBanner(false);
+          backOnlineTimerRef.current = null;
+        }, 2200);
+      }
     }
 
     if (!isOnline) {
@@ -115,7 +127,10 @@ function AppRoutes({
     previousOnlineRef.current = isOnline;
 
     return () => {
-      if (timer) clearTimeout(timer);
+      if (backOnlineTimerRef.current) {
+        clearTimeout(backOnlineTimerRef.current);
+        backOnlineTimerRef.current = null;
+      }
     };
   }, [isOnline]);
 

@@ -2639,7 +2639,9 @@ body.shield-modal-open {
   top: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.78) 0%, rgba(192, 57, 43, 0.78) 100%);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   color: white;
   padding: 12px 20px;
   text-align: center;
@@ -2654,7 +2656,7 @@ body.shield-modal-open {
 }
 
 .offline-banner.online {
-  background: linear-gradient(135deg, var(--shield-success) 0%, var(--shield-grey) 100%);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.78) 0%, rgba(21, 128, 61, 0.78) 100%);
 }
 
 @keyframes slideDown {
@@ -2664,10 +2666,6 @@ body.shield-modal-open {
   to {
     transform: translateY(0);
   }
-}
-
-.offline-banner + * {
-  margin-top: 48px;
 }
 
 /* ═════════════════════════════════════════════════════════════════

@@ -26,3 +26,5 @@ yarn-error.log*
 .hintrc
 # keep example env tracked
 !.env.example
+*.jks
+*.keystore

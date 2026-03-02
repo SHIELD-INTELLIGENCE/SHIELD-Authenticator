@@ -17,13 +17,13 @@ android {
         }
     }
     signingConfigs {
-        release {
-            storeFile file("shield-release-key.jks")
-            storePassword System.getenv("SHIELD_KEYSTORE_PASSWORD") ?: project.properties["SHIELD_KEYSTORE_PASSWORD"]
-            keyAlias System.getenv("SHIELD_KEY_ALIAS") ?: project.properties["SHIELD_KEY_ALIAS"]
-            keyPassword System.getenv("SHIELD_KEY_PASSWORD") ?: project.properties["SHIELD_KEY_PASSWORD"]
-        }
+    release {
+        storeFile file(SHIELD_UPLOAD_STORE_FILE)
+        storePassword SHIELD_UPLOAD_STORE_PASSWORD
+        keyAlias SHIELD_UPLOAD_KEY_ALIAS
+        keyPassword SHIELD_UPLOAD_KEY_PASSWORD
     }
+}
 
     buildTypes {
         release {

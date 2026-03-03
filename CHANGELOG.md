@@ -1,5 +1,43 @@
 # What's New in SHIELD-Authenticator
 
+## Version 2.5 - March 3, 2026
+
+### Production Security Upgrade: Argon2id Vault Hardening
+
+Version 2.5 upgrades vault key derivation to **Argon2id** (current industry standard for password-based key derivation) while preserving compatibility with existing users and existing vaults.
+
+### Highlights
+
+- **Argon2id is now the default vault KDF** for new vault setup, passphrase changes, and recovery updates
+- **Backward compatibility maintained** for existing PBKDF2 vault metadata
+- **Automatic metadata migration** on successful unlock for eligible existing v2 vaults
+- **No UI flow changes** for Remember Me, unlock, backup/import, or day-to-day account usage
+
+### Security & Crypto Changes
+
+- Added dual-KDF support in vault crypto layer:
+	- `argon2id` (default)
+	- `pbkdf2-sha256` (legacy compatibility path)
+- Added per-vault Argon2id parameter storage in vault metadata (`timeCost`, `memoryCost`, `parallelism`)
+- Kept AES-GCM encrypted payload format unchanged (`shield:v1`) to avoid account-data format breakage
+
+### Android / Build Metadata
+
+- Android app version bumped to `versionName "2.5"` and `versionCode 7`
+- NPM app version bumped to `2.5.0`
+
+### Compatibility Notes
+
+- Existing encrypted account records remain readable after upgrade
+- Existing Remember Me behavior is unchanged
+- Existing CSV import/export behavior is unchanged
+- Very low-end devices may see slower unlocks due to Argon2id memory hardness
+
+### Operational Notes
+
+- First unlock after upgrade may trigger a metadata re-wrap/migration step for older vault metadata
+- If migration cannot complete (e.g., transient network issue), unlock still succeeds using compatibility path and migration retries later
+
 ## Version 2.0 - January 7, 2026
 
 ### Major New Feature: End-to-End Encrypted Vault
@@ -83,5 +121,6 @@ We've implemented a powerful new security feature with **End-to-End Encryption**
 
 ## Version History
 
+- **2.5** (March 3, 2026): Upgraded vault KDF to Argon2id with compatibility migration for existing users
 - **2.0** (January 7, 2026): Added vault password protection and recovery questions
 - **1.5** (Previous): Core 2FA features with backup and privacy options

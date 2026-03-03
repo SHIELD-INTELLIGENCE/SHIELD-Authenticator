@@ -1,6 +1,6 @@
 {
   "name": "shield-authenticator",
-  "version": "2.0.0",
+  "version": "2.5.0",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
@@ -10,11 +10,13 @@
     "@capacitor/core": "^7.4.3",
     "@capacitor/network": "^7.0.4",
     "@yudiel/react-qr-scanner": "^2.3.1",
+    "argon2-browser": "^1.18.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",
     "crypto-js": "^4.2.0",
     "firebase": "^12.1.0",
     "otplib": "^12.0.1",
+    "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "qr-scanner": "^1.4.2",
     "react": "^19.1.1",

@@ -1,4 +1,5 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
+import argon2 from "argon2-browser";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
@@ -25,9 +26,27 @@ function decodeUtf8(bytes) {
 }
 
 export const VAULT_CIPHERTEXT_PREFIX = "shield:v1";
+export const VAULT_KDF_PBKDF2 = "pbkdf2-sha256";
+export const VAULT_KDF_ARGON2ID = "argon2id";
+
+const DEFAULT_PBKDF2_ITERATIONS = 310000;
+const DEFAULT_ARGON2ID_PARAMS = Object.freeze({
+  timeCost: 3,
+  memoryCost: 65536,
+  parallelism: 1,
+  hashLen: 32,
+});
 
 export function isVaultCiphertext(value) {
   return typeof value === "string" && value.startsWith(`${VAULT_CIPHERTEXT_PREFIX}:`);
+}
+
+export function resolveVaultKdf(kdf) {
+  return String(kdf || "").toLowerCase() === VAULT_KDF_ARGON2ID ? VAULT_KDF_ARGON2ID : VAULT_KDF_PBKDF2;
+}
+
+export function getDefaultArgon2idParams() {
+  return { ...DEFAULT_ARGON2ID_PARAMS };
 }
 
 export function generateVaultSaltBytes() {
@@ -43,7 +62,60 @@ export function vaultSaltFromString(saltB64) {
   return fromBase64(saltB64);
 }
 
-export async function deriveVaultKey({ passphrase, saltB64, iterations }) {
+function normalizeArgon2Params(params) {
+  const merged = { ...DEFAULT_ARGON2ID_PARAMS, ...(params || {}) };
+  return {
+    timeCost: Math.max(2, Number(merged.timeCost) || DEFAULT_ARGON2ID_PARAMS.timeCost),
+    memoryCost: Math.max(32768, Number(merged.memoryCost) || DEFAULT_ARGON2ID_PARAMS.memoryCost),
+    parallelism: Math.max(1, Number(merged.parallelism) || DEFAULT_ARGON2ID_PARAMS.parallelism),
+    hashLen: 32,
+  };
+}
+
+function hexToBytes(hex) {
+  const clean = String(hex || "").trim().toLowerCase();
+  if (!/^[0-9a-f]+$/.test(clean) || clean.length % 2 !== 0) {
+    throw new Error("Invalid Argon2 output");
+  }
+  const bytes = new Uint8Array(clean.length / 2);
+  for (let i = 0; i < clean.length; i += 2) {
+    bytes[i / 2] = parseInt(clean.slice(i, i + 2), 16);
+  }
+  return bytes;
+}
+
+function normalizeArgon2OutputBytes(output) {
+  if (output instanceof Uint8Array) return output;
+  if (output instanceof ArrayBuffer) return new Uint8Array(output);
+  if (Array.isArray(output)) return new Uint8Array(output);
+  if (typeof output === "string") return hexToBytes(output);
+  throw new Error("Unsupported Argon2 output format");
+}
+
+async function deriveArgon2AesKey({ secret, saltB64, argon2Params }) {
+  if (!saltB64) throw new Error("Missing vault salt");
+  const salt = vaultSaltFromString(saltB64);
+  const params = normalizeArgon2Params(argon2Params);
+
+  const result = await argon2.hash({
+    pass: String(secret),
+    salt,
+    time: params.timeCost,
+    mem: params.memoryCost,
+    parallelism: params.parallelism,
+    hashLen: params.hashLen,
+    type: argon2.ArgonType.Argon2id,
+    raw: true,
+  });
+
+  const keyBytes = normalizeArgon2OutputBytes(result?.hash ?? result);
+  if (keyBytes.length !== 32) {
+    throw new Error("Invalid Argon2 derived key length");
+  }
+  return crypto.subtle.importKey("raw", keyBytes, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+
+export async function deriveVaultKey({ passphrase, saltB64, iterations, kdf, argon2Params }) {
   if (!window.crypto || !window.crypto.subtle) {
     throw new Error("Crypto API unavailable. Please ensure you're using HTTPS or a secure context.");
   }
@@ -58,6 +130,11 @@ export async function deriveVaultKey({ passphrase, saltB64, iterations }) {
   }
   if (!saltB64) throw new Error("Missing vault salt");
 
+  const selectedKdf = resolveVaultKdf(kdf);
+  if (selectedKdf === VAULT_KDF_ARGON2ID) {
+    return deriveArgon2AesKey({ secret: passphrase, saltB64, argon2Params });
+  }
+
   const salt = vaultSaltFromString(saltB64);
 
   const baseKey = await crypto.subtle.importKey(
@@ -68,7 +145,7 @@ export async function deriveVaultKey({ passphrase, saltB64, iterations }) {
     ["deriveKey"]
   );
 
-  const iters = Number(iterations) || 310000;
+  const iters = Number(iterations) || DEFAULT_PBKDF2_ITERATIONS;
 
   return crypto.subtle.deriveKey(
     {
@@ -93,7 +170,7 @@ export function normalizeRecoveryAnswers(answers) {
   return answers.map((a) => normalizeRecoveryAnswer(a));
 }
 
-export async function deriveRecoveryKey({ answers, saltB64, iterations }) {
+export async function deriveRecoveryKey({ answers, saltB64, iterations, kdf, argon2Params }) {
   if (!window.crypto || !window.crypto.subtle) {
     throw new Error("Crypto API unavailable. Please ensure you're using HTTPS or a secure context.");
   }
@@ -102,6 +179,11 @@ export async function deriveRecoveryKey({ answers, saltB64, iterations }) {
     throw new Error("Missing recovery answers");
   }
   if (!saltB64) throw new Error("Missing recovery salt");
+
+  const selectedKdf = resolveVaultKdf(kdf);
+  if (selectedKdf === VAULT_KDF_ARGON2ID) {
+    return deriveArgon2AesKey({ secret: normalized.join("|"), saltB64, argon2Params });
+  }
 
   const salt = vaultSaltFromString(saltB64);
   const baseKey = await crypto.subtle.importKey(
@@ -112,7 +194,7 @@ export async function deriveRecoveryKey({ answers, saltB64, iterations }) {
     ["deriveKey"]
   );
 
-  const iters = Number(iterations) || 310000;
+  const iters = Number(iterations) || DEFAULT_PBKDF2_ITERATIONS;
   return crypto.subtle.deriveKey(
     {
       name: "PBKDF2",

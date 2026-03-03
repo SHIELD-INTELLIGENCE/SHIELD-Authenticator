@@ -23,7 +23,7 @@ function TermsPage() {
             SHIELD‑AUTHENTICATOR — Terms of Use & Privacy Addendum
           </h1>
           <p className="meta" style={{ color: "#a6a6a6", fontSize: ".95rem", marginBottom: 16 }}>
-            Effective Date: 9 January 2026<br />
+            Effective Date: 3 March 2026<br />
             Product: SHIELD‑AUTHENTICATOR (the “Software” or “Service”)<br />
             Provider: SHIELD Intelligence (the “Provider”, “we”, “us”)<br />
             Contact: <a href="mailto:shield@shieldintelligence.in">shield@shieldintelligence.in</a>
@@ -52,6 +52,7 @@ function TermsPage() {
             <h2 style={{ color: "#f0f0f0", borderLeft: "4px solid #bfa24f", paddingLeft: 10, fontSize: "1.2rem", marginTop: "2rem" }}>3. Account Data & Encryption</h2>
             <ul>
               <li><strong>E2EE:</strong> All TOTP secrets are encrypted locally on your device before being stored.</li>
+              <li><strong>Key Derivation:</strong> Vault key derivation uses Argon2id in current releases, with compatibility support for legacy PBKDF2-protected vault metadata.</li>
               <li>Decryption happens only on your device after you provide your Vault Passphrase.</li>
               <li>The Provider cannot decrypt your stored TOTP secrets without your Vault Passphrase.</li>
               <li><strong>No Recovery if Forgotten:</strong> If you forget your Vault Passphrase, your encrypted secrets cannot be recovered by the Provider.</li>

@@ -38,6 +38,8 @@ module.exports = {
         ...config.resolve.fallback,
         crypto: require.resolve("crypto-browserify"),
         stream: require.resolve("stream-browserify"),
+        path: require.resolve("path-browserify"),
+        fs: false,
         buffer: require.resolve("buffer"),
         vm: require.resolve("vm-browserify"),
         process: require.resolve("process/browser.js"),

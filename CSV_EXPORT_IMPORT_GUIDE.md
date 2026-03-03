@@ -1,5 +1,7 @@
 # SHIELD Authenticator - CSV Export/Import Guide
 
+> Updated for SHIELD Authenticator **v2.5**
+
 ## Overview
 
 The CSV export/import feature allows you to backup and restore your authenticator accounts securely using passphrase-encrypted exports.
@@ -11,6 +13,11 @@ The CSV export/import feature allows you to backup and restore your authenticato
 - **Passphrase Encryption**: All secrets are encrypted with AES using your custom passphrase
 - **Minimum 8 characters**: Strong passphrase requirement for security
 - **Zero Knowledge**: Secrets are encrypted before export; only you know the passphrase
+
+**Note:** Vault encryption and CSV export encryption are separate systems.
+
+- Vault passphrase protection (app vault) uses **Argon2id + AES-GCM** in v2.5.
+- CSV export/import encryption continues to use **CryptoJS AES passphrase encryption** for file portability.
 
 ### 📤 Export Process
 

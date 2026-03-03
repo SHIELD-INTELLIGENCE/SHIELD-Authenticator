@@ -6,6 +6,8 @@ Copyright © 2026 SHIELD Intelligence. All rights reserved.
 
 A secure, sleek, and futuristic 2FA authenticator built with **React** and **Firebase**, designed for personal and enterprise use. Protect your accounts with SHIELD-grade security and real-time code generation.
 
+**Current Version:** `2.5.0`
+
 ---
 
 ## Features
@@ -13,6 +15,7 @@ A secure, sleek, and futuristic 2FA authenticator built with **React** and **Fir
 ### 🔐 Security
 
 - **End-to-End Encrypted Vault**: Military-grade encryption for all your 2FA secrets
+- **Argon2id Key Derivation**: Industry-standard password hardening for vault passphrases
 - **Vault Passphrase Protection**: Secure your accounts with a custom passphrase (min 8 characters)
 - **Recovery Questions**: Set up security questions to recover access if you forget your passphrase
 - **Vault Recovery**: Forgot your passphrase? Answer your recovery questions to reset it and regain access
@@ -135,7 +138,7 @@ cp .env.example .env
 
 Security note: This app uses a user-provided **vault passphrase** for client-side end-to-end encryption (E2EE).
 
-- The vault key is derived locally from the passphrase (not stored).
+- The vault key is derived locally from the passphrase using **Argon2id** (with PBKDF2 compatibility for older vault metadata).
 - Firestore stores only encrypted secrets.
 - If the vault passphrase is forgotten, encrypted secrets cannot be recovered.
 

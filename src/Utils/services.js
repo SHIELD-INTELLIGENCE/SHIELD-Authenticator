@@ -53,6 +53,17 @@ function accountDocIdFromName(name) {
   return id;
 }
 
+function normalizeAccountName(name) {
+  return String(name || "").trim().toLowerCase();
+}
+
+function duplicateAccountError(name) {
+  const readableName = String(name || "").trim() || "this name";
+  const error = new Error(`An account with name "${readableName}" already exists.`);
+  error.code = "account/duplicate-name";
+  return error;
+}
+
 function userAccountsCollection(user) {
   const emailId = requireUserEmail(user);
   return collection(db, "user", emailId, "accounts");
@@ -63,9 +74,35 @@ function userAccountDocRef(user, accountId) {
   return doc(db, "user", emailId, "accounts", accountId);
 }
 
+async function ensureNoDuplicateAccountName(user, name, excludeAccountId = null) {
+  const normalizedTargetName = normalizeAccountName(name);
+  if (!normalizedTargetName) throw new Error("Missing account name");
+
+  const targetAccountId = accountDocIdFromName(name);
+  if (excludeAccountId !== targetAccountId) {
+    const existingById = await getDoc(userAccountDocRef(user, targetAccountId));
+    if (existingById.exists()) {
+      throw duplicateAccountError(name);
+    }
+  }
+
+  const snapshot = await getDocs(userAccountsCollection(user));
+  for (const docSnap of snapshot.docs) {
+    if (docSnap.id === "__vault") continue;
+    if (excludeAccountId && docSnap.id === excludeAccountId) continue;
+
+    const existingName = normalizeAccountName(docSnap.data()?.name);
+    if (existingName && existingName === normalizedTargetName) {
+      throw duplicateAccountError(name);
+    }
+  }
+}
+
 export async function addAccount(user, name, secret) {
   const accountId = accountDocIdFromName(name);
   const userId = user?.uid || "";
+
+  await ensureNoDuplicateAccountName(user, name);
 
   const vaultKey = getVaultKeyForUser(user);
   const aad = getVaultAadForUser(user);
@@ -116,6 +153,10 @@ export async function updateAccount(user, accountId, { name, secret }) {
 
   const hasNewName = typeof name === "string" && name.trim().length > 0;
   const newAccountId = hasNewName ? accountDocIdFromName(name) : accountId;
+
+  if (hasNewName) {
+    await ensureNoDuplicateAccountName(user, name, accountId);
+  }
 
   // If name changes, also move the document so the path stays:
   // user/{email}/accounts/{Accountname:username}

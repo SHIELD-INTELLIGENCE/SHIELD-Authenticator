@@ -1,5 +1,6 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import React, { useRef, useEffect, useState } from "react";
+import { getProviderLogoUrl } from "../Utils/providerLogos";
 
 function AccountItem({
   acc,
@@ -7,6 +8,7 @@ function AccountItem({
   countdowns,
   handleCopy,
   maskCodes,
+  showProviderLogos,
   setEditing,
   setForm,
   setShowDelete,
@@ -16,12 +18,16 @@ function AccountItem({
 }) {
   const nameRef = useRef(null);
   const [shouldGlide, setShouldGlide] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
 
   // Split provider and display name if stored as "Provider:email" or similar
   const rawName = acc.name || "";
   const splitIdx = rawName.indexOf(":");
   const provider = splitIdx > -1 ? rawName.slice(0, splitIdx).trim() : null;
   const displayName = splitIdx > -1 ? rawName.slice(splitIdx + 1).trim() : rawName;
+  const providerLogoUrl = showProviderLogos && provider
+    ? getProviderLogoUrl({ provider, displayName, rawName })
+    : "";
 
   useEffect(() => {
     const checkTextOverflow = () => {
@@ -40,12 +46,26 @@ function AccountItem({
     };
   }, [acc.name]);
 
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [providerLogoUrl]);
+
   return (
   <div className="accountItem">
     <div className="accountName">
-      {provider && (
-        <div className="accountProvider">{provider}</div>
+      {providerLogoUrl && !logoFailed && (
+        <div className="providerLogoBadge">
+          <img
+            src={providerLogoUrl}
+            alt={`${provider || "Provider"} logo`}
+            className="providerLogo"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            onError={() => setLogoFailed(true)}
+          />
+        </div>
       )}
+      {provider && <div className="accountProvider">{provider}</div>}
       <span ref={nameRef} className={shouldGlide ? "glide" : ""}>
         {displayName}
       </span>

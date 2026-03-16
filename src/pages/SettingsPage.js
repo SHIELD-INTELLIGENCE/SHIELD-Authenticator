@@ -11,7 +11,7 @@ import {
 import { updateRecoveryQuestions, getVaultMeta, clearRecoveryQuestions, isVaultUnlockedForUser, updateVaultPassphrase } from "../Utils/vault";
 import { handleError } from "../Utils/networkUtils";
 
-const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskCodes, accounts, onImportAccounts, onDialogStateChange }) => {
+const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskCodes, showProviderLogos, setShowProviderLogos, isAndroid, preventScreenViewing, setPreventScreenViewing, accounts, onImportAccounts, onDialogStateChange }) => {
   const [exportPassphrase, setExportPassphrase] = useState("");
   const [importPassphrase, setImportPassphrase] = useState("");
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -539,6 +539,38 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
               <span className="slider"></span>
             </label>
           </div>
+          <div className="settings-item">
+            <div className="settings-item-info">
+              <span className="settings-label">Provider Logos</span>
+              <span className="settings-value">{showProviderLogos ? 'Enabled' : 'Disabled'}</span>
+            </div>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={!!showProviderLogos}
+                onChange={(e) => setShowProviderLogos && setShowProviderLogos(e.target.checked)}
+                aria-label="Toggle provider logo fetching"
+              />
+              <span className="slider"></span>
+            </label>
+          </div>
+          {isAndroid && (
+            <div className="settings-item">
+              <div className="settings-item-info">
+                <span className="settings-label">Prevent Screen Viewing</span>
+                <span className="settings-value">{preventScreenViewing ? 'Enabled' : 'Disabled'}</span>
+              </div>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={!!preventScreenViewing}
+                  onChange={(e) => setPreventScreenViewing && setPreventScreenViewing(e.target.checked)}
+                  aria-label="Toggle Android screen view protection"
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+          )}
         </div>
 
         <div className="settings-section">

@@ -1994,18 +1994,39 @@ body.shield-modal-open {
   flex-direction: column; /* stack provider above the name/email */
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 /* Provider label (e.g. Google) shown above the account name/email */
 .accountProvider {
   color: var(--shield-accent);
   font-weight: 700;
-  font-size: 16px;
-  line-height: 1;
-  margin-bottom: 6px;
+  font-size: 14px;
+  line-height: 1.2;
+  margin-bottom: 2px;
   text-shadow: 0 0 8px var(--shield-glow);
   display: block;
+}
+
+.providerLogoBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(23, 28, 38, 0.92), rgba(11, 14, 20, 0.92));
+  border: 1px solid rgba(202, 169, 76, 0.35);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  margin-bottom: 2px;
+}
+
+.providerLogo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 /* When text doesn't need gliding, keep it centered */
@@ -2197,6 +2218,15 @@ body.shield-modal-open {
   .accountName {
     font-size: 14px;
   }
+  .providerLogoBadge {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+  .providerLogo {
+    width: 22px;
+    height: 22px;
+  }
   .accountCode {
     font-size: 20px;
     padding: 8px;
@@ -2235,6 +2265,23 @@ body.shield-modal-open {
 
   .settings-page-header h1 {
     font-size: 1.6rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .providerLogoBadge {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+  }
+
+  .providerLogo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .accountProvider {
+    font-size: 15px;
   }
 }
 

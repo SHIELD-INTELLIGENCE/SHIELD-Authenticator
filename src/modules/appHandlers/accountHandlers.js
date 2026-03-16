@@ -59,12 +59,16 @@ export function createAccountHandlers({
 
     let successCount = 0;
     let failCount = 0;
+    let duplicateCount = 0;
 
     for (const account of importedAccounts) {
       try {
         await addAccount(user, account.name, account.secret);
         successCount++;
       } catch (err) {
+        if (err?.code === "account/duplicate-name") {
+          duplicateCount++;
+        }
         console.error("Failed to import account:", account.name, err);
         failCount++;
       }
@@ -73,7 +77,11 @@ export function createAccountHandlers({
     await loadAccounts(user);
 
     if (failCount > 0) {
-      toast.warning(`Imported ${successCount} of ${importedAccounts.length} accounts`);
+      if (duplicateCount > 0) {
+        toast.warning(`Imported ${successCount} of ${importedAccounts.length} accounts (${duplicateCount} duplicate${duplicateCount > 1 ? "s" : ""} skipped)`);
+      } else {
+        toast.warning(`Imported ${successCount} of ${importedAccounts.length} accounts`);
+      }
     }
   };
 

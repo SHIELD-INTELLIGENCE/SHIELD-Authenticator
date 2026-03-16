@@ -23,6 +23,10 @@ function SHIELDAuthenticator() {
     showMobileLanding,
     maskCodes,
     setMaskCodes,
+    showProviderLogos,
+    setShowProviderLogos,
+    preventScreenViewing,
+    setPreventScreenViewing,
     searchQuery,
     setSearchQuery,
     sortBy,
@@ -186,6 +190,10 @@ function SHIELDAuthenticator() {
         setShowDelete={setShowDelete}
         setSettingsHasOpenDialog={setSettingsHasOpenDialog}
         setMaskCodes={setMaskCodes}
+        showProviderLogos={showProviderLogos}
+        setShowProviderLogos={setShowProviderLogos}
+        preventScreenViewing={preventScreenViewing}
+        setPreventScreenViewing={setPreventScreenViewing}
         confirmDialog={confirmDialog}
         secureStorageDialog={secureStorageDialog}
         secureStorageErrorMessage={SECURE_STORAGE_GET_KEY_ERROR}

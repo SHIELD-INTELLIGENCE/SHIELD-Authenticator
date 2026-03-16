@@ -23,6 +23,7 @@ function Dashboard({
   getFilteredAndSortedAccounts,
   handleCopy,
   maskCodes,
+  showProviderLogos,
   setMaskCodes,
   setShowDelete,
   showDelete,
@@ -175,6 +176,7 @@ function Dashboard({
             countdowns={countdowns}
             handleCopy={handleCopy}
             maskCodes={maskCodes}
+            showProviderLogos={showProviderLogos}
             setEditing={setEditing}
             setForm={setForm}
             setShowDelete={setShowDelete}

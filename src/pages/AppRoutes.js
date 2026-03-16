@@ -38,6 +38,10 @@ function AppRoutes({
   setShowDelete,
   setSettingsHasOpenDialog,
   setMaskCodes,
+  showProviderLogos,
+  setShowProviderLogos,
+  preventScreenViewing,
+  setPreventScreenViewing,
   confirmDialog,
   secureStorageDialog,
   secureStorageErrorMessage,
@@ -254,6 +258,7 @@ function AppRoutes({
               handleCopy={handleCopy}
               maskCodes={maskCodes}
               setMaskCodes={setMaskCodes}
+              showProviderLogos={showProviderLogos}
               setShowDelete={setShowDelete}
               showDelete={showDelete}
               handleDelete={handleDelete}
@@ -277,6 +282,11 @@ function AppRoutes({
                 openConfirm={openConfirm}
                 maskCodes={maskCodes}
                 setMaskCodes={setMaskCodes}
+                showProviderLogos={showProviderLogos}
+                setShowProviderLogos={setShowProviderLogos}
+                isAndroid={isAndroid}
+                preventScreenViewing={preventScreenViewing}
+                setPreventScreenViewing={setPreventScreenViewing}
                 accounts={accounts}
                 onImportAccounts={handleImportAccounts}
                 onDialogStateChange={setSettingsHasOpenDialog}

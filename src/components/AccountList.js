@@ -2,7 +2,7 @@
 import React from "react";
 import AccountItem from "./AccountItem";
 
-function AccountList({ accounts, codes, countdowns, handleCopy, maskCodes, setEditing, setForm, setShowDelete, showDelete, handleDelete, openConfirm, searchQuery, totalAccounts, loadingAccounts }) {
+function AccountList({ accounts, codes, countdowns, handleCopy, maskCodes, showProviderLogos, setEditing, setForm, setShowDelete, showDelete, handleDelete, openConfirm, searchQuery, totalAccounts, loadingAccounts }) {
   // Show loading state while fetching accounts
   if (loadingAccounts) {
     return (
@@ -48,6 +48,7 @@ function AccountList({ accounts, codes, countdowns, handleCopy, maskCodes, setEd
           countdowns={countdowns}
           handleCopy={handleCopy}
           maskCodes={maskCodes}
+          showProviderLogos={showProviderLogos}
           setEditing={setEditing}
           setForm={setForm}
           setShowDelete={setShowDelete}

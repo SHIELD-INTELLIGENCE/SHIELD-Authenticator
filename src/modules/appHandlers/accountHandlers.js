@@ -38,7 +38,10 @@ export function createAccountHandlers({
       setForm({ name: "", secret: "" });
       loadAccounts(user);
     } catch (err) {
-      const errorMsg = handleError(err, "Failed to save account");
+      const permissionDenied = String(err?.code || "").toLowerCase() === "permission-denied";
+      const errorMsg = permissionDenied
+        ? "Could not save account: write blocked by security policy. Confirm vault is unlocked and session is valid. Rooted devices are supported at your own risk."
+        : handleError(err, "Failed to save account");
       toast.error(errorMsg);
       console.error(err);
     }

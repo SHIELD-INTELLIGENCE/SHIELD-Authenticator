@@ -3,6 +3,7 @@ import { App as CapacitorApp } from "@capacitor/app";
 
 export function useAndroidBackButton({
   confirmDialogOpen,
+  rootWarningDialogOpen,
   secureStorageDialogOpen,
   settingsHasOpenDialog,
   showDelete,
@@ -12,6 +13,7 @@ export function useAndroidBackButton({
   vaultUnlocked,
   user,
   closeConfirm,
+  closeRootWarningDialog,
   closeSecureStorageDialog,
   setShowDelete,
   setEditing,
@@ -26,6 +28,8 @@ export function useAndroidBackButton({
 
       if (confirmDialogOpen) {
         closeConfirm();
+      } else if (rootWarningDialogOpen) {
+        closeRootWarningDialog();
       } else if (secureStorageDialogOpen) {
         closeSecureStorageDialog();
       } else if (settingsHasOpenDialog) {
@@ -64,6 +68,7 @@ export function useAndroidBackButton({
     };
   }, [
     confirmDialogOpen,
+    rootWarningDialogOpen,
     secureStorageDialogOpen,
     settingsHasOpenDialog,
     showDelete,
@@ -73,6 +78,7 @@ export function useAndroidBackButton({
     vaultUnlocked,
     user,
     closeConfirm,
+    closeRootWarningDialog,
     closeSecureStorageDialog,
     setShowDelete,
     setEditing,

@@ -43,6 +43,7 @@ function AppRoutes({
   preventScreenViewing,
   setPreventScreenViewing,
   confirmDialog,
+  rootWarningDialog,
   secureStorageDialog,
   secureStorageErrorMessage,
   vaultDialogOpen,
@@ -73,6 +74,8 @@ function AppRoutes({
   handleImportAccounts,
   openConfirm,
   closeConfirm,
+  closeRootWarningDialog,
+  dismissRootWarningForever,
   closeSecureStorageDialog,
 }) {
   const navigate = useNavigate();
@@ -206,6 +209,17 @@ function AppRoutes({
           <Route path="/terms" element={<TermsPage />} />
           <Route path="*" element={<NotFound404 />} />
         </Routes>
+        <ConfirmDialog
+          open={rootWarningDialog.open}
+          title="Rooted Device Warning"
+          message={rootWarningDialog.message}
+          onConfirm={closeRootWarningDialog}
+          onCancel={dismissRootWarningForever}
+          confirmLabel="OK"
+          cancelLabel="Don't show this again"
+          showCancel
+          closeOnBackdrop={false}
+        />
       </>
     );
   }
@@ -312,6 +326,17 @@ function AppRoutes({
           }
         }}
         onCancel={closeConfirm}
+      />
+      <ConfirmDialog
+        open={rootWarningDialog.open}
+        title="Rooted Device Warning"
+        message={rootWarningDialog.message}
+        onConfirm={closeRootWarningDialog}
+        onCancel={dismissRootWarningForever}
+        confirmLabel="OK"
+        cancelLabel="Don't show this again"
+        showCancel
+        closeOnBackdrop={false}
       />
       <ConfirmDialog
         open={secureStorageDialog.open}

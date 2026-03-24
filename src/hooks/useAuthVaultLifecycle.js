@@ -110,7 +110,8 @@ export function useAuthVaultLifecycle({
             if (rememberError) {
               setSecureStorageDialog({
                 open: true,
-                message: `${SECURE_STORAGE_GET_KEY_ERROR}. Please enter your vault passphrase manually to continue safely.`,
+                message:
+                  "Secure storage key access failed on this device. If your device is rooted, unlocked, or has modified security settings, hardware-backed storage may be unavailable. You can continue by entering your vault passphrase manually, but device security is your responsibility.",
               });
             }
 

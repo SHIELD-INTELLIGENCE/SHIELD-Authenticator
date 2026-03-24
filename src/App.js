@@ -16,6 +16,12 @@ import { useAndroidBackButton } from "./hooks/useAndroidBackButton";
 import { createAuthHandlers } from "./modules/appHandlers/authHandlers";
 import { createAccountHandlers } from "./modules/appHandlers/accountHandlers";
 import { createVaultHandlers } from "./modules/appHandlers/vaultHandlers";
+import {
+  getRootStatus,
+  shouldShowRootWarning,
+  markRootWarningSeen,
+  suppressRootWarningPermanently,
+} from "./Utils/rootDetection";
 
 function SHIELDAuthenticator() {
   const {
@@ -68,6 +74,7 @@ function SHIELDAuthenticator() {
   const [showSettings, setShowSettings] = useState(false);
   const [settingsHasOpenDialog, setSettingsHasOpenDialog] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, title: "", message: "", onConfirm: null });
+  const [rootWarningDialog, setRootWarningDialog] = useState({ open: false, message: "" });
   const [secureStorageDialog, setSecureStorageDialog] = useState({ open: false, message: "" });
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
@@ -82,9 +89,46 @@ function SHIELDAuthenticator() {
     setConfirmDialog({ open: true, title, message, onConfirm });
   };
   const closeConfirm = () => setConfirmDialog({ open: false, title: "", message: "", onConfirm: null });
+  const closeRootWarningDialog = () => {
+    markRootWarningSeen();
+    setRootWarningDialog({ open: false, message: "" });
+  };
+  const dismissRootWarningForever = () => {
+    suppressRootWarningPermanently();
+    setRootWarningDialog({ open: false, message: "" });
+  };
   const closeSecureStorageDialog = () => setSecureStorageDialog({ open: false, message: "" });
 
   useSecurityAndConnectivity(setIsOnline);
+
+  useEffect(() => {
+    let active = true;
+
+    getRootStatus()
+      .then((status) => {
+        if (!active || !status?.supported) return;
+
+        if (status.rooted) {
+          window.__shieldRootedDevice = true;
+          if (!shouldShowRootWarning()) return;
+          setRootWarningDialog({
+            open: true,
+            message:
+              "Rooted device detected. The app will continue to work normally, but device-level protections may be weaker. Use on rooted devices is your responsibility.",
+          });
+          return;
+        }
+
+        window.__shieldRootedDevice = false;
+      })
+      .catch(() => {
+        // Keep startup resilient if root check is unavailable.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const { loadAccounts } = useAuthVaultLifecycle({
     setUser,
@@ -142,6 +186,7 @@ function SHIELDAuthenticator() {
 
   useAndroidBackButton({
     confirmDialogOpen: confirmDialog.open,
+    rootWarningDialogOpen: rootWarningDialog.open,
     secureStorageDialogOpen: secureStorageDialog.open,
     settingsHasOpenDialog,
     showDelete,
@@ -151,6 +196,7 @@ function SHIELDAuthenticator() {
     vaultUnlocked,
     user,
     closeConfirm,
+    closeRootWarningDialog,
     closeSecureStorageDialog,
     setShowDelete,
     setEditing,
@@ -195,6 +241,7 @@ function SHIELDAuthenticator() {
         preventScreenViewing={preventScreenViewing}
         setPreventScreenViewing={setPreventScreenViewing}
         confirmDialog={confirmDialog}
+        rootWarningDialog={rootWarningDialog}
         secureStorageDialog={secureStorageDialog}
         secureStorageErrorMessage={SECURE_STORAGE_GET_KEY_ERROR}
         vaultDialogOpen={vaultDialogOpen}
@@ -225,6 +272,8 @@ function SHIELDAuthenticator() {
         handleImportAccounts={handleImportAccounts}
         openConfirm={openConfirm}
         closeConfirm={closeConfirm}
+        closeRootWarningDialog={closeRootWarningDialog}
+        dismissRootWarningForever={dismissRootWarningForever}
         closeSecureStorageDialog={closeSecureStorageDialog}
       />
     </Router>

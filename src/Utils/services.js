@@ -64,6 +64,36 @@ function duplicateAccountError(name) {
   return error;
 }
 
+function isPermissionDeniedError(error) {
+  const code = String(error?.code || "").toLowerCase();
+  const msg = String(error?.message || "").toLowerCase();
+  return code === "permission-denied" || msg.includes("permission") && msg.includes("denied");
+}
+
+async function refreshAuthTokenForRetry() {
+  try {
+    const current = auth.currentUser;
+    if (!current) return false;
+    await current.getIdToken(true);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function runWithPermissionRetry(operation) {
+  try {
+    return await operation();
+  } catch (err) {
+    if (!isPermissionDeniedError(err)) throw err;
+
+    const refreshed = await refreshAuthTokenForRetry();
+    if (!refreshed) throw err;
+
+    return operation();
+  }
+}
+
 function userAccountsCollection(user) {
   const emailId = requireUserEmail(user);
   return collection(db, "user", emailId, "accounts");
@@ -80,21 +110,34 @@ async function ensureNoDuplicateAccountName(user, name, excludeAccountId = null)
 
   const targetAccountId = accountDocIdFromName(name);
   if (excludeAccountId !== targetAccountId) {
-    const existingById = await getDoc(userAccountDocRef(user, targetAccountId));
-    if (existingById.exists()) {
-      throw duplicateAccountError(name);
+    try {
+      const existingById = await getDoc(userAccountDocRef(user, targetAccountId));
+      if (existingById.exists()) {
+        throw duplicateAccountError(name);
+      }
+    } catch (err) {
+      // Some rulesets deny GET on documents that do not yet exist because
+      // resource.data is unavailable in rule expressions. In that case,
+      // defer to other duplicate checks and allow write attempt.
+      if (!isPermissionDeniedError(err)) throw err;
     }
   }
 
-  const snapshot = await getDocs(userAccountsCollection(user));
-  for (const docSnap of snapshot.docs) {
-    if (docSnap.id === "__vault") continue;
-    if (excludeAccountId && docSnap.id === excludeAccountId) continue;
+  try {
+    const snapshot = await getDocs(userAccountsCollection(user));
+    for (const docSnap of snapshot.docs) {
+      if (docSnap.id === "__vault") continue;
+      if (excludeAccountId && docSnap.id === excludeAccountId) continue;
 
-    const existingName = normalizeAccountName(docSnap.data()?.name);
-    if (existingName && existingName === normalizedTargetName) {
-      throw duplicateAccountError(name);
+      const existingName = normalizeAccountName(docSnap.data()?.name);
+      if (existingName && existingName === normalizedTargetName) {
+        throw duplicateAccountError(name);
+      }
     }
+  } catch (err) {
+    // Some Firestore rules block collection LIST while allowing per-doc access.
+    // In that case we keep the strict doc-id duplicate check above and continue.
+    if (!isPermissionDeniedError(err)) throw err;
   }
 }
 
@@ -108,17 +151,19 @@ export async function addAccount(user, name, secret) {
   const aad = getVaultAadForUser(user);
   const encryptedSecret = await encryptWithVaultKey({ plaintext: secret, vaultKey, aad });
 
-  await setDoc(doc(userAccountsCollection(user), accountId), {
-    userId,
-    name,
-    secret: encryptedSecret,
-    createdAt: Timestamp.now(),
-  });
+  await runWithPermissionRetry(async () =>
+    setDoc(doc(userAccountsCollection(user), accountId), {
+      userId,
+      name,
+      secret: encryptedSecret,
+      createdAt: Timestamp.now(),
+    })
+  );
 }
 
 export async function deleteAccount(user, accountId) {
   if (accountId === "__vault") throw new Error("Invalid account id");
-  await deleteDoc(userAccountDocRef(user, accountId));
+  await runWithPermissionRetry(async () => deleteDoc(userAccountDocRef(user, accountId)));
 }
 
 export async function getAccounts(user) {
@@ -176,8 +221,8 @@ export async function updateAccount(user, accountId, { name, secret }) {
       merged.secret = await encryptWithVaultKey({ plaintext: secret, vaultKey, aad });
     }
 
-    await setDoc(userAccountDocRef(user, newAccountId), merged);
-    await deleteDoc(accountRef);
+    await runWithPermissionRetry(async () => setDoc(userAccountDocRef(user, newAccountId), merged));
+    await runWithPermissionRetry(async () => deleteDoc(accountRef));
     return newAccountId;
   }
 
@@ -188,7 +233,7 @@ export async function updateAccount(user, accountId, { name, secret }) {
     updates.secret = await encryptWithVaultKey({ plaintext: secret, vaultKey, aad });
   }
   updates.updatedAt = Timestamp.now();
-  await updateDoc(accountRef, updates);
+  await runWithPermissionRetry(async () => updateDoc(accountRef, updates));
   return accountId;
 }
 

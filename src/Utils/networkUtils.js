@@ -67,7 +67,7 @@ export function getNetworkErrorMessage(error) {
     return 'Service temporarily unavailable. Please try again.';
   }
   if (errorCode === 'permission-denied') {
-    return 'Permission denied. Please log in again.';
+    return 'Action blocked by server security rules. Unlock your vault and verify your session. On rooted devices, storage behavior can be less reliable and is your responsibility.';
   }
   if (errorCode === 'deadline-exceeded' || errorCode === 'timeout') {
     return 'Request timed out. Please try again.';

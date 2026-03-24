@@ -1,10 +1,20 @@
 import React from "react";
 
-function ConfirmDialog({ open, title, message, onConfirm, onCancel, confirmLabel = 'Confirm', cancelLabel = 'Cancel' }) {
+function ConfirmDialog({
+  open,
+  title,
+  message,
+  onConfirm,
+  onCancel,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  showCancel = true,
+  closeOnBackdrop = true,
+}) {
   if (!open) return null;
 
   const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
+    if (closeOnBackdrop && e.target === e.currentTarget) {
       onCancel();
     }
   };
@@ -16,7 +26,7 @@ function ConfirmDialog({ open, title, message, onConfirm, onCancel, confirmLabel
         <p>{message}</p>
         <div className="confirm-actions">
           <button className="bw-btn danger" onClick={onConfirm}>{confirmLabel}</button>
-          <button className="bw-btn" onClick={onCancel}>{cancelLabel}</button>
+          {showCancel ? <button className="bw-btn" onClick={onCancel}>{cancelLabel}</button> : null}
         </div>
       </div>
     </div>

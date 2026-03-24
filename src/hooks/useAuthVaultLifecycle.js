@@ -5,7 +5,7 @@ import { auth } from "../Utils/firebase";
 import { getAccounts } from "../Utils/services";
 import { lockVault, getVaultMeta, unlockVault } from "../Utils/vault";
 import { checkOnlineStatus } from "../Utils/networkUtils";
-import { secureSetItem, secureGetItemWithStatus, secureRemoveItem, SECURE_STORAGE_GET_KEY_ERROR } from "../Utils/secureStorage";
+import { secureSetItem, secureGetItemWithStatus, secureRemoveItem } from "../Utils/secureStorage";
 import { RECOVERY_QUESTION_BANK } from "../Utils/recoveryQuestions";
 import {
   vaultRememberKeyForEmail,

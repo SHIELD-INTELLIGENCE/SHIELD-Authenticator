@@ -12,6 +12,7 @@
         <item name="android:statusBarColor">@color/shield_gold</item>
         <item name="android:navigationBarColor">@color/shield_gold</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
 
         <!-- Text color on gold bar -->
         <item name="android:textColorPrimary">@color/white</item>
@@ -27,14 +28,16 @@
     <style name="SHIELDSplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/splash</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowFullscreen">false</item>
         <item name="android:statusBarColor">@color/shield_gold</item>
         <item name="android:navigationBarColor">@color/shield_gold</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 
     <!-- Fix for AppTheme.NoActionBarLaunch error -->
     <style name="AppTheme.NoActionBarLaunch" parent="SHIELDTheme.NoActionBar">
         <item name="colorPrimary">@color/shield_gold</item>
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
     </style>
 
 </resources>

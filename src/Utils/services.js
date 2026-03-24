@@ -67,7 +67,7 @@ function duplicateAccountError(name) {
 function isPermissionDeniedError(error) {
   const code = String(error?.code || "").toLowerCase();
   const msg = String(error?.message || "").toLowerCase();
-  return code === "permission-denied" || msg.includes("permission") && msg.includes("denied");
+  return code === "permission-denied" || (msg.includes("permission") && msg.includes("denied"));
 }
 
 async function refreshAuthTokenForRetry() {

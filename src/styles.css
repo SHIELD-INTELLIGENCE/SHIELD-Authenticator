@@ -133,6 +133,73 @@ body {
   animation: fadeInBody 0.5s forwards;
 }
 
+/* Improve mobile tap behavior while preserving accessible keyboard focus */
+button,
+a,
+input,
+select,
+textarea,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* User requested full focus-visual suppression for app-like behavior. */
+*:focus,
+*:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+button,
+a,
+input,
+select,
+textarea,
+label,
+.switch,
+.slider,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* On touch devices, suppress default WebView blue focus effects. */
+@media (hover: none) and (pointer: coarse) {
+  button:focus,
+  button:focus-visible,
+  a:focus,
+  a:focus-visible,
+  input:focus,
+  input:focus-visible,
+  select:focus,
+  select:focus-visible,
+  textarea:focus,
+  textarea:focus-visible,
+  [role="button"]:focus,
+  [role="button"]:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .switch input:focus + .slider,
+  .switch input:active + .slider {
+    box-shadow: none !important;
+  }
+}
+
 @keyframes fadeInBody {
   to {
     opacity: 1;

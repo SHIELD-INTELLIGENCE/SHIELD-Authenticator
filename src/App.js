@@ -13,6 +13,7 @@ import { useSecurityAndConnectivity } from "./hooks/useSecurityAndConnectivity";
 import { useCodesTicker } from "./hooks/useCodesTicker";
 import { useAuthVaultLifecycle } from "./hooks/useAuthVaultLifecycle";
 import { useAndroidBackButton } from "./hooks/useAndroidBackButton";
+import { useDeepLinkHandler } from "./hooks/useDeepLinkHandler";
 import { createAuthHandlers } from "./modules/appHandlers/authHandlers";
 import { createAccountHandlers } from "./modules/appHandlers/accountHandlers";
 import { createVaultHandlers } from "./modules/appHandlers/vaultHandlers";
@@ -203,6 +204,8 @@ function SHIELDAuthenticator() {
     setForm,
     setShowSettings,
   });
+
+  useDeepLinkHandler();
 
   const getFilteredAndSortedAccountsData = () => getFilteredAndSortedAccounts(accounts, searchQuery, sortBy);
 

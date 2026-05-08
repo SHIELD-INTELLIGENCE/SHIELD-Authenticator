@@ -22,6 +22,23 @@
         <category android:name="android.intent.category.LAUNCHER" />
     </intent-filter>
 
+    <!-- Deep link for password reset and other app links -->
+    <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="https" android:host="shield-auth.shieldintelligence.in" />
+        <data android:scheme="https" android:host="shield-auth.shieldintelligence.in" />
+    </intent-filter>
+
+    <!-- Fallback: custom app scheme (optional, for testing) -->
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="shield" android:host="app" />
+    </intent-filter>
+
 </activity>
 
 

@@ -108,11 +108,11 @@ export default function ForgotPassword() {
 
     setLoading(true);
     try {
-      // actionCodeSettings optional; on web we simply send the link that points
-      // back to app's /reset-password route. If you need mobile deep links, configure in Firebase console.
+      // actionCodeSettings: handleCodeInApp: true enables the reset code to be handled
+      // in-app via Firebase Dynamic Links. Web uses standard redirect, mobile uses deep link.
       const actionCodeSettings = {
         url: window.location.origin + "/reset-password",
-        handleCodeInApp: false,
+        handleCodeInApp: true,
       };
       await sendPasswordReset(trimmed, actionCodeSettings);
       recordRateLimitAttempt(trimmed);

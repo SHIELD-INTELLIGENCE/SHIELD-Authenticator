@@ -2,7 +2,10 @@
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut
+  signOut,
+  sendPasswordResetEmail,
+  verifyPasswordResetCode,
+  confirmPasswordReset,
 } from "firebase/auth";
 import {
   collection,
@@ -34,6 +37,21 @@ export function logout() {
   // Ensure vault key isn't kept in memory across sessions
   lockVault();
   return signOut(auth);
+}
+
+// ---------------- Password Reset (Firebase) ----------------
+export async function sendPasswordReset(email, actionCodeSettings = undefined) {
+  // actionCodeSettings is optional. When provided it controls the redirect URL.
+  return sendPasswordResetEmail(auth, email, actionCodeSettings);
+}
+
+export async function verifyPasswordReset(oobCode) {
+  // Returns the email address for which the code is valid
+  return verifyPasswordResetCode(auth, oobCode);
+}
+
+export async function confirmPasswordResetAction(oobCode, newPassword) {
+  return confirmPasswordReset(auth, oobCode, newPassword);
 }
 
 // ---------------- Accounts ----------------

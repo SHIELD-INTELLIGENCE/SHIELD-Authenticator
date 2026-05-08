@@ -1,15 +1,27 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLogin, loginMessage }) {
   const [showPassword, setShowPassword] = React.useState(false);
+  const [showResetSuccess, setShowResetSuccess] = React.useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Scroll to top when component mounts
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    if (location.state?.passwordResetSuccess) {
+      setShowResetSuccess(true);
+      const timer = setTimeout(() => setShowResetSuccess(false), 5000);
+      return () => clearTimeout(timer);
+    }
+    setShowResetSuccess(false);
+    return undefined;
+  }, [location.state]);
 
   return (
     <div className="login-form-outer" style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
@@ -18,6 +30,11 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
         <p style={{ textAlign: 'center', marginBottom: '20px', color: '#95a5a6' }}>
           Login to access your totp codes and secure your accounts
         </p>
+        {showResetSuccess ? (
+          <div className="form-success" role="status" aria-live="polite" style={{ marginBottom: 12 }}>
+            Password reset successful. You can log in with your new password now.
+          </div>
+        ) : null}
         {formErrors.email && <div className="form-error" role="alert">{formErrors.email}</div>}
         <form
           onSubmit={(e) => {
@@ -89,26 +106,21 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
               {loading.login ? "Logging in..." : "Login"}
             </button>
           </div>
-          <div 
-            style={{ 
-              marginTop: '16px', 
-              padding: '12px', 
-              backgroundColor: 'rgba(241, 196, 15, 0.1)', 
-              border: '1px solid rgba(241, 196, 15, 0.3)', 
-              borderRadius: '8px',
-              fontSize: '0.85rem',
-              lineHeight: '1.5',
-              color: '#f1c40f'
-            }}
-          >
-            <strong>Password Recovery:</strong> If you forget your password, email us at{' '}
-            <a 
-              href="mailto:queriesshield@gmail.com" 
-              style={{ color: '#f1c40f', textDecoration: 'underline' }}
+          <div style={{ marginTop: '16px', textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/forgot-password')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#f1c40f',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                fontSize: '0.95rem'
+              }}
             >
-              queriesshield@gmail.com
-            </a>
-            {' '}with your desired new password. We don't provide on-site password changing for security reasons.
+              Forgot your password? Reset it here
+            </button>
           </div>
 
           <div style={{ marginTop: '20px', textAlign: 'center', color: '#95a5a6' }}>

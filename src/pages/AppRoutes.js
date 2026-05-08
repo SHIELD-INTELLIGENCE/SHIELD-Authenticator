@@ -4,6 +4,8 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-
 import { ToastContainer } from "react-toastify";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
+import ForgotPassword from "./ForgotPassword";
+import ResetPassword from "./ResetPassword";
 import Dashboard from "./Dashboard";
 import LandingPage from "./LandingPage";
 import MobileLandingPage from "./MobileLandingPage";
@@ -204,6 +206,8 @@ function AppRoutes({
               />
             }
           />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<Navigate to="/login" replace />} />
           <Route path="/settings" element={<Navigate to="/login" replace />} />
           <Route path="/terms" element={<TermsPage />} />

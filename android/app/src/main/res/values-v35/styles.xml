@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Inherit from the .Base version defined in the other folder -->
+    <style name="SHIELDTheme" parent="SHIELDTheme.Base">
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+
+    <style name="SHIELDSplashTheme" parent="SHIELDSplashTheme.Base">
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+</resources>

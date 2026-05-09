@@ -2,11 +2,14 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { App as CapacitorApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
 
 export function useDeepLinkHandler() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
     let listenerHandle;
 
     CapacitorApp.addListener("appUrlOpen", (data) => {

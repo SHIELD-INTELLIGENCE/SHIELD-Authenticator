@@ -6,8 +6,8 @@
 export function isNetworkError(error) {
   if (!error) return false;
   
-  const errorMessage = error.message?.toLowerCase() || '';
-  const errorCode = error.code?.toLowerCase() || '';
+  const errorMessage = (typeof error.message === 'string' ? error.message : '').toLowerCase();
+  const errorCode = (typeof error.code === 'string' ? error.code : '').toLowerCase();
   
   // Check for common network error patterns
   return (

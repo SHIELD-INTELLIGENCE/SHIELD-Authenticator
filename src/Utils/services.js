@@ -6,6 +6,9 @@ import {
   sendPasswordResetEmail,
   verifyPasswordResetCode,
   confirmPasswordReset,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  deleteUser,
 } from "firebase/auth";
 import {
   collection,
@@ -21,6 +24,8 @@ import { authenticator } from "otplib";
 import { decryptWithVaultKey, encryptWithVaultKey } from "./vaultCrypto";
 import { auth, db } from "./firebase";
 import { getVaultAadForUser, getVaultKeyForUser, lockVault } from "./vault";
+import { secureRemoveItem } from "./secureStorage";
+import { vaultRememberKeyForEmail, vaultKnownKeyForEmail, offlineReadyKeyForEmail } from "./vaultLocalState";
 
 // ---------------- Auth ----------------
 export async function register(email, password) {
@@ -262,4 +267,33 @@ export function getCode(secret) {
 
 export function getCountdown() {
   return 30 - Math.floor(Date.now() / 1000) % 30;
+}
+
+// ---------------- Delete Account ----------------
+export async function deleteUserAccount(user, password) {
+  if (!user) throw new Error("No authenticated user");
+
+  const emailId = requireUserEmail(user);
+  const credential = EmailAuthProvider.credential(user.email, password);
+  await reauthenticateWithCredential(user, credential);
+
+  const accountsRef = userAccountsCollection(user);
+  const snapshot = await getDocs(accountsRef);
+  const deleteOps = snapshot.docs.map((docSnap) =>
+    deleteDoc(doc(db, "user", emailId, "accounts", docSnap.id))
+  );
+  await Promise.all(deleteOps);
+
+  clearAllLocalVaultState(emailId);
+  await deleteUser(user);
+}
+
+function clearAllLocalVaultState(email) {
+  const normalized = String(email || "").trim().toLowerCase();
+  if (!normalized) return;
+
+  try { localStorage.removeItem(`shield-vault-meta:${normalized}`); } catch {}
+  try { localStorage.removeItem(vaultKnownKeyForEmail(normalized)); } catch {}
+  try { localStorage.removeItem(offlineReadyKeyForEmail(normalized)); } catch {}
+  try { secureRemoveItem(vaultRememberKeyForEmail(normalized)); } catch {}
 }

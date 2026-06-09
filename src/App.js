@@ -168,7 +168,7 @@ function SHIELDAuthenticator() {
     loadAccounts,
   });
 
-  const { handleLogout, handleUnlockVault, handleSetupVault, handleRecoverVault } = createVaultHandlers({
+  const { handleLogout, handleUnlockVault, handleSetupVault, handleRecoverVault, handleDeleteAccount } = createVaultHandlers({
     user,
     setShowSettings,
     setLoadingLogout,
@@ -267,6 +267,7 @@ function SHIELDAuthenticator() {
       handleDelete={handleDelete}
       handleQRUpload={handleQRUpload}
       handleLogout={handleLogout}
+      handleDeleteAccount={handleDeleteAccount}
       handleUnlockVault={handleUnlockVault}
       handleSetupVault={handleSetupVault}
       handleRecoverVault={handleRecoverVault}

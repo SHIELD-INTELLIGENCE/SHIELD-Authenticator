@@ -70,6 +70,7 @@ function AppRoutes({
   handleDelete,
   handleQRUpload,
   handleLogout,
+  handleDeleteAccount,
   handleUnlockVault,
   handleSetupVault,
   handleRecoverVault,
@@ -253,6 +254,8 @@ function AppRoutes({
       <Routes>
         <Route path="/" element={isAndroid ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
         <Route path="/mobile-start" element={<MobileLandingPage />} />
+        <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/register" element={<Navigate to="/dashboard" replace />} />
         <Route
           path="/dashboard"
           element={
@@ -293,11 +296,14 @@ function AppRoutes({
               <SettingsPage
                 user={user}
                 onLogout={handleLogout}
+                onDeleteAccount={handleDeleteAccount}
                 onBack={() => {
                   if (window.history.length > 1) navigate(-1);
                   else navigate("/dashboard", { replace: true });
                 }}
                 openConfirm={openConfirm}
+                closeConfirm={closeConfirm}
+                confirmDialog={confirmDialog}
                 maskCodes={maskCodes}
                 setMaskCodes={setMaskCodes}
                 showProviderLogos={showProviderLogos}

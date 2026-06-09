@@ -1063,6 +1063,12 @@ select.shield-clean-input:focus {
   display: inline-block;
 }
 
+.settings-item-email {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 12px;
+  padding-bottom: 16px;
+}
+
 .settings-logout-btn {
   display: flex;
   align-items: center;
@@ -1395,6 +1401,48 @@ body.shield-modal-open {
   box-shadow: none;
 }
 
+.dialog-btn-danger {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--animation-medium) var(--transition-smooth);
+  font-family: var(--shield-font-sans);
+  letter-spacing: 0.5px;
+  background: #b91c1c;
+  color: #fff;
+}
+
+.dialog-btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 0 16px rgba(220, 38, 38, 0.4);
+}
+
+.dialog-btn-danger:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.dialog-btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.settings-delete-btn {
+  margin-top: 8px;
+  background: #6b0000;
+  box-shadow: 0 0 12px rgba(107, 0, 0, 0.3);
+}
+
+.settings-delete-btn:hover {
+  background: #8f0000;
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(143, 0, 0, 0.5);
+}
+
 .recovery-dialog-box {
   max-width: 550px;
 }
@@ -1438,6 +1486,16 @@ body.shield-modal-open {
 .password-input-wrapper input {
   width: 100%;
   padding-right: 45px;
+}
+
+.password-input-wrapper .dialog-input {
+  padding-right: 45px;
+  margin-bottom: 0;
+}
+
+.password-input-wrapper + .dialog-actions,
+form + .dialog-actions {
+  margin-top: 24px;
 }
 
 .password-toggle-btn {

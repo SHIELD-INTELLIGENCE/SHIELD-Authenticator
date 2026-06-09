@@ -31,7 +31,6 @@ import {
 } from "./vaultCrypto";
 
 const DEFAULT_PBKDF2_ITERATIONS = 310000;
-
 function requireUserEmail(user) {
   const email = user?.email;
   if (!email) throw new Error("Missing authenticated user email");

@@ -1,4 +1,4 @@
-import { logout } from "../../Utils/services";
+import { logout, deleteUserAccount } from "../../Utils/services";
 import { setupVault, unlockVault, recoverAndResetPassphrase, lockVault } from "../../Utils/vault";
 import { handleError, checkOnlineStatus } from "../../Utils/networkUtils";
 import { secureSetItem, secureRemoveItem } from "../../Utils/secureStorage";
@@ -132,7 +132,8 @@ export function createVaultHandlers({
       await loadAccounts(user);
     } catch (e) {
       const errorMsg = handleError(e, "Failed to set up vault");
-      setVaultError(errorMsg);
+      setVaultError(e?.message || errorMsg);
+      console.error("Vault setup error:", e);
     } finally {
       setVaultUnlocking(false);
     }
@@ -185,10 +186,17 @@ export function createVaultHandlers({
     }
   };
 
+  const handleDeleteAccount = async (password) => {
+    if (!user) return;
+    lockVault();
+    await deleteUserAccount(user, password);
+  };
+
   return {
     handleLogout,
     handleUnlockVault,
     handleSetupVault,
     handleRecoverVault,
+    handleDeleteAccount,
   };
 }

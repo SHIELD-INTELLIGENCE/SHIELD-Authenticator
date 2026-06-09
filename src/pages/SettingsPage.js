@@ -11,7 +11,7 @@ import {
 import { updateRecoveryQuestions, getVaultMeta, clearRecoveryQuestions, isVaultUnlockedForUser, updateVaultPassphrase } from "../Utils/vault";
 import { handleError } from "../Utils/networkUtils";
 
-const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskCodes, showProviderLogos, setShowProviderLogos, isAndroid, preventScreenViewing, setPreventScreenViewing, accounts, onImportAccounts, onDialogStateChange }) => {
+const SettingsPage = ({ user, onLogout, onDeleteAccount, onBack, openConfirm, closeConfirm, confirmDialog, maskCodes, setMaskCodes, showProviderLogos, setShowProviderLogos, isAndroid, preventScreenViewing, setPreventScreenViewing, accounts, onImportAccounts, onDialogStateChange }) => {
   const [exportPassphrase, setExportPassphrase] = useState("");
   const [importPassphrase, setImportPassphrase] = useState("");
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -38,6 +38,11 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
   const [recoveryA3, setRecoveryA3] = useState("");
   const [savingRecovery, setSavingRecovery] = useState(false);
 
+  const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
   const [showChangePassphraseDialog, setShowChangePassphraseDialog] = useState(false);
   const [currentPassphrase, setCurrentPassphrase] = useState('');
   const [newPassphrase, setNewPassphrase] = useState('');
@@ -48,16 +53,16 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
 
   // Notify parent when any dialog opens/closes
   useEffect(() => {
-    const hasOpenDialog = showExportDialog || showImportDialog || showRecoveryDialog || showChangePassphraseDialog;
+    const hasOpenDialog = showExportDialog || showImportDialog || showRecoveryDialog || showChangePassphraseDialog || showDeleteAccountDialog;
     if (onDialogStateChange) {
       onDialogStateChange(hasOpenDialog);
     }
-  }, [showExportDialog, showImportDialog, showRecoveryDialog, showChangePassphraseDialog, onDialogStateChange]);
+  }, [showExportDialog, showImportDialog, showRecoveryDialog, showChangePassphraseDialog, showDeleteAccountDialog, onDialogStateChange]);
 
   // Handle back button in Settings page to close dialogs
   useEffect(() => {
     // Only import Capacitor if we have open dialogs
-    if (!showExportDialog && !showImportDialog && !showRecoveryDialog && !showChangePassphraseDialog) {
+    if (!showExportDialog && !showImportDialog && !showRecoveryDialog && !showChangePassphraseDialog && !showDeleteAccountDialog) {
       return;
     }
 
@@ -67,7 +72,9 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
     import('@capacitor/app').then(({ App: CapacitorApp }) => {
       CapacitorApp.addListener('backButton', () => {
         // Close the most recently opened dialog
-        if (showChangePassphraseDialog) {
+        if (showDeleteAccountDialog) {
+          handleDeleteAccountCancel();
+        } else if (showChangePassphraseDialog) {
           handleChangePassphraseCancel();
         } else if (showRecoveryDialog) {
           handleRecoveryCancel();
@@ -88,7 +95,7 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
         listenerHandle.remove();
       }
     };
-  }, [showExportDialog, showImportDialog, showRecoveryDialog, showChangePassphraseDialog]);
+  }, [showExportDialog, showImportDialog, showRecoveryDialog, showChangePassphraseDialog, showDeleteAccountDialog]);
 
   // Load existing recovery questions from vault metadata
   useEffect(() => {
@@ -290,6 +297,33 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
     }
   };
 
+  const handleDeleteAccountClick = () => {
+    setDeletePassword("");
+    setShowDeleteAccountDialog(true);
+  };
+
+  const handleDeleteAccountConfirm = async () => {
+    if (!deletePassword.trim()) {
+      toast.error("Please enter your password");
+      return;
+    }
+    if (!onDeleteAccount) return;
+    setDeletingAccount(true);
+    try {
+      await onDeleteAccount(deletePassword.trim());
+      setShowDeleteAccountDialog(false);
+    } catch (e) {
+      toast.error(e.message || "Failed to delete account");
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
+  const handleDeleteAccountCancel = () => {
+    setShowDeleteAccountDialog(false);
+    setDeletePassword("");
+  };
+
   const handleExportClick = () => {
     if (!accounts || accounts.length === 0) {
       toast.error("No accounts to export");
@@ -436,8 +470,10 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
   // Handle escape key and mobile back button
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        if (showChangePassphraseDialog) {
+      if (e.key === "Escape") {
+        if (showDeleteAccountDialog) {
+          handleDeleteAccountCancel();
+        } else if (showChangePassphraseDialog) {
           handleChangePassphraseCancel();
         } else if (showRecoveryDialog) {
           handleRecoveryCancel();
@@ -445,6 +481,8 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
           handleCancelExport();
         } else if (showImportDialog) {
           handleCancelImport();
+        } else if (confirmDialog?.open) {
+          closeConfirm && closeConfirm();
         } else {
           onBack && onBack();
         }
@@ -453,7 +491,9 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
 
     const handlePopState = () => {
       // Handle back button for dialogs
-      if (showChangePassphraseDialog) {
+      if (showDeleteAccountDialog) {
+        handleDeleteAccountCancel();
+      } else if (showChangePassphraseDialog) {
         handleChangePassphraseCancel();
       } else if (showRecoveryDialog) {
         handleRecoveryCancel();
@@ -461,6 +501,8 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
         handleCancelExport();
       } else if (showImportDialog) {
         handleCancelImport();
+      } else if (confirmDialog?.open) {
+        closeConfirm && closeConfirm();
       } else {
         // If no dialog is open, go back to main page
         onBack && onBack();
@@ -471,7 +513,7 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
     window.addEventListener('popstate', handlePopState);
     
     // Push a state when a dialog opens to enable back button handling
-    const anyDialogOpen = showChangePassphraseDialog || showRecoveryDialog || showExportDialog || showImportDialog;
+    const anyDialogOpen = showDeleteAccountDialog || showChangePassphraseDialog || showRecoveryDialog || showExportDialog || showImportDialog || confirmDialog?.open;
     if (anyDialogOpen) {
       window.history.pushState({ modal: true }, '');
     }
@@ -480,7 +522,7 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
       window.removeEventListener('keydown', handleEscape);
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [onBack, showExportDialog, showImportDialog, showRecoveryDialog, showChangePassphraseDialog]);
+  }, [onBack, showDeleteAccountDialog, showExportDialog, showImportDialog, showRecoveryDialog, showChangePassphraseDialog, confirmDialog, closeConfirm]);
 
   // Prevent body scroll when any dialog is open
   useEffect(() => {
@@ -514,12 +556,18 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
       <div className="settings-content">
         <div className="settings-section">
           <h2>Account</h2>
-          <div className="settings-item">
+          <div className="settings-item settings-item-email">
             <div className="settings-item-info">
               <span className="settings-label">Email</span>
-              <span className="settings-value">{user?.email || 'Not available'}</span>
+              <span className="settings-mono">{user?.email || 'Not available'}</span>
             </div>
           </div>
+          <button className="settings-logout-btn settings-delete-btn" onClick={handleDeleteAccountClick}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+            Delete Account
+          </button>
         </div>
 
         <div className="settings-section">
@@ -632,6 +680,74 @@ const SettingsPage = ({ user, onLogout, onBack, openConfirm, maskCodes, setMaskC
           </button>
         </div>
       </div>
+
+      {/* Delete Account Dialog */}
+      {showDeleteAccountDialog && createPortal(
+        (
+        <div className="dialog-overlay" onClick={handleDeleteAccountCancel}>
+          <div className="dialog-box" onClick={(e) => e.stopPropagation()}>
+            <button className="dialog-back-button" onClick={handleDeleteAccountCancel} aria-label="Close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+              </svg>
+            </button>
+            <h3>Delete Account</h3>
+            <p className="dialog-description">
+              This will permanently delete all your accounts and vault data. This action cannot be undone.
+            </p>
+            <form onSubmit={(e) => { e.preventDefault(); handleDeleteAccountConfirm(); }}>
+            <div className="password-input-wrapper">
+              <input
+                type={showDeletePassword ? "text" : "password"}
+                className="dialog-input"
+                placeholder="Enter your password to confirm"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                autoFocus
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowDeletePassword(!showDeletePassword)}
+                aria-label={showDeletePassword ? "Hide password" : "Show password"}
+              >
+                {showDeletePassword ? (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                )}
+              </button>
+            </div>
+            </form>
+            <div className="dialog-actions">
+              <button
+                type="button"
+                className="dialog-btn dialog-btn-cancel"
+                onClick={handleDeleteAccountCancel}
+                disabled={deletingAccount}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="dialog-btn dialog-btn-danger"
+                onClick={handleDeleteAccountConfirm}
+                disabled={deletingAccount}
+              >
+                {deletingAccount ? "Deleting..." : "Delete Everything"}
+              </button>
+            </div>
+          </div>
+        </div>
+        ),
+        document.body
+      )}
 
       {/* Export Dialog */}
       {showExportDialog && createPortal(

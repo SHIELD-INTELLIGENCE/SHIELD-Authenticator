@@ -1,5 +1,5 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
-import argon2 from "argon2-browser";
+import argon2 from "argon2-browser/dist/argon2-bundled.min.js";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();

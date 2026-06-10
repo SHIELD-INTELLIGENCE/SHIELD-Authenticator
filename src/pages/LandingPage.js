@@ -421,7 +421,7 @@ function LandingPage() {
               </p>
 
               <p>
-                Founded with a vision to democratize military-grade security for
+                Founded with a vision to democratize enterprise-grade security for
                 everyone, we create innovative software solutions that protect
                 what matters most to you. Our flagship authentication platform,
                 along with our suite of secure productivity tools, are designed

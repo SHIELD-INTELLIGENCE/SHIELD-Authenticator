@@ -42,7 +42,7 @@ Version 2.5 upgrades vault key derivation to **Argon2id** (current industry stan
 
 ### Major New Feature: End-to-End Encrypted Vault
 
-**Your 2FA codes are now protected with military-grade End-to-End Encryption (E2EE)!**
+**Your 2FA codes are now protected with end-to-end encryption (E2EE)!**
 
 We've implemented a powerful new security feature with **End-to-End Encryption** that encrypts all your authenticator accounts with a password you choose. This means your data is encrypted on your device before it ever reaches our servers, and even if someone gains access to our servers, your 2FA secrets remain completely private and unreadable without your password.
 

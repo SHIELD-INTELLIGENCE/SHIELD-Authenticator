@@ -21,7 +21,7 @@ function RegisterForm({ form, formErrors, loading, setForm, setFormErrors, handl
       <div className="shield-login-container" role="form" aria-labelledby="shield-register-title">
         <h2 id="shield-register-title" className="high-contrast-text">Create Your Account</h2>
         <p style={{ textAlign: 'center', marginBottom: '20px', color: '#95a5a6' }}>
-          Join SHIELD Authenticator for military-grade security
+          Join SHIELD Authenticator for end-to-end encrypted security
         </p>
         {formErrors.email && <div className="form-error" role="alert">{formErrors.email}</div>}
         <form

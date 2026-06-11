@@ -18,7 +18,7 @@ function AddAccountForm({ form, setForm, handleSave, editing, setEditing, handle
         className="shield-clean-input"
         placeholder="Secret (BASE32)"
         value={form.secret}
-        onChange={(e) => setForm({ ...form, secret: e.target.value })}
+        onChange={(e) => setForm({ ...form, secret: e.target.value.replace(/\s/g, '') })}
       />
       <button className="bw-btn" onClick={handleSave}>
         {editing ? "Update Account" : "Add Account"}

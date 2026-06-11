@@ -15,7 +15,7 @@ export function createAccountHandlers({
 }) {
   const saveAccountDirect = async (name, secret) => {
     const trimmedName = (name || "").trim();
-    const trimmedSecret = (secret || "").trim();
+    const trimmedSecret = (secret || "").replace(/\s/g, '');
 
     if (!trimmedName && !trimmedSecret) return toast.error("Please enter account name and secret");
     if (!trimmedName) return toast.error("Please enter account name");
@@ -125,7 +125,7 @@ export function createAccountHandlers({
 
       const url = new URL(text);
       const name = decodeURIComponent(url.pathname.slice(1));
-      const secret = url.searchParams.get("secret");
+      const secret = url.searchParams.get("secret").replace(/\s/g, '');
 
       if (!name || !secret) {
         toast.error("QR missing secret or name");

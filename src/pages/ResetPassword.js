@@ -56,6 +56,7 @@ export default function ResetPassword() {
         },
       });
     } catch (err) {
+      console.error("Password reset confirmation error:", err);
       setError(err?.message || 'Failed to reset password');
     } finally {
       setLoading(false);

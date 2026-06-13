@@ -175,7 +175,7 @@ function NotFound404() {
             <h4>Legal</h4>
             <ul className="footer-links">
               <li><a href="/terms" rel="noopener noreferrer">Terms of Use</a></li>
-              <li><a href="/terms" rel="noopener noreferrer">Privacy Policy</a></li>
+              <li><a href="/privacy" rel="noopener noreferrer">Privacy Policy</a></li>
             </ul>
           </div>
         </div>

@@ -52,7 +52,7 @@ function Footer() {
               </a>
             </li>
             <li>
-              <a href="/terms" rel="noopener noreferrer">
+              <a href="/privacy" rel="noopener noreferrer">
                 Privacy Policy
               </a>
             </li>

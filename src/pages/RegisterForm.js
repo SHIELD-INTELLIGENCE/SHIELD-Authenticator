@@ -2,17 +2,43 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+const TERMS_ACCEPTANCE_KEY_PREFIX = "shield-terms-accepted:v1:";
+
+function isTermsAccepted(email) {
+  if (!email) return false;
+  try {
+    return localStorage.getItem(TERMS_ACCEPTANCE_KEY_PREFIX + email.trim().toLowerCase()) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function markTermsAccepted(email) {
+  if (!email) return;
+  try {
+    localStorage.setItem(TERMS_ACCEPTANCE_KEY_PREFIX + email.trim().toLowerCase(), "true");
+  } catch {
+    // best-effort storage
+  }
+}
+
 function RegisterForm({ form, formErrors, loading, setForm, setFormErrors, handleRegister, loginMessage }) {
   const [showPassword, setShowPassword] = React.useState(false);
+  const [agreedToTerms, setAgreedToTerms] = React.useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Scroll to top when component mounts
     window.scrollTo(0, 0);
   }, []);
 
+  useEffect(() => {
+    setAgreedToTerms(isTermsAccepted(form.email));
+  }, [form.email]);
+
   const onSubmit = (e) => {
     e.preventDefault();
+    if (!agreedToTerms) return;
+    markTermsAccepted(form.email);
     handleRegister();
   };
 
@@ -102,13 +128,46 @@ function RegisterForm({ form, formErrors, loading, setForm, setFormErrors, handl
             </ul>
           </div>
 
+          <div className="terms-checkbox-wrapper" style={{ marginTop: 14, display: "flex", alignItems: "flex-start", gap: 8 }}>
+            <input
+              id="shield-terms-agree-register"
+              name="termsAgreed"
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              style={{ marginTop: 3, cursor: "pointer", flexShrink: 0 }}
+            />
+            <label htmlFor="shield-terms-agree-register" style={{ color: "#aaa", fontSize: "0.85rem", cursor: "pointer", lineHeight: 1.4 }}>
+              I have read and agree to the{" "}
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#bfa24f", textDecoration: "underline" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                Terms of Use
+              </a>{" "}
+              and{" "}
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#bfa24f", textDecoration: "underline" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                Privacy Policy
+              </a>
+            </label>
+          </div>
+
           <div>
             <button
               type="submit"
               className="bw-btn touch-target"
               aria-label="Register"
-              disabled={loading.register}
-              style={{ width: '100%', marginTop: '16px' }}
+              disabled={loading.register || !agreedToTerms}
+              style={{ width: '100%', marginTop: '16px', opacity: agreedToTerms ? 1 : 0.6 }}
             >
               {loading.register ? "Creating Account..." : "Create Account"}
             </button>

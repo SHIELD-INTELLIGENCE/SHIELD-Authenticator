@@ -12,6 +12,7 @@ import MobileLandingPage from "./MobileLandingPage";
 import SettingsPage from "./SettingsPage";
 import NotFound404 from "./NotFound404";
 import TermsPage from "./TermsPage";
+import PrivacyPage from "./PrivacyPage";
 import ConfirmDialog from "../components/ConfirmDialog";
 import VaultPassphraseDialog from "../components/VaultPassphraseDialog";
 
@@ -212,6 +213,7 @@ function AppRoutes({
           <Route path="/dashboard" element={<Navigate to="/login" replace />} />
           <Route path="/settings" element={<Navigate to="/login" replace />} />
           <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="*" element={<NotFound404 />} />
         </Routes>
         <ConfirmDialog
@@ -321,6 +323,7 @@ function AppRoutes({
           }
         />
         <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="*" element={<NotFound404 />} />
       </Routes>
 

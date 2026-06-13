@@ -243,7 +243,17 @@ function Dashboard({
                 textDecoration: "none",
               }}
             >
-              Terms of Use & Privacy
+              Terms of Use
+            </a>{" "}·{" "}
+            <a
+              href="/privacy"
+              rel="noopener noreferrer"
+              style={{
+                color: "var(--shield-accent)",
+                textDecoration: "none",
+              }}
+            >
+              Privacy Policy
             </a>
           </div>
         </footer>

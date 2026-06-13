@@ -120,6 +120,7 @@ export default function ForgotPassword() {
       // Show a neutral popup so we do not reveal whether the email exists.
       setSuccessDialogOpen(true);
     } catch (err) {
+      console.error("Password reset error:", err);
       recordRateLimitAttempt(trimmed);
       setCooldownUntil(getRateLimitSnapshot(trimmed).retryAt);
       // Keep the same neutral popup even if the underlying request fails.

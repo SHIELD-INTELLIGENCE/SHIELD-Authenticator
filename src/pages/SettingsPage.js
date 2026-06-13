@@ -195,6 +195,7 @@ const SettingsPage = ({ user, onLogout, onDeleteAccount, onBack, openConfirm, cl
       toast.success("✅ Vault passphrase updated successfully");
       handleChangePassphraseCancel();
     } catch (err) {
+      console.error("Change passphrase error:", err);
       const friendly = handleError(
         err,
         err?.message?.toLowerCase().includes("current passphrase")
@@ -249,6 +250,7 @@ const SettingsPage = ({ user, onLogout, onDeleteAccount, onBack, openConfirm, cl
       setRecoveryA2("");
       setRecoveryA3("");
     } catch (e) {
+      console.error("Update recovery questions error:", e);
       const errorMsg = handleError(e, "Failed to update recovery questions");
       setRecoveryError(errorMsg);
     } finally {
@@ -274,6 +276,7 @@ const SettingsPage = ({ user, onLogout, onDeleteAccount, onBack, openConfirm, cl
             setShowRecoveryDialog(false);
             toast.success("✅ Recovery questions cleared");
           } catch (e) {
+            console.error("Clear recovery questions error:", e);
             const errorMsg = handleError(e, "Failed to clear recovery questions");
             setRecoveryError(errorMsg);
           } finally {
@@ -313,6 +316,7 @@ const SettingsPage = ({ user, onLogout, onDeleteAccount, onBack, openConfirm, cl
       await onDeleteAccount(deletePassword.trim());
       setShowDeleteAccountDialog(false);
     } catch (e) {
+      console.error("Delete account error:", e);
       toast.error(e.message || "Failed to delete account");
     } finally {
       setDeletingAccount(false);

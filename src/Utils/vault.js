@@ -322,7 +322,8 @@ export async function unlockVault(user, passphrase) {
       if (passphraseCfg.kdf !== VAULT_KDF_ARGON2ID) {
         try {
           effectiveVault = await upgradeV2PassphraseKdfToArgon2({ user, ref, vault, passphrase, masterKeyB64, aad });
-        } catch {
+        } catch (upgradeErr) {
+          console.error("Vault KDF upgrade error (non-fatal):", upgradeErr);
           effectiveVault = vault;
         }
       }
@@ -407,7 +408,8 @@ export async function unlockVault(user, passphrase) {
     _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: v2, vaultKeyBytes: masterKeyBytes };
     writeCachedVaultMeta(user, v2);
     return v2;
-  } catch {
+  } catch (upgradeErr) {
+    console.error("Vault v1-to-v2 upgrade error (non-fatal):", upgradeErr);
     // If upgrade fails, remain on v1 to avoid breaking unlock.
     _vaultState = { userEmail: emailId, vaultKey, vaultMeta: vault, vaultKeyBytes: null };
     writeCachedVaultMeta(user, vault);

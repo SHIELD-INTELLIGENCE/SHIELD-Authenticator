@@ -46,6 +46,7 @@ export function createAuthHandlers({
         setLoginMessage(null);
       })
       .catch((err) => {
+        console.error("Login error:", err);
         const errorMsg = handleError(err);
         setLoginMessage({ type: "error", text: errorMsg });
       })
@@ -86,6 +87,7 @@ export function createAuthHandlers({
     register(trimmedEmail, trimmedPassword)
       .then(setUser)
       .catch((err) => {
+        console.error("Registration error:", err);
         const errorMsg = handleError(err);
         setLoginMessage({ type: "error", text: errorMsg });
       })

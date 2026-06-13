@@ -2,14 +2,34 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+const TERMS_ACCEPTANCE_KEY_PREFIX = "shield-terms-accepted:v1:";
+
+function isTermsAccepted(email) {
+  if (!email) return false;
+  try {
+    return localStorage.getItem(TERMS_ACCEPTANCE_KEY_PREFIX + email.trim().toLowerCase()) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function markTermsAccepted(email) {
+  if (!email) return;
+  try {
+    localStorage.setItem(TERMS_ACCEPTANCE_KEY_PREFIX + email.trim().toLowerCase(), "true");
+  } catch {
+    // best-effort storage
+  }
+}
+
 function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLogin, loginMessage }) {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showResetSuccess, setShowResetSuccess] = React.useState(false);
+  const [agreedToTerms, setAgreedToTerms] = React.useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Scroll to top when component mounts
     window.scrollTo(0, 0);
   }, []);
 
@@ -22,6 +42,17 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
     setShowResetSuccess(false);
     return undefined;
   }, [location.state]);
+
+  useEffect(() => {
+    setAgreedToTerms(isTermsAccepted(form.email));
+  }, [form.email]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!agreedToTerms) return;
+    markTermsAccepted(form.email);
+    handleLogin();
+  };
 
   return (
     <div className="login-form-outer" style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
@@ -37,10 +68,7 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
         ) : null}
         {formErrors.email && <div className="form-error" role="alert">{formErrors.email}</div>}
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleLogin();
-          }}
+          onSubmit={handleSubmit}
           style={{ width: "100%" }}
           aria-label="Login form"
         >
@@ -95,13 +123,45 @@ function LoginForm({ form, formErrors, loading, setForm, setFormErrors, handleLo
               {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
-          <div>
+          <div className="terms-checkbox-wrapper" style={{ marginTop: 14, display: "flex", alignItems: "flex-start", gap: 8 }}>
+            <input
+              id="shield-terms-agree"
+              name="termsAgreed"
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              style={{ marginTop: 3, cursor: "pointer", flexShrink: 0 }}
+            />
+            <label htmlFor="shield-terms-agree" style={{ color: "#aaa", fontSize: "0.85rem", cursor: "pointer", lineHeight: 1.4 }}>
+              I have read and agree to the{" "}
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#bfa24f", textDecoration: "underline" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                Terms of Use
+              </a>{" "}
+              and{" "}
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#bfa24f", textDecoration: "underline" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                Privacy Policy
+              </a>
+            </label>
+          </div>
+          <div style={{ marginTop: 12 }}>
             <button
               type="submit"
               className="bw-btn touch-target"
               aria-label="Login"
-              disabled={loading.login}
-              style={{ width: '100%' }}
+              disabled={loading.login || !agreedToTerms}
+              style={{ width: '100%', opacity: agreedToTerms ? 1 : 0.6 }}
             >
               {loading.login ? "Logging in..." : "Login"}
             </button>

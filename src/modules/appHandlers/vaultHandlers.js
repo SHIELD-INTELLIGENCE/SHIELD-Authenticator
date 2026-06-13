@@ -69,6 +69,7 @@ export function createVaultHandlers({
       markVaultKnownForEmail(user?.email || "");
       await loadAccounts(user);
     } catch (e) {
+      console.error("Unlock vault error:", e);
       if (!checkOnlineStatus() && String(e?.message || "").toLowerCase().includes("not set up")) {
         setVaultError("Vault metadata is not available offline on this device yet. Connect once online, then retry.");
       } else {
@@ -179,6 +180,7 @@ export function createVaultHandlers({
       markVaultKnownForEmail(user?.email || "");
       await loadAccounts(user);
     } catch (e) {
+      console.error("Recover vault error:", e);
       const errorMsg = handleError(e, "Failed to recover vault");
       setVaultError(errorMsg);
     } finally {
@@ -189,7 +191,12 @@ export function createVaultHandlers({
   const handleDeleteAccount = async (password) => {
     if (!user) return;
     lockVault();
-    await deleteUserAccount(user, password);
+    try {
+      await deleteUserAccount(user, password);
+    } catch (e) {
+      console.error("Delete account error:", e);
+      throw e;
+    }
   };
 
   return {

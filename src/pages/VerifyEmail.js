@@ -14,8 +14,7 @@ function VerifyEmail({ onLogout, onVerificationDone }) {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    sendVerificationEmail(user).catch(() => {});
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (resendCooldown > 0) {

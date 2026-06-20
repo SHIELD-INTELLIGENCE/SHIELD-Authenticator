@@ -14,7 +14,10 @@ function ConfirmDialog({
   useEffect(() => {
     if (!open) return;
     const handleEsc = (e) => {
-      if (e.key === "Escape") onCancel();
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onCancel();
+      }
     };
     document.addEventListener("keydown", handleEsc);
     return () => document.removeEventListener("keydown", handleEsc);

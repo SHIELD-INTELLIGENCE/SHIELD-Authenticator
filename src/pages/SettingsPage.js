@@ -9,6 +9,7 @@ import {
   readCSVFile 
 } from "../Utils/csvUtils";
 import { updateRecoveryQuestions, getVaultMeta, clearRecoveryQuestions, isVaultUnlockedForUser, updateVaultPassphrase } from "../Utils/vault";
+import { sendPasswordReset } from "../Utils/services";
 import { handleError } from "../Utils/networkUtils";
 
 const SettingsPage = ({ user, onLogout, onDeleteAccount, onBack, openConfirm, closeConfirm, confirmDialog, maskCodes, setMaskCodes, showProviderLogos, setShowProviderLogos, isAndroid, preventScreenViewing, setPreventScreenViewing, accounts, onImportAccounts, onDialogStateChange }) => {
@@ -300,6 +301,16 @@ const SettingsPage = ({ user, onLogout, onDeleteAccount, onBack, openConfirm, cl
     }
   };
 
+  const handleResetPassword = async () => {
+    try {
+      await sendPasswordReset(user?.email);
+      toast.success("Password reset email sent. Check your inbox.");
+    } catch (err) {
+      console.error("Password reset error:", err);
+      toast.error(err?.message || "Failed to send reset email");
+    }
+  };
+
   const handleDeleteAccountClick = () => {
     setDeletePassword("");
     setShowDeleteAccountDialog(true);
@@ -566,7 +577,13 @@ const SettingsPage = ({ user, onLogout, onDeleteAccount, onBack, openConfirm, cl
               <span className="settings-mono">{user?.email || 'Not available'}</span>
             </div>
           </div>
-          <button className="settings-logout-btn settings-delete-btn" onClick={handleDeleteAccountClick}>
+          <button className="settings-logout-btn" onClick={handleResetPassword} style={{ marginTop: 12 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+            </svg>
+            Reset Password
+          </button>
+          <button className="settings-logout-btn settings-delete-btn" onClick={handleDeleteAccountClick} style={{ marginTop: 8 }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
             </svg>

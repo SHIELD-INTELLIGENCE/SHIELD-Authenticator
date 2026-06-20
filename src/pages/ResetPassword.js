@@ -17,23 +17,16 @@ export default function ResetPassword() {
   const [error, setError] = React.useState("");
 
   useEffect(() => {
-    if (!oobCode) {
-      setError("Missing or invalid code.");
-      return;
+    if (oobCode) {
+      verifyPasswordReset(oobCode)
+        .then((e) => setEmail(e || ""))
+        .catch(() => setEmail(""));
     }
-
-    verifyPasswordReset(oobCode)
-      .then((e) => setEmail(e || ""))
-      .catch(() => setEmail(""));
   }, [oobCode]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!oobCode) {
-      setError("Missing reset code.");
-      return;
-    }
     if (!newPassword || newPassword.length < 8) {
       setError("Password must be at least 8 characters");
       return;
@@ -61,6 +54,22 @@ export default function ResetPassword() {
       setLoading(false);
     }
   };
+
+  if (!oobCode) {
+    return (
+      <div className="login-form-outer" style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+        <div className="shield-login-container" style={{ textAlign: 'center' }}>
+          <h2 className="high-contrast-text">Password Reset Successful</h2>
+          <p style={{ color: '#2ecc71', fontWeight: 600, margin: '16px 0' }}>
+            Your password has been updated successfully.
+          </p>
+          <button className="bw-btn" onClick={() => navigate('/login', { replace: true })} style={{ width: '100%' }}>
+            Go to login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="login-form-outer" style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>

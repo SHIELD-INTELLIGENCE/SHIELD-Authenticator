@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 function ConfirmDialog({
   open,
@@ -11,6 +11,15 @@ function ConfirmDialog({
   showCancel = true,
   closeOnBackdrop = true,
 }) {
+  useEffect(() => {
+    if (!open) return;
+    const handleEsc = (e) => {
+      if (e.key === "Escape") onCancel();
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [open, onCancel]);
+
   if (!open) return null;
 
   const handleBackdropClick = (e) => {

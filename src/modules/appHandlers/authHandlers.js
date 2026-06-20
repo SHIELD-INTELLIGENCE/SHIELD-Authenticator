@@ -1,4 +1,4 @@
-import { login, register } from "../../Utils/services";
+import { login, register, sendVerificationEmail } from "../../Utils/services";
 import { validateEmail, validatePassword } from "../../Utils/authValidation";
 import { handleError } from "../../Utils/networkUtils";
 
@@ -8,6 +8,7 @@ export function createAuthHandlers({
   setLoginMessage,
   setFormErrors,
   setUser,
+  onVerificationNeeded,
 }) {
   function handleLogin() {
     if (form.website) {
@@ -85,7 +86,13 @@ export function createAuthHandlers({
 
     setLoading((l) => ({ ...l, register: true }));
     register(trimmedEmail, trimmedPassword)
-      .then(setUser)
+      .then((user) => {
+        sendVerificationEmail(user).catch((err) => {
+          console.error("Failed to send verification email:", err);
+        });
+        setUser(user);
+        onVerificationNeeded?.();
+      })
       .catch((err) => {
         console.error("Registration error:", err);
         const errorMsg = handleError(err);

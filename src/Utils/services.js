@@ -4,11 +4,14 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
+  sendEmailVerification,
   verifyPasswordResetCode,
   confirmPasswordReset,
+  applyActionCode,
   EmailAuthProvider,
   reauthenticateWithCredential,
   deleteUser,
+  reload,
 } from "firebase/auth";
 import {
   collection,
@@ -38,6 +41,19 @@ export async function login(email, password) {
   return userCredential.user;
 }
 
+export async function sendVerificationEmail(user) {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  return sendEmailVerification(user, {
+    url: origin + "/reset-password",
+    handleCodeInApp: true,
+  });
+}
+
+export async function reloadUser(user) {
+  await reload(user);
+  return user;
+}
+
 export function logout() {
   // Ensure vault key isn't kept in memory across sessions
   lockVault();
@@ -57,6 +73,10 @@ export async function verifyPasswordReset(oobCode) {
 
 export async function confirmPasswordResetAction(oobCode, newPassword) {
   return confirmPasswordReset(auth, oobCode, newPassword);
+}
+
+export async function confirmEmailVerification(oobCode) {
+  return applyActionCode(auth, oobCode);
 }
 
 // ---------------- Accounts ----------------

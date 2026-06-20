@@ -1,7 +1,7 @@
 // Copyright © 2026 SHIELD Intelligence. All rights reserved.
 import React from "react";
 
-function AddAccountForm({ form, setForm, handleSave, editing, setEditing, handleQRUpload }) {
+function AddAccountForm({ form, setForm, handleSave, handleQRUpload }) {
   return (
     <div className="addAccount">
       <input
@@ -21,19 +21,8 @@ function AddAccountForm({ form, setForm, handleSave, editing, setEditing, handle
         onChange={(e) => setForm({ ...form, secret: e.target.value.replace(/\s/g, '') })}
       />
       <button className="bw-btn" onClick={handleSave}>
-        {editing ? "Update Account" : "Add Account"}
+        Add Account
       </button>
-      {editing && (
-        <button
-          className="bw-btn danger"
-          onClick={() => {
-            setEditing(null);
-            setForm({ name: "", secret: "" });
-          }}
-        >
-          Cancel
-        </button>
-      )}
       <label className="bw-btn">
         Upload QR
         <input

@@ -2,6 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import AddAccountForm from "../components/AddAccountForm";
+import EditAccountDialog from "../components/EditAccountDialog";
 import AccountList from "../components/AccountList";
 
 function Dashboard({
@@ -99,9 +100,15 @@ function Dashboard({
             form={form}
             setForm={setForm}
             handleSave={handleSave}
+            handleQRUpload={handleQRUpload}
+          />
+
+          <EditAccountDialog
             editing={editing}
             setEditing={setEditing}
-            handleQRUpload={handleQRUpload}
+            form={form}
+            setForm={setForm}
+            handleSave={handleSave}
           />
 
           {/* Search and Sort Controls */}

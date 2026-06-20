@@ -13,6 +13,7 @@ import SettingsPage from "./SettingsPage";
 import NotFound404 from "./NotFound404";
 import TermsPage from "./TermsPage";
 import PrivacyPage from "./PrivacyPage";
+import VerifyEmail from "./VerifyEmail";
 import ConfirmDialog from "../components/ConfirmDialog";
 import VaultPassphraseDialog from "../components/VaultPassphraseDialog";
 
@@ -81,6 +82,8 @@ function AppRoutes({
   closeRootWarningDialog,
   dismissRootWarningForever,
   closeSecureStorageDialog,
+  pendingVerification,
+  setPendingVerification,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -102,16 +105,25 @@ function AppRoutes({
   }, [isAndroid]);
 
   useEffect(() => {
-    if (!user && (location.pathname === "/dashboard" || location.pathname === "/settings")) {
-      navigate("/login", { replace: true });
-    } else if (user && (location.pathname === "/login" || location.pathname === "/register")) {
-      navigate("/dashboard", { replace: true });
-    } else if (user && location.pathname === "/" && isInitialLoad.current) {
-      navigate("/dashboard", { replace: true });
+    if (!user) {
+      if (location.pathname === "/dashboard" || location.pathname === "/settings") {
+        navigate("/login", { replace: true });
+      }
+    } else if (pendingVerification) {
+      if (location.pathname !== "/verify-email" &&
+          location.pathname !== "/terms" && location.pathname !== "/privacy") {
+        navigate("/verify-email", { replace: true });
+      }
+    } else {
+      if (location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/verify-email") {
+        navigate("/dashboard", { replace: true });
+      } else if (location.pathname === "/" && isInitialLoad.current) {
+        navigate("/dashboard", { replace: true });
+      }
     }
 
     isInitialLoad.current = false;
-  }, [user, vaultUnlocked, location.pathname, navigate]);
+  }, [user, vaultUnlocked, location.pathname, navigate, pendingVerification]);
 
   useEffect(() => {
     if (backOnlineTimerRef.current) {
@@ -212,6 +224,7 @@ function AppRoutes({
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/dashboard" element={<Navigate to="/login" replace />} />
           <Route path="/settings" element={<Navigate to="/login" replace />} />
+          <Route path="/verify-email" element={<Navigate to="/login" replace />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="*" element={<NotFound404 />} />
@@ -235,29 +248,33 @@ function AppRoutes({
     <>
       {offlineBanner}
 
-      <VaultPassphraseDialog
-        open={vaultDialogOpen}
-        userEmail={user?.email}
-        mode={vaultMode}
-        recoveryQuestions={vaultMode === "setup" ? recoveryQuestionBank : vaultRecoveryConfig.questions}
-        passphrase={vaultPassphrase}
-        setPassphrase={setVaultPassphrase}
-        remember={vaultRemember}
-        setRemember={setVaultRemember}
-        error={vaultError}
-        unlocking={vaultUnlocking}
-        onUnlock={handleUnlockVault}
-        onSetup={handleSetupVault}
-        onRecover={handleRecoverVault}
-        onLogout={handleLogout}
-        onClearError={() => setVaultError("")}
-      />
+      {!pendingVerification && (
+        <VaultPassphraseDialog
+          open={vaultDialogOpen}
+          userEmail={user?.email}
+          mode={vaultMode}
+          recoveryQuestions={vaultMode === "setup" ? recoveryQuestionBank : vaultRecoveryConfig.questions}
+          passphrase={vaultPassphrase}
+          setPassphrase={setVaultPassphrase}
+          remember={vaultRemember}
+          setRemember={setVaultRemember}
+          error={vaultError}
+          unlocking={vaultUnlocking}
+          onUnlock={handleUnlockVault}
+          onSetup={handleSetupVault}
+          onRecover={handleRecoverVault}
+          onLogout={handleLogout}
+          onClearError={() => setVaultError("")}
+        />
+      )}
 
       <Routes>
         <Route path="/" element={isAndroid ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
         <Route path="/mobile-start" element={<MobileLandingPage />} />
         <Route path="/login" element={<Navigate to="/dashboard" replace />} />
         <Route path="/register" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/verify-email" element={<VerifyEmail onLogout={handleLogout} onVerificationDone={() => setPendingVerification(false)} />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           path="/dashboard"
           element={

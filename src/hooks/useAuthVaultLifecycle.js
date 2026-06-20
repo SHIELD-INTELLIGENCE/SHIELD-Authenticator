@@ -30,7 +30,6 @@ export function useAuthVaultLifecycle({
   setVaultPassphrase,
   setVaultRemember,
   setSecureStorageDialog,
-  pendingVerification,
 }) {
   const loadAccounts = useCallback(async (u) => {
     if (!u) return;
@@ -63,11 +62,6 @@ export function useAuthVaultLifecycle({
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       if (u) {
-        if (pendingVerification) {
-          setLoadingAuth(false);
-          return;
-        }
-
         const email = u?.email || "";
         setOfflineReady(isOfflineReadyForEmail(email));
         setAccounts([]);
@@ -194,7 +188,6 @@ export function useAuthVaultLifecycle({
     setSecureStorageDialog,
     setLoadingAccounts,
     loadAccounts,
-    pendingVerification,
   ]);
 
   return { loadAccounts };

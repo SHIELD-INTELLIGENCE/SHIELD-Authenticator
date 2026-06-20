@@ -60,7 +60,6 @@ function SHIELDAuthenticator() {
 
   const [editing, setEditing] = useState(null);
   const [showDelete, setShowDelete] = useState(null);
-  const [pendingVerification, setPendingVerification] = useState(false);
 
   const [vaultDialogOpen, setVaultDialogOpen] = useState(false);
   const [vaultMode, setVaultMode] = useState("unlock");
@@ -146,7 +145,6 @@ function SHIELDAuthenticator() {
     setVaultPassphrase,
     setVaultRemember,
     setSecureStorageDialog,
-    pendingVerification,
   });
 
   useCodesTicker(accounts, setCodes, setCountdowns);
@@ -157,7 +155,6 @@ function SHIELDAuthenticator() {
     setLoginMessage,
     setFormErrors,
     setUser,
-    onVerificationNeeded: () => setPendingVerification(true),
   });
 
   const { handleSave, handleImportAccounts, handleCopy, handleDelete, handleQRUpload } = createAccountHandlers({
@@ -206,12 +203,6 @@ function SHIELDAuthenticator() {
     setForm,
     setShowSettings,
   });
-
-  useEffect(() => {
-    if (!user) {
-      setPendingVerification(false);
-    }
-  }, [user]);
 
   useDeepLinkHandler();
 
@@ -277,8 +268,6 @@ function SHIELDAuthenticator() {
       handleQRUpload={handleQRUpload}
       handleLogout={handleLogout}
       handleDeleteAccount={handleDeleteAccount}
-      pendingVerification={pendingVerification}
-      setPendingVerification={setPendingVerification}
       handleUnlockVault={handleUnlockVault}
       handleSetupVault={handleSetupVault}
       handleRecoverVault={handleRecoverVault}

@@ -47,19 +47,34 @@ export function getNetworkErrorMessage(error) {
     return 'Too many attempts. Please try again later.';
   }
   if (errorCode === 'auth/user-not-found') {
-    return 'Account not found. Please check your email.';
+    return 'Invalid email or password. Please try again.';
   }
   if (errorCode === 'auth/wrong-password') {
-    return 'Incorrect password. Please try again.';
+    return 'Invalid email or password. Please try again.';
+  }
+  if (errorCode === 'auth/invalid-credential') {
+    return 'Invalid email or password. Please try again.';
   }
   if (errorCode === 'auth/invalid-email') {
-    return 'Invalid email address.';
+    return 'Please enter a valid email address.';
   }
   if (errorCode === 'auth/email-already-in-use') {
-    return 'Email already registered. Try logging in instead.';
+    return 'An account with this email already exists. Try logging in instead.';
   }
   if (errorCode === 'auth/weak-password') {
-    return 'Password too weak. Use at least 6 characters.';
+    return 'Password is too weak. Use at least 6 characters.';
+  }
+  if (errorCode === 'auth/user-disabled') {
+    return 'This account has been disabled. Please contact support.';
+  }
+  if (errorCode === 'auth/operation-not-allowed') {
+    return 'Email/password sign-in is not enabled. Please contact support.';
+  }
+  if (errorCode === 'auth/expired-action-code') {
+    return 'This verification link has expired. Please request a new one.';
+  }
+  if (errorCode === 'auth/invalid-action-code') {
+    return 'This verification link is invalid or has already been used.';
   }
   
   // Firestore errors
@@ -127,6 +142,6 @@ export function handleError(error, customMessage) {
     return networkError;
   }
   
-  // Return custom message or original error message
-  return customMessage || error?.message || 'An unexpected error occurred';
+  // Return custom message or generic fallback
+  return customMessage || 'An unexpected error occurred. Please try again.';
 }

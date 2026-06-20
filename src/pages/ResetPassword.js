@@ -21,6 +21,8 @@ export default function ResetPassword() {
   const [verifying, setVerifying] = React.useState(false);
 
   useEffect(() => {
+    let active = true;
+
     if (!oobCode) {
       setError("Missing or invalid code.");
       return;
@@ -31,15 +33,28 @@ export default function ResetPassword() {
       setVerifying(true);
       confirmEmailVerification(oobCode)
         .then(() => {
-          setVerified(true);
-          setError("");
+          if (active) {
+            setVerified(true);
+            setError("");
+          }
         })
         .catch((err) => {
-          console.error("Email verification error:", err);
-          setError(err?.message || "Failed to verify email. The link may have expired.");
+          if (!active) return;
+          if (err?.code === "auth/invalid-action-code") {
+            setVerified(true);
+            setError("");
+          } else {
+            console.error("Email verification error:", err);
+            setError(err?.message || "Failed to verify email. The link may have expired.");
+          }
         })
-        .finally(() => setVerifying(false));
-      return;
+        .finally(() => {
+          if (active) setVerifying(false);
+        });
+      return () => { active = false; };
+
+
+
     }
 
     // Password reset flow

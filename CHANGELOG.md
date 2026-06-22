@@ -9,16 +9,13 @@ Version 2.5 upgrades vault key derivation to **Argon2id** (current industry stan
 ### Highlights
 
 - **Argon2id is now the default vault KDF** for new vault setup, passphrase changes, and recovery updates
-- **Backward compatibility maintained** for existing PBKDF2 vault metadata
+- **All vaults use Argon2id** key derivation
 - **Automatic metadata migration** on successful unlock for eligible existing v2 vaults
 - **No UI flow changes** for Remember Me, unlock, backup/import, or day-to-day account usage
 
 ### Security & Crypto Changes
 
-- Added dual-KDF support in vault crypto layer:
-	- `argon2id` (default)
-	- `pbkdf2-sha256` (legacy compatibility path)
-- Added per-vault Argon2id parameter storage in vault metadata (`timeCost`, `memoryCost`, `parallelism`)
+- Vault key derivation uses **Argon2id** exclusively
 - Kept AES-GCM encrypted payload format unchanged (`shield:v1`) to avoid account-data format breakage
 
 ### Android / Build Metadata

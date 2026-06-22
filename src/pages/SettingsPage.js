@@ -171,8 +171,8 @@ const SettingsPage = ({ user, onLogout, onDeleteAccount, onBack, openConfirm, cl
       return;
     }
 
-    if (trimmedNew.length < 8) {
-      toast.error("New passphrase must be at least 8 characters");
+    if (trimmedNew.length < 12) {
+      toast.error("New passphrase must be at least 12 characters");
       return;
     }
 
@@ -1108,7 +1108,7 @@ const SettingsPage = ({ user, onLogout, onDeleteAccount, onBack, openConfirm, cl
                   type={showNewPassphrase ? "text" : "password"}
                   value={newPassphrase}
                   onChange={(e) => setNewPassphrase(e.target.value)}
-                  placeholder="Enter new passphrase (min 8 characters)"
+                  placeholder="Enter new passphrase (min 12 characters)"
                   autoComplete="new-password"
                 />
                 <button

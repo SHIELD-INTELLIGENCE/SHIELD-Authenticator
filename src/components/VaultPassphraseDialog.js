@@ -161,7 +161,7 @@ function VaultPassphraseDialog({
                     name="vaultNewPassphrase"
                     className="shield-clean-input"
                     type={show ? "text" : "password"}
-                    placeholder="New vault passphrase (min 8 chars)"
+                    placeholder="New vault passphrase (min 12 chars)"
                     value={newPassphrase}
                     onChange={(e) => setNewPassphrase(e.target.value)}
                     disabled={unlocking}
@@ -230,7 +230,7 @@ function VaultPassphraseDialog({
                 name="vaultPassphrase"
                 className="shield-clean-input"
                 type={show ? "text" : "password"}
-                placeholder="Vault passphrase (min 8 chars)"
+                placeholder="Vault passphrase"
                 value={passphrase}
                 onChange={(e) => setPassphrase(e.target.value)}
                 onKeyDown={(e) => {

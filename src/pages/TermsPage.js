@@ -57,7 +57,7 @@ function TermsPage() {
             <h2 style={{ color: "#f0f0f0", borderLeft: "4px solid #bfa24f", paddingLeft: 10, fontSize: "1.2rem", marginTop: "2rem" }}>3. Account Data & Encryption</h2>
             <ul>
               <li><strong>E2EE:</strong> All TOTP secrets are encrypted locally on your device before being stored in Firebase Firestore.</li>
-              <li><strong>Key Derivation:</strong> Vault key derivation uses Argon2id (memory-hard KDF) in current releases, with backward compatibility for legacy PBKDF2-SHA256 protected vault metadata.</li>
+              <li><strong>Key Derivation:</strong> Vault keys are derived using Argon2id, a memory-hard key derivation function.</li>
               <li><strong>Master Key Architecture:</strong> A random AES-256 master key encrypts all account secrets. The master key is wrapped (encrypted) by keys derived from your Vault Passphrase and optionally your recovery answers. This allows passphrase changes and recovery without re-encrypting every account.</li>
               <li>Decryption happens only on your device after you provide your Vault Passphrase.</li>
               <li>The Provider cannot decrypt your stored TOTP secrets without your Vault Passphrase.</li>

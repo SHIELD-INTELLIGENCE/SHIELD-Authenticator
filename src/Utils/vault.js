@@ -25,12 +25,8 @@ import {
   bytesToB64,
   b64ToBytes,
   getDefaultArgon2idParams,
-  resolveVaultKdf,
   VAULT_KDF_ARGON2ID,
-  VAULT_KDF_PBKDF2,
 } from "./vaultCrypto";
-
-const DEFAULT_PBKDF2_ITERATIONS = 310000;
 function requireUserEmail(user) {
   const email = user?.email;
   if (!email) throw new Error("Missing authenticated user email");
@@ -54,7 +50,7 @@ function readCachedVaultMeta(user) {
     const raw = localStorage.getItem(vaultMetaCacheKey(user));
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!parsed || (resolveVaultKdf(parsed.kdf) !== VAULT_KDF_PBKDF2 && resolveVaultKdf(parsed.kdf) !== VAULT_KDF_ARGON2ID)) return null;
+    if (!parsed || parsed.v !== 2) return null;
     return parsed;
   } catch {
     return null;
@@ -67,99 +63,37 @@ function getStoredArgon2Params(raw) {
 
 function getPassphraseKdfConfig(vault) {
   const passphrase = vault?.passphrase || {};
-  const kdf = resolveVaultKdf(passphrase.kdf || vault?.kdf);
-  const saltB64 = passphrase.salt || vault?.salt;
-  if (kdf === VAULT_KDF_ARGON2ID) {
-    return { kdf, saltB64, argon2Params: getStoredArgon2Params(passphrase.argon2) };
-  }
   return {
-    kdf,
-    saltB64,
-    iterations: Number(passphrase.iterations || vault?.iterations) || DEFAULT_PBKDF2_ITERATIONS,
+    saltB64: passphrase.salt || vault?.salt,
+    argon2Params: getStoredArgon2Params(passphrase.argon2),
   };
 }
 
 function getRecoveryKdfConfig(vault) {
   const recovery = vault?.recovery || {};
-  const kdf = resolveVaultKdf(recovery.kdf || VAULT_KDF_PBKDF2);
-  const saltB64 = recovery.salt;
-  if (kdf === VAULT_KDF_ARGON2ID) {
-    return { kdf, saltB64, argon2Params: getStoredArgon2Params(recovery.argon2) };
-  }
   return {
-    kdf,
-    saltB64,
-    iterations: Number(recovery.iterations) || DEFAULT_PBKDF2_ITERATIONS,
+    saltB64: recovery.salt,
+    argon2Params: getStoredArgon2Params(recovery.argon2),
   };
 }
 
-function buildPassphraseMeta({ kdf, salt, wrappedMasterKey, iterations, argon2Params }) {
-  const selected = resolveVaultKdf(kdf);
-  if (selected === VAULT_KDF_ARGON2ID) {
-    return {
-      kdf: VAULT_KDF_ARGON2ID,
-      salt,
-      argon2: getStoredArgon2Params(argon2Params),
-      wrappedMasterKey,
-    };
-  }
+function buildPassphraseMeta({ salt, wrappedMasterKey, argon2Params }) {
   return {
-    kdf: VAULT_KDF_PBKDF2,
-    iterations: Number(iterations) || DEFAULT_PBKDF2_ITERATIONS,
+    kdf: VAULT_KDF_ARGON2ID,
     salt,
+    argon2: getStoredArgon2Params(argon2Params),
     wrappedMasterKey,
   };
 }
 
-function buildRecoveryMeta({ kdf, salt, questions, wrappedMasterKey, iterations, argon2Params }) {
-  const selected = resolveVaultKdf(kdf);
-  if (selected === VAULT_KDF_ARGON2ID) {
-    return {
-      kdf: VAULT_KDF_ARGON2ID,
-      salt,
-      argon2: getStoredArgon2Params(argon2Params),
-      questions,
-      wrappedMasterKey,
-    };
-  }
+function buildRecoveryMeta({ salt, questions, wrappedMasterKey, argon2Params }) {
   return {
-    kdf: VAULT_KDF_PBKDF2,
-    iterations: Number(iterations) || DEFAULT_PBKDF2_ITERATIONS,
+    kdf: VAULT_KDF_ARGON2ID,
     salt,
+    argon2: getStoredArgon2Params(argon2Params),
     questions,
     wrappedMasterKey,
   };
-}
-
-async function upgradeV2PassphraseKdfToArgon2({ user, ref, vault, passphrase, masterKeyB64, aad }) {
-  const passphraseSalt = vaultSaltToString(generateVaultSaltBytes());
-  const argon2Params = getDefaultArgon2idParams();
-  const passphraseKek = await deriveVaultKey({ passphrase, saltB64: passphraseSalt, kdf: VAULT_KDF_ARGON2ID, argon2Params });
-  const wrappedMasterKeyPassphrase = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: passphraseKek, aad: `${aad}|wrap|passphrase` });
-
-  let recovery = vault?.recovery || null;
-  if (recovery && !recovery.kdf) {
-    recovery = { ...recovery, kdf: resolveVaultKdf(vault?.kdf) };
-  }
-
-  const updated = {
-    ...vault,
-    kdf: VAULT_KDF_ARGON2ID,
-    passphrase: buildPassphraseMeta({
-      kdf: VAULT_KDF_ARGON2ID,
-      salt: passphraseSalt,
-      argon2Params,
-      wrappedMasterKey: wrappedMasterKeyPassphrase,
-    }),
-    recovery,
-  };
-
-  await updateDoc(ref, {
-    secret: serializeVaultMeta(updated),
-    updatedAt: Timestamp.now(),
-  });
-  writeCachedVaultMeta(user, updated);
-  return updated;
 }
 
 function writeCachedVaultMeta(user, vaultMeta) {
@@ -175,47 +109,23 @@ function writeCachedVaultMeta(user, vaultMeta) {
 }
 
 function serializeVaultMeta(vault) {
-  // Keep as a string to comply with rules (secret is string)
-  if (vault?.v === 2) {
-    const json = JSON.stringify(vault);
-    // Format: shield-vaultmeta:v2:<jsonB64>
-    return `shield-vaultmeta:v2:${btoa(unescape(encodeURIComponent(json)))}`;
-  }
-
-  // Format: shield-vaultmeta:v1:pbkdf2-sha256:<iterations>:<saltB64>
-  const kdf = vault?.kdf || "pbkdf2-sha256";
-  const iters = Number(vault?.iterations) || 310000;
-  const salt = String(vault?.salt || "");
-  return `shield-vaultmeta:v1:${kdf}:${iters}:${salt}`;
+  const json = JSON.stringify(vault);
+  return `shield-vaultmeta:v2:${btoa(unescape(encodeURIComponent(json)))}`;
 }
 
 function parseVaultMeta(secretStr) {
   if (typeof secretStr !== "string") return null;
-  if (secretStr.startsWith("shield-vaultmeta:v2:")) {
-    const parts = secretStr.split(":");
-    if (parts.length !== 3) return null;
-    try {
-      const json = decodeURIComponent(escape(atob(parts[2])));
-      const parsed = JSON.parse(json);
-      if (!parsed || parsed.v !== 2) return null;
-      return parsed;
-    } catch {
-      return null;
-    }
-  }
-
-  if (!secretStr.startsWith("shield-vaultmeta:v1:")) return null;
-
+  if (!secretStr.startsWith("shield-vaultmeta:v2:")) return null;
   const parts = secretStr.split(":");
-  // shield-vaultmeta:v1:<kdf>:<iters>:<salt>
-  if (parts.length !== 5) return null;
-
-  const kdf = parts[2];
-  const iterations = Number(parts[3]);
-  const finalSalt = parts[4];
-
-  if (!kdf || !Number.isFinite(iterations) || iterations <= 0 || !finalSalt) return null;
-  return { v: 1, kdf, iterations, salt: finalSalt };
+  if (parts.length !== 3) return null;
+  try {
+    const json = decodeURIComponent(escape(atob(parts[2])));
+    const parsed = JSON.parse(json);
+    if (!parsed || parsed.v !== 2) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 async function readVaultMetaViaList(user) {
@@ -294,126 +204,31 @@ export function getVaultKeyForUser(user) {
 
 export async function unlockVault(user, passphrase) {
   const emailId = requireUserEmail(user);
-  const ref = userVaultDocRef(user);
-
-  const existingVault = await readVaultMetaViaList(user);
-  const vault = existingVault;
+  const vault = await readVaultMetaViaList(user);
   if (!vault) {
-    // New vault must be created via setupVault() so the user can set recovery questions.
     throw new Error("Vault not set up yet. Please set a passphrase and recovery questions.");
   }
-
-  if (vault.v === 2) {
-    try {
-      const passphraseCfg = getPassphraseKdfConfig(vault);
-      const kek = await deriveVaultKey({
-        passphrase,
-        saltB64: passphraseCfg.saltB64,
-        iterations: passphraseCfg.iterations,
-        kdf: passphraseCfg.kdf,
-        argon2Params: passphraseCfg.argon2Params,
-      });
-      const aad = getVaultAadForUser(user);
-      const masterKeyB64 = await decryptWithVaultKey({ ciphertext: vault.passphrase.wrappedMasterKey, vaultKey: kek, aad: `${aad}|wrap|passphrase` });
-      const masterKeyBytes = b64ToBytes(masterKeyB64);
-      const masterKey = await importVaultMasterKey(masterKeyBytes);
-      let effectiveVault = vault;
-
-      if (passphraseCfg.kdf !== VAULT_KDF_ARGON2ID) {
-        try {
-          effectiveVault = await upgradeV2PassphraseKdfToArgon2({ user, ref, vault, passphrase, masterKeyB64, aad });
-        } catch (upgradeErr) {
-          console.error("Vault KDF upgrade error (non-fatal):", upgradeErr);
-          effectiveVault = vault;
-        }
-      }
-
-      _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: effectiveVault, vaultKeyBytes: masterKeyBytes };
-      writeCachedVaultMeta(user, effectiveVault);
-      return effectiveVault;
-    } catch (err) {
-      throw new Error("Incorrect passphrase. Please try again Or Click Recover Vault.");
-    }
+  if (vault.v !== 2) {
+    throw new Error("Vault format no longer supported. Please contact support.");
   }
 
-  // v1 fallback
-  if (!vault.salt) {
-    // If v1 meta exists but is malformed, recreate it.
-    const v1 = {
-      v: 1,
-      kdf: "pbkdf2-sha256",
-      iterations: 310000,
-      salt: vaultSaltToString(generateVaultSaltBytes()),
-    };
-    await setDoc(ref, {
-      userId: user?.uid || "",
-      name: "__vault",
-      secret: serializeVaultMeta(v1),
-      createdAt: Timestamp.now(),
-    });
-    const vaultKey = await deriveVaultKey({ passphrase, saltB64: v1.salt, iterations: v1.iterations });
-    _vaultState = { userEmail: emailId, vaultKey, vaultMeta: v1, vaultKeyBytes: null };
-    writeCachedVaultMeta(user, v1);
-    return v1;
-  }
-
-  const vaultKey = await deriveVaultKey({
-    passphrase,
-    saltB64: vault.salt,
-    iterations: vault.iterations,
-    kdf: VAULT_KDF_PBKDF2,
-  });
-
-  // Auto-upgrade v1 -> v2 by re-encrypting secrets under a random master key.
-  // Recovery questions can be configured later in Settings.
   try {
+    const passphraseCfg = getPassphraseKdfConfig(vault);
+    const kek = await deriveVaultKey({
+      passphrase,
+      saltB64: passphraseCfg.saltB64,
+      argon2Params: passphraseCfg.argon2Params,
+    });
     const aad = getVaultAadForUser(user);
-    const masterKeyBytes = generateVaultMasterKeyBytes();
+    const masterKeyB64 = await decryptWithVaultKey({ ciphertext: vault.passphrase.wrappedMasterKey, vaultKey: kek, aad: `${aad}|wrap|passphrase` });
+    const masterKeyBytes = b64ToBytes(masterKeyB64);
     const masterKey = await importVaultMasterKey(masterKeyBytes);
-    const masterKeyB64 = bytesToB64(masterKeyBytes);
 
-    const passphraseSalt = vaultSaltToString(generateVaultSaltBytes());
-    const argon2Params = getDefaultArgon2idParams();
-    const passphraseKek = await deriveVaultKey({ passphrase, saltB64: passphraseSalt, kdf: VAULT_KDF_ARGON2ID, argon2Params });
-    const wrappedMasterKeyPassphrase = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: passphraseKek, aad: `${aad}|wrap|passphrase` });
-
-    const v2 = {
-      v: 2,
-      kdf: VAULT_KDF_ARGON2ID,
-      passphrase: buildPassphraseMeta({
-        kdf: VAULT_KDF_ARGON2ID,
-        salt: passphraseSalt,
-        argon2Params,
-        wrappedMasterKey: wrappedMasterKeyPassphrase,
-      }),
-      recovery: null,
-    };
-
-    const emailId2 = requireUserEmail(user);
-    const col = collection(db, "user", emailId2, "accounts");
-    const snap = await getDocs(col);
-
-    const batch = writeBatch(db);
-    const now = Timestamp.now();
-    for (const docSnap of snap.docs) {
-      if (docSnap.id === "__vault") continue;
-      const data = docSnap.data();
-      const plaintext = await decryptWithVaultKey({ ciphertext: data.secret, vaultKey, aad });
-      const reEncrypted = await encryptWithVaultKey({ plaintext, vaultKey: masterKey, aad });
-      batch.update(doc(db, "user", emailId2, "accounts", docSnap.id), { secret: reEncrypted, updatedAt: now });
-    }
-    batch.update(ref, { secret: serializeVaultMeta(v2), updatedAt: now });
-    await batch.commit();
-
-    _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: v2, vaultKeyBytes: masterKeyBytes };
-    writeCachedVaultMeta(user, v2);
-    return v2;
-  } catch (upgradeErr) {
-    console.error("Vault v1-to-v2 upgrade error (non-fatal):", upgradeErr);
-    // If upgrade fails, remain on v1 to avoid breaking unlock.
-    _vaultState = { userEmail: emailId, vaultKey, vaultMeta: vault, vaultKeyBytes: null };
+    _vaultState = { userEmail: emailId, vaultKey: masterKey, vaultMeta: vault, vaultKeyBytes: masterKeyBytes };
     writeCachedVaultMeta(user, vault);
     return vault;
+  } catch (err) {
+    throw new Error("Incorrect passphrase. Please try again Or Click Recover Vault.");
   }
 }
 
@@ -426,8 +241,8 @@ export async function setupVault(user, { passphrase, recoveryQuestions, recovery
     throw new Error("Vault already set up");
   }
 
-  if (!passphrase || String(passphrase).length < 8) {
-    throw new Error("Passphrase must be at least 8 characters");
+  if (!passphrase || String(passphrase).length < 12) {
+    throw new Error("Passphrase must be at least 12 characters");
   }
 
   // Recovery questions are optional
@@ -448,15 +263,14 @@ export async function setupVault(user, { passphrase, recoveryQuestions, recovery
 
   const passphraseSalt = vaultSaltToString(generateVaultSaltBytes());
   const argon2Params = getDefaultArgon2idParams();
-  const passphraseKek = await deriveVaultKey({ passphrase, saltB64: passphraseSalt, kdf: VAULT_KDF_ARGON2ID, argon2Params });
+  const passphraseKek = await deriveVaultKey({ passphrase, saltB64: passphraseSalt, argon2Params });
   const wrappedMasterKeyPassphrase = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: passphraseKek, aad: `${aad}|wrap|passphrase` });
 
-  // Only create recovery wrapper if questions are provided
   let recoverySalt = null;
   let wrappedMasterKeyRecovery = null;
   if (recoveryQuestions.length > 0) {
     recoverySalt = vaultSaltToString(generateVaultSaltBytes());
-    const recoveryKek = await deriveRecoveryKey({ answers: recoveryAnswers, saltB64: recoverySalt, kdf: VAULT_KDF_ARGON2ID, argon2Params });
+    const recoveryKek = await deriveRecoveryKey({ answers: recoveryAnswers, saltB64: recoverySalt, argon2Params });
     wrappedMasterKeyRecovery = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: recoveryKek, aad: `${aad}|wrap|recovery` });
   }
 
@@ -464,14 +278,12 @@ export async function setupVault(user, { passphrase, recoveryQuestions, recovery
     v: 2,
     kdf: VAULT_KDF_ARGON2ID,
     passphrase: buildPassphraseMeta({
-      kdf: VAULT_KDF_ARGON2ID,
       salt: passphraseSalt,
       argon2Params,
       wrappedMasterKey: wrappedMasterKeyPassphrase,
     }),
     recovery: recoveryQuestions.length > 0
       ? buildRecoveryMeta({
-        kdf: VAULT_KDF_ARGON2ID,
         salt: recoverySalt,
         questions: recoveryQuestions,
         argon2Params,
@@ -499,8 +311,8 @@ export async function recoverAndResetPassphrase(user, { recoveryAnswers, newPass
   if (!vault || vault.v !== 2 || !vault.recovery || !vault.recovery.wrappedMasterKey) {
     throw new Error("Recovery is not configured for this vault");
   }
-  if (!newPassphrase || String(newPassphrase).length < 8) {
-    throw new Error("Passphrase must be at least 8 characters");
+  if (!newPassphrase || String(newPassphrase).length < 12) {
+    throw new Error("Passphrase must be at least 12 characters");
   }
 
   const aad = getVaultAadForUser(user);
@@ -509,8 +321,6 @@ export async function recoverAndResetPassphrase(user, { recoveryAnswers, newPass
     const recoveryKek = await deriveRecoveryKey({
       answers: recoveryAnswers,
       saltB64: recoveryCfg.saltB64,
-      iterations: recoveryCfg.iterations,
-      kdf: recoveryCfg.kdf,
       argon2Params: recoveryCfg.argon2Params,
     });
     const masterKeyB64 = await decryptWithVaultKey({ ciphertext: vault.recovery.wrappedMasterKey, vaultKey: recoveryKek, aad: `${aad}|wrap|recovery` });
@@ -520,14 +330,13 @@ export async function recoverAndResetPassphrase(user, { recoveryAnswers, newPass
     // Re-wrap with new passphrase
     const passphraseSalt = vaultSaltToString(generateVaultSaltBytes());
     const argon2Params = getDefaultArgon2idParams();
-    const passphraseKek = await deriveVaultKey({ passphrase: newPassphrase, saltB64: passphraseSalt, kdf: VAULT_KDF_ARGON2ID, argon2Params });
+    const passphraseKek = await deriveVaultKey({ passphrase: newPassphrase, saltB64: passphraseSalt, argon2Params });
     const wrappedMasterKeyPassphrase = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: passphraseKek, aad: `${aad}|wrap|passphrase` });
 
     const updated = {
       ...vault,
       kdf: VAULT_KDF_ARGON2ID,
       passphrase: buildPassphraseMeta({
-        kdf: VAULT_KDF_ARGON2ID,
         salt: passphraseSalt,
         argon2Params,
         wrappedMasterKey: wrappedMasterKeyPassphrase,
@@ -579,13 +388,12 @@ export async function updateRecoveryQuestions(user, { recoveryQuestions, recover
 
   const recoverySalt = vaultSaltToString(generateVaultSaltBytes());
   const argon2Params = getDefaultArgon2idParams();
-  const recoveryKek = await deriveRecoveryKey({ answers: recoveryAnswers, saltB64: recoverySalt, kdf: VAULT_KDF_ARGON2ID, argon2Params });
+  const recoveryKek = await deriveRecoveryKey({ answers: recoveryAnswers, saltB64: recoverySalt, argon2Params });
   const wrappedMasterKeyRecovery = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: recoveryKek, aad: `${aad}|wrap|recovery` });
 
   const updated = {
     ...vault,
     recovery: buildRecoveryMeta({
-      kdf: VAULT_KDF_ARGON2ID,
       salt: recoverySalt,
       questions: recoveryQuestions,
       argon2Params,
@@ -618,8 +426,8 @@ export async function updateVaultPassphrase(user, { currentPassphrase, newPassph
   if (!currentPassphrase || String(currentPassphrase).trim() === '') {
     throw new Error("Current passphrase is required");
   }
-  if (!newPassphrase || String(newPassphrase).length < 8) {
-    throw new Error("New passphrase must be at least 8 characters");
+  if (!newPassphrase || String(newPassphrase).length < 12) {
+    throw new Error("New passphrase must be at least 12 characters");
   }
 
   const aad = getVaultAadForUser(user);
@@ -630,8 +438,6 @@ export async function updateVaultPassphrase(user, { currentPassphrase, newPassph
     const currentKek = await deriveVaultKey({
       passphrase: currentPassphrase,
       saltB64: passphraseCfg.saltB64,
-      iterations: passphraseCfg.iterations,
-      kdf: passphraseCfg.kdf,
       argon2Params: passphraseCfg.argon2Params,
     });
     const decrypted = await decryptWithVaultKey({ ciphertext: vault.passphrase.wrappedMasterKey, vaultKey: currentKek, aad: `${aad}|wrap|passphrase` });
@@ -653,14 +459,13 @@ export async function updateVaultPassphrase(user, { currentPassphrase, newPassph
   // Re-wrap with new passphrase
   const newPassphraseSalt = vaultSaltToString(generateVaultSaltBytes());
   const argon2Params = getDefaultArgon2idParams();
-  const newPassphraseKek = await deriveVaultKey({ passphrase: newPassphrase, saltB64: newPassphraseSalt, kdf: VAULT_KDF_ARGON2ID, argon2Params });
+  const newPassphraseKek = await deriveVaultKey({ passphrase: newPassphrase, saltB64: newPassphraseSalt, argon2Params });
   const wrappedMasterKeyPassphrase = await encryptWithVaultKey({ plaintext: masterKeyB64, vaultKey: newPassphraseKek, aad: `${aad}|wrap|passphrase` });
 
   const updated = {
     ...vault,
     kdf: VAULT_KDF_ARGON2ID,
     passphrase: buildPassphraseMeta({
-      kdf: VAULT_KDF_ARGON2ID,
       salt: newPassphraseSalt,
       argon2Params,
       wrappedMasterKey: wrappedMasterKeyPassphrase,

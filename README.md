@@ -138,7 +138,7 @@ cp .env.example .env
 
 Security note: This app uses a user-provided **vault passphrase** for client-side end-to-end encryption (E2EE).
 
-- The vault key is derived locally from the passphrase using **Argon2id** (with PBKDF2 compatibility for older vault metadata).
+- The vault key is derived locally from the passphrase using **Argon2id**.
 - Firestore stores only encrypted secrets.
 - If the vault passphrase is forgotten, encrypted secrets cannot be recovered.
 

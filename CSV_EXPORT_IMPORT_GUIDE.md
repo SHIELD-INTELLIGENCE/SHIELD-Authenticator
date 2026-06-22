@@ -86,8 +86,8 @@ Name,EncryptedSecret,ExportedAt
 ### Encryption
 
 - **Algorithm**: AES-256 (via CryptoJS)
-- **Mode**: Default CryptoJS mode (CBC with PBKDF2)
-- **Key Derivation**: PBKDF2 from passphrase
+- **Mode**: AES-256-CBC
+- **Key Derivation**: Passphrase-derived key
 - **Format**: Base64-encoded ciphertext
 
 ### File Handling

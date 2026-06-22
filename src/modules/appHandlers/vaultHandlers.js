@@ -89,8 +89,8 @@ export function createVaultHandlers({
       setVaultError("Please enter vault passphrase");
       return;
     }
-    if (trimmedPassphrase.length < 8) {
-      setVaultError("Passphrase must be at least 8 characters");
+    if (trimmedPassphrase.length < 12) {
+      setVaultError("Passphrase must be at least 12 characters");
       return;
     }
 
@@ -155,8 +155,8 @@ export function createVaultHandlers({
       setVaultError("Please enter a new vault passphrase");
       return;
     }
-    if (trimmedNewPassphrase.length < 8) {
-      setVaultError("New passphrase must be at least 8 characters");
+    if (trimmedNewPassphrase.length < 12) {
+      setVaultError("New passphrase must be at least 12 characters");
       return;
     }
 

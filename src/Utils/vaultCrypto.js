@@ -26,10 +26,8 @@ function decodeUtf8(bytes) {
 }
 
 export const VAULT_CIPHERTEXT_PREFIX = "shield:v1";
-export const VAULT_KDF_PBKDF2 = "pbkdf2-sha256";
 export const VAULT_KDF_ARGON2ID = "argon2id";
 
-const DEFAULT_PBKDF2_ITERATIONS = 310000;
 const DEFAULT_ARGON2ID_PARAMS = Object.freeze({
   timeCost: 3,
   memoryCost: 65536,
@@ -41,16 +39,11 @@ export function isVaultCiphertext(value) {
   return typeof value === "string" && value.startsWith(`${VAULT_CIPHERTEXT_PREFIX}:`);
 }
 
-export function resolveVaultKdf(kdf) {
-  return String(kdf || "").toLowerCase() === VAULT_KDF_ARGON2ID ? VAULT_KDF_ARGON2ID : VAULT_KDF_PBKDF2;
-}
-
 export function getDefaultArgon2idParams() {
   return { ...DEFAULT_ARGON2ID_PARAMS };
 }
 
 export function generateVaultSaltBytes() {
-  // 16 bytes salt for PBKDF2
   return crypto.getRandomValues(new Uint8Array(16));
 }
 
@@ -115,14 +108,13 @@ async function deriveArgon2AesKey({ secret, saltB64, argon2Params }) {
   return crypto.subtle.importKey("raw", keyBytes, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
 }
 
-export async function deriveVaultKey({ passphrase, saltB64, iterations, kdf, argon2Params }) {
+export async function deriveVaultKey({ passphrase, saltB64, argon2Params }) {
   if (!window.crypto || !window.crypto.subtle) {
     throw new Error("Crypto API unavailable. Please ensure you're using HTTPS or a secure context.");
   }
   if (!passphrase || String(passphrase).length < 8) {
     throw new Error("Passphrase must be at least 8 characters");
   }
-  // Validate passphrase complexity: must contain both numbers and letters
   const hasNumber = /[0-9]/.test(passphrase);
   const hasLetter = /[a-z]/i.test(passphrase);
   if (!hasNumber || !hasLetter) {
@@ -130,35 +122,7 @@ export async function deriveVaultKey({ passphrase, saltB64, iterations, kdf, arg
   }
   if (!saltB64) throw new Error("Missing vault salt");
 
-  const selectedKdf = resolveVaultKdf(kdf);
-  if (selectedKdf === VAULT_KDF_ARGON2ID) {
-    return deriveArgon2AesKey({ secret: passphrase, saltB64, argon2Params });
-  }
-
-  const salt = vaultSaltFromString(saltB64);
-
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    encodeUtf8(passphrase),
-    { name: "PBKDF2" },
-    false,
-    ["deriveKey"]
-  );
-
-  const iters = Number(iterations) || DEFAULT_PBKDF2_ITERATIONS;
-
-  return crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      hash: "SHA-256",
-      salt,
-      iterations: iters,
-    },
-    baseKey,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["encrypt", "decrypt"]
-  );
+  return deriveArgon2AesKey({ secret: passphrase, saltB64, argon2Params });
 }
 
 function normalizeRecoveryAnswer(value) {
@@ -170,7 +134,7 @@ export function normalizeRecoveryAnswers(answers) {
   return answers.map((a) => normalizeRecoveryAnswer(a));
 }
 
-export async function deriveRecoveryKey({ answers, saltB64, iterations, kdf, argon2Params }) {
+export async function deriveRecoveryKey({ answers, saltB64, argon2Params }) {
   if (!window.crypto || !window.crypto.subtle) {
     throw new Error("Crypto API unavailable. Please ensure you're using HTTPS or a secure context.");
   }
@@ -180,33 +144,7 @@ export async function deriveRecoveryKey({ answers, saltB64, iterations, kdf, arg
   }
   if (!saltB64) throw new Error("Missing recovery salt");
 
-  const selectedKdf = resolveVaultKdf(kdf);
-  if (selectedKdf === VAULT_KDF_ARGON2ID) {
-    return deriveArgon2AesKey({ secret: normalized.join("|"), saltB64, argon2Params });
-  }
-
-  const salt = vaultSaltFromString(saltB64);
-  const baseKey = await crypto.subtle.importKey(
-    "raw",
-    encodeUtf8(normalized.join("|")),
-    { name: "PBKDF2" },
-    false,
-    ["deriveKey"]
-  );
-
-  const iters = Number(iterations) || DEFAULT_PBKDF2_ITERATIONS;
-  return crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      hash: "SHA-256",
-      salt,
-      iterations: iters,
-    },
-    baseKey,
-    { name: "AES-GCM", length: 256 },
-    false,
-    ["encrypt", "decrypt"]
-  );
+  return deriveArgon2AesKey({ secret: normalized.join("|"), saltB64, argon2Params });
 }
 
 export function generateVaultMasterKeyBytes() {

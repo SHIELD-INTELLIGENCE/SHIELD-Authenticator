@@ -413,7 +413,7 @@ function LandingPage() {
           <div className="about-grid">
             <div className="about-text">
               <p className="about-intro">
-                <strong>SHIELD</strong> — Spies Hub for Intelligence, Elegance,
+                <strong>SHIELD</strong> — Secure Hub for Intelligence, Elegance,
                 Learning, and Defence — is a technology company dedicated to
                 building the world's most secure and user-friendly digital
                 products. We believe that security and privacy should never come

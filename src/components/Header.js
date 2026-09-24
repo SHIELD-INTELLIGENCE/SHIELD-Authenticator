@@ -13,7 +13,7 @@ function Header({ isMobile, mobileMenuOpen, setMobileMenuOpen, handleLogin, hand
         <div className="header-text">
           <h1 style={{ textAlign: "left"}}>SHIELD Intelligence</h1>
           <p className="tagline">
-            Spies Hub for Intelligence, Elegance, Learning, and Defence
+            Secure Hub for Intelligence, Elegance, Learning, and Defence
           </p>
         </div>
         <div className="header-actions">

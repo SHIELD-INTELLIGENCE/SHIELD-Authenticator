@@ -31,7 +31,7 @@ function NotFound404() {
           />
           <div className="header-text">
             <h1>SHIELD Intelligence</h1>
-            <p className="tagline">Spies Hub for Intelligence, Elegance, Learning, and Defence</p>
+            <p className="tagline">Secure Hub for Intelligence, Elegance, Learning, and Defence</p>
           </div>
           <div className="header-actions">
             <button 
